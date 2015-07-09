@@ -5,6 +5,7 @@ include/Metac.def
 include/Metac-parenthesize.str
 include/Metac-Permissive.def
 include/Metac.generated.pp.af
+include/Metac.generated.pp
 include/Metac.packed.esv
 include/Metac.pp.af
 include/Metac.rtg
