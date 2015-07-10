@@ -1,0 +1,10 @@
+module BaseC-Program
+
+imports
+
+  BaseC-Declarations
+
+context-free syntax
+
+  Program.Declarations = <<Declaration*>>
+

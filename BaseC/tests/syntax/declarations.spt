@@ -1,0 +1,132 @@
+module test-declarations
+language metac
+
+start symbol Program
+
+test a single variable declaration [[
+  int32 a;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a"))))]
+  )
+])
+
+test multiple variable declarations [[
+  int32 a, b;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a")))),
+      EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("b"))))
+    ]
+  )
+])
+
+test const int [[
+  const int32 a;
+]] parse to Declarations([
+  Declaration(
+    [Qualifier(Const), TypeSpecifier(Int32)],
+    _
+  )
+])
+
+test int const [[
+  int32 const a;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32), Qualifier(Const)],
+    _
+  )
+])
+
+test pointer int [[
+  int32 * a;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(
+        Declarator(
+          Some(Pointer([], None)),
+          IdentifierDecl(Identifier("a"))
+        )
+      )
+    ]
+  )
+])
+
+test two varables of which one is a pointer [[
+  int32 a, * b;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(None, _)),
+      EmptyDeclarator(Declarator(Some(_), _))
+    ]
+  )
+])
+
+test variable with init expression [[
+  int32 a = 1;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      InitDeclarator(
+        Declarator(_, _),
+        InitExp(_)
+      )
+    ]
+  )
+])
+
+test double pointer [[
+  int32 ** a;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(
+        Some(Pointer([], Some(Pointer([], None)))),
+        IdentifierDecl(Identifier("a"))
+      ))
+    ]
+  )
+])
+
+test int * const volatile [[
+  int32 * const volatile a;
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(
+        Some(Pointer([Const, Volatile], None)),
+        _
+      ))
+    ]
+  )
+])
+
+test int with storage class [[
+  static const extern int32 * a;
+]] parse to Declarations([
+  Declaration(
+    [
+      StorageClass(Static),
+      Qualifier(Const), 
+      StorageClass(Extern),
+      TypeSpecifier(Int32)
+    ],
+    [
+      EmptyDeclarator(Declarator(
+        Some(Pointer([], None)),
+        _
+      ))
+    ]
+  )
+])

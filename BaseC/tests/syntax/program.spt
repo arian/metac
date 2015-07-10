@@ -1,0 +1,6 @@
+module test-program
+language metac
+
+start symbol Program
+
+test [[ ]] parse to Declarations([])

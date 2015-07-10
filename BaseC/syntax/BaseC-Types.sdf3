@@ -1,0 +1,15 @@
+module BaseC-Types
+
+context-free syntax
+
+  PureType.Int32 = <int32>
+  PureType.UInt32 = <uint32>
+
+  PureType.Int16 = <int16>
+  PureType.UInt16 = <uint16>
+
+  PureType.Int8 = <int8>
+  PureType.UInt8 = <uint8>
+
+  PureType.Float = <float>
+  PureType.Double = <double>

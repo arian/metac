@@ -21,7 +21,7 @@ language General properties
   
   extensions:    mc
   table:         include/Metac.tbl
-  start symbols: Start
+  start symbols: Program
   
   provider:      include/metac.ctree
   provider:      include/metac-java.jar

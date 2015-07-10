@@ -1,0 +1,9 @@
+module BaseC-Identifiers
+
+imports
+
+  Common
+
+context-free syntax
+
+  Identifier.Identifier = <<ID>>

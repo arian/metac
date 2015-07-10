@@ -1,14 +1,11 @@
 module Metac
 
 imports
-	
-	Common
+
+  Common
+  BaseC-Program
 
 context-free start-symbols
-  
-  Start
 
-context-free syntax
-  
-  Start.Dummy = <>
+  Program
 
