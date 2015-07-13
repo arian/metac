@@ -2,7 +2,6 @@ module Metac
 
 imports
 
-  Common
   BaseC-Program
 
 context-free start-symbols

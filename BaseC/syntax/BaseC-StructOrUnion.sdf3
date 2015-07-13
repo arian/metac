@@ -1,0 +1,8 @@
+module BaseC-StructOrUnion
+
+context-free syntax
+
+  StructDeclaration.Nothing = <;>
+
+  StructOrUnionSpecifier.Struct = <struct { <StructDeclaration*>}>
+  StructOrUnionSpecifier.Union  = <union { <StructDeclaration*>}>

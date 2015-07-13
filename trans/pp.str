@@ -8,19 +8,19 @@ imports
 	src-gen/pp/Metac-pp
 
 rules
-	
+
   pp-Metac-string =
     parenthesize-Metac
     ; prettyprint-SDF-start-symbols
     ; !V([], <id>)
     ; box2text-string(|120)
-      
+
   pp-partial-Metac-string =
     parenthesize-Metac
     ; prettyprint-example
     ; !V([], <id>)
     ; box2text-string(|120)
-      
+
   pp-debug :
     ast -> result
     with

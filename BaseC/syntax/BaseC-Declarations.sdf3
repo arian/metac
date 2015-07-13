@@ -7,6 +7,8 @@ imports
   BaseC-Expr
   BaseC-Identifiers
   BaseC-Types
+  BaseC-StructOrUnion
+  BaseC-Enums
 
 context-free syntax
 
@@ -16,16 +18,23 @@ context-free syntax
   StorageClass.Register = <register>
   StorageClass.Static   = <static>
   StorageClass.Extern   = <extern>
-  StorageClass.Typeof   = <typeof>
+  StorageClass.Typedef  = <typedef>
 
   Qualifier.Const     = <const>
   Qualifier.Volatile  = <volatile>
 
-  DeclarationSpecifier = StorageClass
-  DeclarationSpecifier = PureType
-  DeclarationSpecifier = Qualifier
+  TypeSpecifier = PureType
+  TypeSpecifier = StructOrUnionSpecifier
+  TypeSpecifier = EnumSpecifier
+//  TypeSpecifier = TypeDefName
 
-  Declaration.Declaration = <<DeclarationSpecifier+> <{InitDeclarator ", "}*>;>
+  DeclarationSpecifier = StorageClass
+  DeclarationSpecifier = Qualifier
+  DeclarationSpecifier = TypeSpecifier
+
+  TypeDefName = Identifier
+
+  Declaration.Declaration = <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
 
   InitDeclarator                 = Declarator
   InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>

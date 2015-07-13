@@ -1,4 +1,4 @@
-module test-declarations
+module declarations
 language metac
 
 start symbol Program
@@ -139,165 +139,12 @@ test array decl [[
   ]
 )
 
-test function declaration [[
-  void a();
+test typedef [[
+  typedef int32 a;
 ]] run get-decl-from-program to Declaration(
-  [Void],
+  [Typedef, Int32],
   [Declarator(
     None,
-    FuncDecl(
-      Identifier("a"),
-      None
-    )
+    Identifier("a")
   )]
 )
-
-test function declaration one argument [[
-  void a(uint32 b);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    FuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          Parameter(
-            [UInt32],
-            Declarator(None, Identifier("b"))
-          )
-        ],
-        None
-      ))
-    )
-  )]
-)
-
-test function declaration more arguments [[
-  void a(int32 b, const int32 c, int32 *d);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    FuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          Parameter(
-            [Int32],
-            Declarator(None, Identifier("b"))
-          ),
-          Parameter(
-            [Const, Int32],
-            Declarator(None, Identifier("c"))
-          ),
-          Parameter(
-            [Int32],
-            Declarator(Some(Pointer([], None)), Identifier("d"))
-          )
-        ],
-        None
-      ))
-    )
-  )]
-)
-
-test function declaration without parameter names [[
-  void a(int32, int32);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    AbstractFuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          AbstractParameter([Int32], None),
-          AbstractParameter([Int32], None)
-        ],
-        None
-      ))
-    )
-  )]
-)
-
-test function declaration with mixed parameters [[
-  void a(const int32, int32 a, int32);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    AbstractFuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          AbstractParameter([Const, Int32], None),
-          Parameter([Int32], Declarator(
-            None,
-            Identifier("a")
-          )),
-          AbstractParameter([Int32], None)
-        ],
-        None
-      ))
-    )
-  )]
-)
-
-test function declaration, complex declarations, without parameter names [[
-  void a(const int32, int32 * const []);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    AbstractFuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          AbstractParameter([Const, Int32], None),
-          AbstractParameter(
-            [Int32],
-            Some(AbstractDeclarator(
-              Some(Pointer([Const], None)),
-              ArrayDecl(None, None)
-            )
-          ))
-        ],
-        None
-      ))
-    )
-  )]
-)
-
-test function declaration with varargs [[
-  void a(int32 b, int32 const c, ...);
-]] run get-decl-from-program to Declaration(
-  [Void],
-  [Declarator(
-    None,
-    FuncDecl(
-      Identifier("a"),
-      Some(Parameters(
-        [
-          Parameter(
-            [Int32],
-            Declarator(None, Identifier("b"))
-          ),
-          Parameter(
-            [Int32, Const],
-            Declarator(None, Identifier("c"))
-          )
-        ],
-        Some(VArg())
-      ))
-    )
-  )]
-)
-
-test function declaration with vararg, directly after comma [[
-  void a(int32 b, int32 const c,...);
-]] parse succeeds
-
-test function declaration with vararg, without comma [[
-  void a(int32 b, int32 const c...);
-]] parse fails
