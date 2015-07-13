@@ -1,0 +1,9 @@
+module BaseC-Constants
+
+imports
+
+  Common
+
+context-free syntax
+
+  Constant.Integer = INT

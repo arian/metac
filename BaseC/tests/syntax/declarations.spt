@@ -130,3 +130,141 @@ test int with storage class [[
     ]
   )
 ])
+
+test declaration with parens [[
+  int32 (* a);
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(
+        None,
+        ParensDecl(Declarator(
+          Some(Pointer([], None)),
+          IdentifierDecl(Identifier("a"))
+        ))
+      ))
+    ]
+  )
+])
+
+test array decl [[
+  int32 a[];
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Int32)],
+    [
+      EmptyDeclarator(Declarator(
+        None,
+        ArrayDecl(
+          IdentifierDecl(Identifier("a")),
+          None
+        )
+      ))
+    ]
+  )
+])
+
+test function declaration [[
+  void a();
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Void)],
+    [EmptyDeclarator(Declarator(
+      None,
+      FuncDecl(
+        IdentifierDecl(Identifier("a")),
+        None
+      )
+    ))]
+  )
+])
+
+test function declaration one argument [[
+  void a(uint32 b);
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Void)],
+    [EmptyDeclarator(Declarator(
+      None,
+      FuncDecl(
+        IdentifierDecl(Identifier("a")),
+        Some(Parameters(
+          [
+            Parameter(
+              [TypeSpecifier(UInt32)],
+              Declarator(None, IdentifierDecl(Identifier("b")))
+            )
+          ],
+          None
+        ))
+      )
+    ))]
+  )
+])
+
+test function declaration more arguments [[
+  void a(int32 b, const int32 c, int32 *d);
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Void)],
+    [EmptyDeclarator(Declarator(
+      None,
+      FuncDecl(
+        IdentifierDecl(Identifier("a")),
+        Some(Parameters(
+          [
+            Parameter(
+              [TypeSpecifier(Int32)],
+              Declarator(None, IdentifierDecl(Identifier("b")))
+            ),
+            Parameter(
+              [Qualifier(Const), TypeSpecifier(Int32)],
+              Declarator(None, IdentifierDecl(Identifier("c")))
+            ),
+            Parameter(
+              [TypeSpecifier(Int32)],
+              Declarator(Some(Pointer([], None)), IdentifierDecl(Identifier("d")))
+            )
+          ],
+          None
+        ))
+      )
+    ))]
+  )
+])
+
+test function declaration with varargs [[
+  void a(int32 b, int32 const c, ...);
+]] parse to Declarations([
+  Declaration(
+    [TypeSpecifier(Void)],
+    [EmptyDeclarator(Declarator(
+      None,
+      FuncDecl(
+        IdentifierDecl(Identifier("a")),
+        Some(Parameters(
+          [
+            Parameter(
+              [TypeSpecifier(Int32)],
+              Declarator(None, IdentifierDecl(Identifier("b")))
+            ),
+            Parameter(
+              [TypeSpecifier(Int32), Qualifier(Const)],
+              Declarator(None, IdentifierDecl(Identifier("c")))
+            )
+          ],
+          Some(VArg())
+        ))
+      )
+    ))]
+  )
+])
+
+test function declaration with vararg, directly after comma [[
+  void a(int32 b, int32 const c,...);
+]] parse succeeds
+
+test function declaration with vararg, without comma [[
+  void a(int32 b, int32 const c...);
+]] parse fails

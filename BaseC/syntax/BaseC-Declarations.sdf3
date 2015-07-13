@@ -3,35 +3,40 @@ module BaseC-Declarations
 imports
 
   Common
+  BaseC-Constants
   BaseC-Identifiers
   BaseC-Types
 
 context-free syntax
 
-  Decl.NoInit = <<Identifier>>
+  Decl.NoInit = Identifier
 
   StorageClass.Static = <static>
   StorageClass.Extern = <extern>
 
-  Qualifier.Const = <const>
-  Qualifier.Volatile = <volatile>
+  Qualifier.Const     = <const>
+  Qualifier.Volatile  = <volatile>
 
-  DeclarationSpecifier.StorageClass = <<StorageClass>>
-  DeclarationSpecifier.TypeSpecifier = <<PureType>>
-  DeclarationSpecifier.Qualifier = <<Qualifier>>
+  DeclarationSpecifier.StorageClass  = StorageClass
+  DeclarationSpecifier.TypeSpecifier = PureType
+  DeclarationSpecifier.Qualifier     = Qualifier
 
   Declaration.Declaration = <<DeclarationSpecifier+> <{InitDeclarator ", "}*>;>
 
-  InitDeclarator.EmptyDeclarator = <<Declarator>>
-  InitDeclarator.InitDeclarator = <<Declarator> = <Initializer>>
+  InitDeclarator.EmptyDeclarator = Declarator
+  InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>
 
   Declarator.Declarator = <<Pointer?> <DirectDeclarator>>
-  
   Pointer.Pointer = <* <Qualifier*> <Pointer?>>
 
-  DirectDeclarator.IdentifierDecl = <<Identifier>>
+  DirectDeclarator.IdentifierDecl = Identifier
   DirectDeclarator.ParensDecl     = <(<Declarator>)>
-  DirectDeclarator.ArrayDecl      = <<DirectDeclarator> []>
+  DirectDeclarator.ArrayDecl      = <<DirectDeclarator> [<Constant?>]>
+  DirectDeclarator.FuncDecl       = <<DirectDeclarator> (<ParameterList?>)>
+
+  Parameter.Parameter = <<DeclarationSpecifier+> <Declarator>>
+  VArg.VArg = <, ...>
+  ParameterList.Parameters = <<{Parameter ","}+> <VArg?>>
 
   Expr.One = <1>
-  Initializer.InitExp = <<Expr>>
+  Initializer.InitExp = Expr

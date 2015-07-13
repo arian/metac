@@ -1,0 +1,6 @@
+module constants
+
+language metac
+
+start symbol Program
+

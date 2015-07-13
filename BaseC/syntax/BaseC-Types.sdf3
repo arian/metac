@@ -13,3 +13,5 @@ context-free syntax
 
   PureType.Float = <float>
   PureType.Double = <double>
+
+  PureType.Void = <void>

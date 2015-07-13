@@ -7,4 +7,3 @@ imports
 context-free syntax
 
   Program.Declarations = <<Declaration*>>
-
