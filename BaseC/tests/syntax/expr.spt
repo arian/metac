@@ -1,0 +1,9 @@
+module expr
+
+language metac
+
+start symbol Program
+
+test constant expression [[
+  int8 a = 1;
+]] run get-expr-from-program to Constant(Integer("1"))

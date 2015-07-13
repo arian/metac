@@ -19,6 +19,7 @@ imports
 	check
 	generate
 	pp
+	test-utils
 
 rules // Analysis
 	

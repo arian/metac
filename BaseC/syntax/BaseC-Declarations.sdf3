@@ -4,6 +4,7 @@ imports
 
   Common
   BaseC-Constants
+  BaseC-Expr
   BaseC-Identifiers
   BaseC-Types
 
@@ -26,17 +27,30 @@ context-free syntax
   InitDeclarator.EmptyDeclarator = Declarator
   InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>
 
-  Declarator.Declarator = <<Pointer?> <DirectDeclarator>>
+  Declarator.Declarator                 = <<Pointer?> <DirectDeclarator>>
+  // Abstract declarator is a declaration without eventually an identifier,
+  // used in parameter lists
+  AbstractDeclarator.AbstractDeclarator = <<Pointer?> <AbstractDirectDeclarator>>
+
   Pointer.Pointer = <* <Qualifier*> <Pointer?>>
 
-  DirectDeclarator.IdentifierDecl = Identifier
-  DirectDeclarator.ParensDecl     = <(<Declarator>)>
-  DirectDeclarator.ArrayDecl      = <<DirectDeclarator> [<Constant?>]>
-  DirectDeclarator.FuncDecl       = <<DirectDeclarator> (<ParameterList?>)>
+  DirectDeclarator                  = DeclarationSpecifier {reject}
+  DirectDeclarator.IdentifierDecl   = Identifier
+  DirectDeclarator.ParensDecl       = <(<Declarator>)>
+  DirectDeclarator.ArrayDecl        = <<DirectDeclarator> [<Constant?>]>
+  DirectDeclarator.FuncDecl         = <<DirectDeclarator> (<ParameterList?>)> {prefer}
+  DirectDeclarator.AbstractFuncDecl = <<DirectDeclarator> (<AbstractParameterList?>)>
 
-  Parameter.Parameter = <<DeclarationSpecifier+> <Declarator>>
+  AbstractDirectDeclarator.ParensDecl     = <(<AbstractDeclarator>)>
+  AbstractDirectDeclarator.ArrayDecl      = <<AbstractDirectDeclarator?> [<Constant?>]>
+  AbstractDirectDeclarator.FuncDecl       = <<AbstractDirectDeclarator?> (<AbstractParameterList?>)>
+
+  Parameter.Parameter                 = <<DeclarationSpecifier+> <Declarator>>
+  AbstractParameter.AbstractParameter = <<DeclarationSpecifier+> <AbstractDeclarator?>>
+  AbstractParameter.Parameter         = <<DeclarationSpecifier+> <Declarator>> {prefer}
+
   VArg.VArg = <, ...>
-  ParameterList.Parameters = <<{Parameter ","}+> <VArg?>>
+  ParameterList.Parameters         = <<{Parameter ","}+> <VArg?>>
+  AbstractParameterList.Parameters = <<{AbstractParameter ","}+> <VArg?>>
 
-  Expr.One = <1>
-  Initializer.InitExp = Expr
+  Initializer.InitExpr = Expr

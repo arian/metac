@@ -3,6 +3,7 @@ module BaseC-Program
 imports
 
   BaseC-Declarations
+  BaseC-FunDef
 
 context-free syntax
 

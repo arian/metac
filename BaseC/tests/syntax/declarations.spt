@@ -5,261 +5,296 @@ start symbol Program
 
 test a single variable declaration [[
   int32 a;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a"))))]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a"))))]
+)
 
 test multiple variable declarations [[
   int32 a, b;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a")))),
-      EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("b"))))
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("a")))),
+    EmptyDeclarator(Declarator(None(), IdentifierDecl(Identifier("b"))))
+  ]
+)
 
 test const int [[
   const int32 a;
-]] parse to Declarations([
-  Declaration(
-    [Qualifier(Const), TypeSpecifier(Int32)],
-    _
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [Qualifier(Const), TypeSpecifier(Int32)],
+  _
+)
 
 test int const [[
   int32 const a;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32), Qualifier(Const)],
-    _
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32), Qualifier(Const)],
+  _
+)
 
 test pointer int [[
   int32 * a;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(
-        Declarator(
-          Some(Pointer([], None)),
-          IdentifierDecl(Identifier("a"))
-        )
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(
+      Declarator(
+        Some(Pointer([], None)),
+        IdentifierDecl(Identifier("a"))
       )
-    ]
-  )
-])
+    )
+  ]
+)
 
 test two varables of which one is a pointer [[
   int32 a, * b;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(None, _)),
-      EmptyDeclarator(Declarator(Some(_), _))
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(None, _)),
+    EmptyDeclarator(Declarator(Some(_), _))
+  ]
+)
 
 test variable with init expression [[
   int32 a = 1;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      InitDeclarator(
-        Declarator(_, _),
-        InitExp(_)
-      )
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    InitDeclarator(
+      Declarator(_, _),
+      InitExpr(_)
+    )
+  ]
+)
 
 test double pointer [[
   int32 ** a;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(
-        Some(Pointer([], Some(Pointer([], None)))),
-        IdentifierDecl(Identifier("a"))
-      ))
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(
+      Some(Pointer([], Some(Pointer([], None)))),
+      IdentifierDecl(Identifier("a"))
+    ))
+  ]
+)
 
 test int * const volatile [[
   int32 * const volatile a;
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(
-        Some(Pointer([Const, Volatile], None)),
-        _
-      ))
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(
+      Some(Pointer([Const, Volatile], None)),
+      _
+    ))
+  ]
+)
 
 test int with storage class [[
   static const extern int32 * a;
-]] parse to Declarations([
-  Declaration(
-    [
-      StorageClass(Static),
-      Qualifier(Const), 
-      StorageClass(Extern),
-      TypeSpecifier(Int32)
-    ],
-    [
-      EmptyDeclarator(Declarator(
-        Some(Pointer([], None)),
-        _
-      ))
-    ]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [
+    StorageClass(Static),
+    Qualifier(Const),
+    StorageClass(Extern),
+    TypeSpecifier(Int32)
+  ],
+  [
+    EmptyDeclarator(Declarator(
+      Some(Pointer([], None)),
+      _
+    ))
+  ]
+)
 
 test declaration with parens [[
   int32 (* a);
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(
-        None,
-        ParensDecl(Declarator(
-          Some(Pointer([], None)),
-          IdentifierDecl(Identifier("a"))
-        ))
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(
+      None,
+      ParensDecl(Declarator(
+        Some(Pointer([], None)),
+        IdentifierDecl(Identifier("a"))
       ))
-    ]
-  )
-])
+    ))
+  ]
+)
 
 test array decl [[
   int32 a[];
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Int32)],
-    [
-      EmptyDeclarator(Declarator(
-        None,
-        ArrayDecl(
-          IdentifierDecl(Identifier("a")),
-          None
-        )
-      ))
-    ]
-  )
-])
-
-test function declaration [[
-  void a();
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Void)],
-    [EmptyDeclarator(Declarator(
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Int32)],
+  [
+    EmptyDeclarator(Declarator(
       None,
-      FuncDecl(
+      ArrayDecl(
         IdentifierDecl(Identifier("a")),
         None
       )
-    ))]
-  )
-])
+    ))
+  ]
+)
+
+test function declaration [[
+  void a();
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    FuncDecl(
+      IdentifierDecl(Identifier("a")),
+      None
+    )
+  ))]
+)
 
 test function declaration one argument [[
   void a(uint32 b);
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Void)],
-    [EmptyDeclarator(Declarator(
-      None,
-      FuncDecl(
-        IdentifierDecl(Identifier("a")),
-        Some(Parameters(
-          [
-            Parameter(
-              [TypeSpecifier(UInt32)],
-              Declarator(None, IdentifierDecl(Identifier("b")))
-            )
-          ],
-          None
-        ))
-      )
-    ))]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    FuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          Parameter(
+            [TypeSpecifier(UInt32)],
+            Declarator(None, IdentifierDecl(Identifier("b")))
+          )
+        ],
+        None
+      ))
+    )
+  ))]
+)
 
 test function declaration more arguments [[
   void a(int32 b, const int32 c, int32 *d);
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Void)],
-    [EmptyDeclarator(Declarator(
-      None,
-      FuncDecl(
-        IdentifierDecl(Identifier("a")),
-        Some(Parameters(
-          [
-            Parameter(
-              [TypeSpecifier(Int32)],
-              Declarator(None, IdentifierDecl(Identifier("b")))
-            ),
-            Parameter(
-              [Qualifier(Const), TypeSpecifier(Int32)],
-              Declarator(None, IdentifierDecl(Identifier("c")))
-            ),
-            Parameter(
-              [TypeSpecifier(Int32)],
-              Declarator(Some(Pointer([], None)), IdentifierDecl(Identifier("d")))
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    FuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          Parameter(
+            [TypeSpecifier(Int32)],
+            Declarator(None, IdentifierDecl(Identifier("b")))
+          ),
+          Parameter(
+            [Qualifier(Const), TypeSpecifier(Int32)],
+            Declarator(None, IdentifierDecl(Identifier("c")))
+          ),
+          Parameter(
+            [TypeSpecifier(Int32)],
+            Declarator(Some(Pointer([], None)), IdentifierDecl(Identifier("d")))
+          )
+        ],
+        None
+      ))
+    )
+  ))]
+)
+
+test function declaration without parameter names [[
+  void a(int32, int32);
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    AbstractFuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          AbstractParameter([TypeSpecifier(Int32)], None),
+          AbstractParameter([TypeSpecifier(Int32)], None)
+        ],
+        None
+      ))
+    )
+  ))]
+)
+
+test function declaration with mixed parameters [[
+  void a(const int32, int32 a, int32);
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    AbstractFuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          AbstractParameter([Qualifier(Const), TypeSpecifier(Int32)], None),
+          Parameter([TypeSpecifier(Int32)], Declarator(
+            None,
+            IdentifierDecl(Identifier("a"))
+          )),
+          AbstractParameter([TypeSpecifier(Int32)], None)
+        ],
+        None
+      ))
+    )
+  ))]
+)
+
+test function declaration, complex declarations, without parameter names [[
+  void a(const int32, int32 * const []);
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    AbstractFuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          AbstractParameter([Qualifier(Const), TypeSpecifier(Int32)], None),
+          AbstractParameter(
+            [TypeSpecifier(Int32)],
+            Some(AbstractDeclarator(
+              Some(Pointer([Const], None)),
+              ArrayDecl(None, None)
             )
-          ],
-          None
-        ))
-      )
-    ))]
-  )
-])
+          ))
+        ],
+        None
+      ))
+    )
+  ))]
+)
 
 test function declaration with varargs [[
   void a(int32 b, int32 const c, ...);
-]] parse to Declarations([
-  Declaration(
-    [TypeSpecifier(Void)],
-    [EmptyDeclarator(Declarator(
-      None,
-      FuncDecl(
-        IdentifierDecl(Identifier("a")),
-        Some(Parameters(
-          [
-            Parameter(
-              [TypeSpecifier(Int32)],
-              Declarator(None, IdentifierDecl(Identifier("b")))
-            ),
-            Parameter(
-              [TypeSpecifier(Int32), Qualifier(Const)],
-              Declarator(None, IdentifierDecl(Identifier("c")))
-            )
-          ],
-          Some(VArg())
-        ))
-      )
-    ))]
-  )
-])
+]] run get-decl-from-program to Declaration(
+  [TypeSpecifier(Void)],
+  [EmptyDeclarator(Declarator(
+    None,
+    FuncDecl(
+      IdentifierDecl(Identifier("a")),
+      Some(Parameters(
+        [
+          Parameter(
+            [TypeSpecifier(Int32)],
+            Declarator(None, IdentifierDecl(Identifier("b")))
+          ),
+          Parameter(
+            [TypeSpecifier(Int32), Qualifier(Const)],
+            Declarator(None, IdentifierDecl(Identifier("c")))
+          )
+        ],
+        Some(VArg())
+      ))
+    )
+  ))]
+)
 
 test function declaration with vararg, directly after comma [[
   void a(int32 b, int32 const c,...);

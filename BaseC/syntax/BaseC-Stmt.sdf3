@@ -1,0 +1,10 @@
+module BaseC-Stmt
+
+imports
+
+  BaseC-Expr
+
+context-free syntax
+
+  Statement.ExpressionStatement = <<Expr>;>
+  CompoundStatement.CompoundStatement = <{<Statement*>}>

@@ -1,0 +1,74 @@
+module fundef
+
+language metac
+
+start symbol Program
+
+test minimal function definition [[
+  x() {}
+]] run get-fundef-from-program to FunDef(
+  [],
+  FunDeclarator(
+    None,
+    IdentifierName(Identifier("x")),
+    None
+  ),
+  [],
+  CompoundStatement([])
+)
+
+test parenthesized function name [[
+  (x)() {}
+]] run get-fundef-from-program to FunDef(
+  [],
+  FunDeclarator(
+    None,
+    ParenName(Identifier("x")),
+    None
+  ),
+  [],
+  _
+)
+
+test function with one parameter [[
+  x (int32 a) {}
+]] run get-fundef-from-program to FunDef(
+  [],
+  FunDeclarator(
+    None,
+    IdentifierName(Identifier("x")),
+    Some(Parameters(_, _))
+  ),
+  [],
+  CompoundStatement([])
+)
+
+test function without parameter name [[x (int32) {}]] parse fails
+test function without parameter name [[x (const int32) {}]] parse fails
+
+
+test function return type [[
+  int32 x () {}
+]] run get-fundef-from-program to FunDef(
+  [TypeSpecifier(Int32)],
+  FunDeclarator(
+    None,
+    IdentifierName(Identifier("x")),
+    None
+  ),
+  [],
+  CompoundStatement([])
+)
+
+test function complicated return type [[
+  const static int32 * const x() {}
+]] run get-fundef-from-program to FunDef(
+  [Qualifier(Const()), StorageClass(Static()), TypeSpecifier(Int32)],
+  FunDeclarator(
+    Some(Pointer([Const], None)),
+    IdentifierName(Identifier("x")),
+    None
+  ),
+  _,
+  _
+)

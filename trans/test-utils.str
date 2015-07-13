@@ -1,0 +1,18 @@
+module test-utils
+
+imports
+
+  include/Metac
+
+rules
+
+  get-decl-from-program:
+    Declarations([decl]) -> decl
+
+  get-expr-from-program:
+    Declarations([
+      Declaration(_, [InitDeclarator(_, InitExpr(expr))])
+    ]) -> expr
+
+  get-fundef-from-program:
+    Declarations([FunDeclaration(fundef)]) -> fundef
