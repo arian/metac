@@ -18,13 +18,13 @@ context-free syntax
   Qualifier.Const     = <const>
   Qualifier.Volatile  = <volatile>
 
-  DeclarationSpecifier.StorageClass  = StorageClass
-  DeclarationSpecifier.TypeSpecifier = PureType
-  DeclarationSpecifier.Qualifier     = Qualifier
+  DeclarationSpecifier = StorageClass
+  DeclarationSpecifier = PureType
+  DeclarationSpecifier = Qualifier
 
   Declaration.Declaration = <<DeclarationSpecifier+> <{InitDeclarator ", "}*>;>
 
-  InitDeclarator.EmptyDeclarator = Declarator
+  InitDeclarator                 = Declarator
   InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>
 
   Pointer.Pointer = <* <Qualifier*> <Pointer?>>
@@ -35,7 +35,7 @@ context-free syntax
   AbstractDeclarator.AbstractDeclarator = <<Pointer?> <AbstractDirectDeclarator>>
 
   DirectDeclarator                        = DeclarationSpecifier {reject}
-  DirectDeclarator.IdentifierDecl         = Identifier
+  DirectDeclarator                        = Identifier
   DirectDeclarator.ParensDecl             = <(<Declarator>)>
   DirectDeclarator.ArrayDecl              = <<DirectDeclarator> [<Constant?>]>
   DirectDeclarator.FuncDecl               = <<DirectDeclarator> (<ParameterList?>)> {prefer}
@@ -53,4 +53,7 @@ context-free syntax
   ParameterList.Parameters         = <<{Parameter ","}+> <VArg?>>
   AbstractParameterList.Parameters = <<{AbstractParameter ","}+> <VArg?>>
 
-  Initializer.InitExpr = Expr
+  Initializer = Expr
+  Initializer = BlockInitializer
+
+  BlockInitializer.BlockInitializer = <{}>

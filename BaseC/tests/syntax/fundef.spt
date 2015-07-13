@@ -10,7 +10,7 @@ test minimal function definition [[
   [],
   FunDeclarator(
     None,
-    IdentifierName(Identifier("x")),
+    Identifier("x"),
     None
   ),
   [],
@@ -36,7 +36,7 @@ test function with one parameter [[
   [],
   FunDeclarator(
     None,
-    IdentifierName(Identifier("x")),
+    Identifier("x"),
     Some(Parameters(_, _))
   ),
   [],
@@ -46,14 +46,13 @@ test function with one parameter [[
 test function without parameter name [[x (int32) {}]] parse fails
 test function without parameter name [[x (const int32) {}]] parse fails
 
-
 test function return type [[
   int32 x () {}
 ]] run get-fundef-from-program to FunDef(
-  [TypeSpecifier(Int32)],
+  [Int32],
   FunDeclarator(
     None,
-    IdentifierName(Identifier("x")),
+    Identifier("x"),
     None
   ),
   [],
@@ -63,10 +62,10 @@ test function return type [[
 test function complicated return type [[
   const static int32 * const x() {}
 ]] run get-fundef-from-program to FunDef(
-  [Qualifier(Const()), StorageClass(Static()), TypeSpecifier(Int32)],
+  [Const, Static, Int32],
   FunDeclarator(
     Some(Pointer([Const], None)),
-    IdentifierName(Identifier("x")),
+    Identifier("x"),
     None
   ),
   _,

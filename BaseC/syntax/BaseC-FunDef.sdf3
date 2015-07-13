@@ -8,10 +8,10 @@ imports
 
 context-free syntax
 
-  Declaration.FunDeclaration = FunDef
+  Declaration = FunDef
 
-  FunName.IdentifierName = Identifier
-  FunName.ParenName      = <(<Identifier>)>
+  FunName           = Identifier
+  FunName.ParenName = <(<Identifier>)>
 
   FunDeclarator.FunDeclarator = <<Pointer?> <FunName> (<ParameterList?>)>
 
