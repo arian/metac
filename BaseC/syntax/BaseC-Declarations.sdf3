@@ -12,8 +12,11 @@ context-free syntax
 
   Decl.NoInit = Identifier
 
-  StorageClass.Static = <static>
-  StorageClass.Extern = <extern>
+  StorageClass.Auto     = <auto>
+  StorageClass.Register = <register>
+  StorageClass.Static   = <static>
+  StorageClass.Extern   = <extern>
+  StorageClass.Typeof   = <typeof>
 
   Qualifier.Const     = <const>
   Qualifier.Volatile  = <volatile>

@@ -16,3 +16,6 @@ rules
 
   get-fundef-from-program:
     Declarations([fundef]) -> fundef
+
+  get-stmt-from-program:
+    Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> stmt

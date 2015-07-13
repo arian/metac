@@ -2,9 +2,34 @@ module BaseC-Stmt
 
 imports
 
+  BaseC-Constants
+  BaseC-Identifiers
   BaseC-Expr
 
 context-free syntax
 
-  Statement.ExpressionStatement = <<Expr>;>
+  Statement.ExpressionStatement = <<Expr?>;>
+  Statement                     = CompoundStatement
+  Statement                     = LabeledStatement
+  Statement                     = SelectionStatement
+  Statement                     = IterationStatement
+  Statement                     = JumpStatement
+
   CompoundStatement.CompoundStatement = <{<Statement*>}>
+
+  LabeledStatement.Label   = <<Identifier>: <Statement>>
+  LabeledStatement.Case    = <case <Constant>: <Statement>>
+  LabeledStatement.Default = <default : <Statement>> {prefer} // prever over Label
+
+  SelectionStatement.If     = <if (<Expr>) <Statement>> {prefer}
+  SelectionStatement.IfElse = <if (<Expr>) <Statement> else <Statement>>
+  SelectionStatement.Switch = <switch (<Expr>) <Statement>>
+
+  IterationStatement.While = <while (<Expr>) <Statement>>
+  IterationStatement.Do    = <do <Statement> while (<Expr>);>
+  IterationStatement.For   = <for (<Expr?>; <Expr?>; <Expr?>) <Statement>>
+
+  JumpStatement.Goto     = <goto <Identifier>;>
+  JumpStatement.Continue = <continue;>
+  JumpStatement.Break    = <break;>
+  JumpStatement.Return   = <return <Expr?>;>
