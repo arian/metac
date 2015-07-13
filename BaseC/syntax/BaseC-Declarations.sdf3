@@ -27,27 +27,27 @@ context-free syntax
   InitDeclarator.EmptyDeclarator = Declarator
   InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>
 
+  Pointer.Pointer = <* <Qualifier*> <Pointer?>>
+
   Declarator.Declarator                 = <<Pointer?> <DirectDeclarator>>
   // Abstract declarator is a declaration without eventually an identifier,
   // used in parameter lists
   AbstractDeclarator.AbstractDeclarator = <<Pointer?> <AbstractDirectDeclarator>>
 
-  Pointer.Pointer = <* <Qualifier*> <Pointer?>>
-
-  DirectDeclarator                  = DeclarationSpecifier {reject}
-  DirectDeclarator.IdentifierDecl   = Identifier
-  DirectDeclarator.ParensDecl       = <(<Declarator>)>
-  DirectDeclarator.ArrayDecl        = <<DirectDeclarator> [<Constant?>]>
-  DirectDeclarator.FuncDecl         = <<DirectDeclarator> (<ParameterList?>)> {prefer}
-  DirectDeclarator.AbstractFuncDecl = <<DirectDeclarator> (<AbstractParameterList?>)>
+  DirectDeclarator                        = DeclarationSpecifier {reject}
+  DirectDeclarator.IdentifierDecl         = Identifier
+  DirectDeclarator.ParensDecl             = <(<Declarator>)>
+  DirectDeclarator.ArrayDecl              = <<DirectDeclarator> [<Constant?>]>
+  DirectDeclarator.FuncDecl               = <<DirectDeclarator> (<ParameterList?>)> {prefer}
+  DirectDeclarator.AbstractFuncDecl       = <<DirectDeclarator> (<AbstractParameterList?>)>
 
   AbstractDirectDeclarator.ParensDecl     = <(<AbstractDeclarator>)>
   AbstractDirectDeclarator.ArrayDecl      = <<AbstractDirectDeclarator?> [<Constant?>]>
   AbstractDirectDeclarator.FuncDecl       = <<AbstractDirectDeclarator?> (<AbstractParameterList?>)>
 
-  Parameter.Parameter                 = <<DeclarationSpecifier+> <Declarator>>
-  AbstractParameter.AbstractParameter = <<DeclarationSpecifier+> <AbstractDeclarator?>>
-  AbstractParameter.Parameter         = <<DeclarationSpecifier+> <Declarator>> {prefer}
+  Parameter.Parameter                     = <<DeclarationSpecifier+> <Declarator>>
+  AbstractParameter.AbstractParameter     = <<DeclarationSpecifier+> <AbstractDeclarator?>>
+  AbstractParameter.Parameter             = <<DeclarationSpecifier+> <Declarator>> {prefer}
 
   VArg.VArg = <, ...>
   ParameterList.Parameters         = <<{Parameter ","}+> <VArg?>>
