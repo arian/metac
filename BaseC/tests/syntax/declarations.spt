@@ -148,3 +148,13 @@ test typedef [[
     Identifier("a")
   )]
 )
+
+test a typedefed decl [[
+  a b, c;
+]] run get-decl-from-program to Declaration(
+  [Identifier("a")],
+  [
+    Declarator(None, Identifier("b")),
+    Declarator(None, Identifier("c"))
+  ]
+)

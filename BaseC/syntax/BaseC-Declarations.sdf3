@@ -26,7 +26,7 @@ context-free syntax
   TypeSpecifier = PureType
   TypeSpecifier = StructOrUnionSpecifier
   TypeSpecifier = EnumSpecifier
-//  TypeSpecifier = TypeDefName
+  TypeSpecifier = TypeDefName                {avoid}
 
   DeclarationSpecifier = StorageClass
   DeclarationSpecifier = Qualifier
@@ -46,7 +46,6 @@ context-free syntax
   // used in parameter lists
   AbstractDeclarator.AbstractDeclarator = <<Pointer?> <AbstractDirectDeclarator>>
 
-  DirectDeclarator                        = DeclarationSpecifier {reject}
   DirectDeclarator                        = Identifier
   DirectDeclarator.ParensDecl             = <(<Declarator>)>
   DirectDeclarator.ArrayDecl              = <<DirectDeclarator> [<Constant?>]>
