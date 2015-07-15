@@ -12,87 +12,84 @@ import org.strategoxt.imp.runtime.dynamicloading.Descriptor;
 import org.strategoxt.imp.runtime.dynamicloading.DescriptorFactory;
 import org.strategoxt.imp.runtime.dynamicloading.DynamicParseController;
 
-public class MetacParseControllerGenerated extends DynamicParseController 
-{ 
+public class MetacParseControllerGenerated extends DynamicParseController {
+
   public static final String LANGUAGE = new String("Metac");
 
   private static final String TABLE = "/include/" + LANGUAGE + ".tbl";
 
-  private static final String DESCRIPTOR = "/include/" + LANGUAGE + ".packed.esv";
+  private static final String DESCRIPTOR = "/include/" + LANGUAGE
+      + ".packed.esv";
 
   private static volatile Descriptor descriptor;
 
   private static Throwable notLoadingCause;
 
-  public static synchronized Descriptor getDescriptor()
-  { 
-    if(notLoadingCause != null)
+  public static synchronized Descriptor getDescriptor() {
+    if (notLoadingCause != null)
       throw new RuntimeException(notLoadingCause);
-    if(descriptor == null)
+    if (descriptor == null)
       createDescriptor();
     return descriptor;
   }
 
-  protected static synchronized void setDescriptor(Descriptor descriptor)
-  { 
+  protected static synchronized void setDescriptor(Descriptor descriptor) {
     MetacParseControllerGenerated.descriptor = descriptor;
   }
 
-  protected static void createDescriptor()
-  { 
-    try
-    { 
-      InputStream descriptorStream = MetacParseControllerGenerated.class.getResourceAsStream(DESCRIPTOR);
-      InputStream table = MetacParseControllerGenerated.class.getResourceAsStream(TABLE);
+  protected static void createDescriptor() {
+    try {
+      InputStream descriptorStream = MetacParseControllerGenerated.class
+          .getResourceAsStream(DESCRIPTOR);
+      InputStream table = MetacParseControllerGenerated.class
+          .getResourceAsStream(TABLE);
       boolean filesystem = false;
-      if(descriptorStream == null && new File("./" + DESCRIPTOR).exists())
-      { 
+      if (descriptorStream == null && new File("./" + DESCRIPTOR).exists()) {
         descriptorStream = new FileInputStream("./" + DESCRIPTOR);
         filesystem = true;
       }
-      if(table == null && new File("./" + TABLE).exists())
-      { 
+      if (table == null && new File("./" + TABLE).exists()) {
         table = new FileInputStream("./" + TABLE);
         filesystem = true;
       }
-      if(descriptorStream == null)
-        throw new BadDescriptorException("Could not load descriptor file from " + DESCRIPTOR + " (not found in plugin: " + getPluginLocation() + ")");
-      if(table == null)
-        throw new BadDescriptorException("Could not load parse table from " + TABLE + " (not found in plugin: " + getPluginLocation() + ")");
-      descriptor = DescriptorFactory.load(descriptorStream, table, filesystem ? Path.fromPortableString("./") : null);
+      if (descriptorStream == null)
+        throw new BadDescriptorException("Could not load descriptor file from "
+            + DESCRIPTOR + " (not found in plugin: " + getPluginLocation()
+            + ")");
+      if (table == null)
+        throw new BadDescriptorException("Could not load parse table from "
+            + TABLE + " (not found in plugin: " + getPluginLocation() + ")");
+      descriptor = DescriptorFactory.load(descriptorStream, table,
+          filesystem ? Path.fromPortableString("./") : null);
       descriptor.setAttachmentProvider(MetacParseControllerGenerated.class);
-    }
-    catch(BadDescriptorException exc)
-    { 
+    } catch (BadDescriptorException exc) {
       notLoadingCause = exc;
-      Environment.logException("Bad descriptor for " + LANGUAGE + " plugin", exc);
-      throw new RuntimeException("Bad descriptor for " + LANGUAGE + " plugin", exc);
-    }
-    catch(IOException exc)
-    { 
+      Environment.logException("Bad descriptor for " + LANGUAGE + " plugin",
+          exc);
+      throw new RuntimeException("Bad descriptor for " + LANGUAGE + " plugin",
+          exc);
+    } catch (IOException exc) {
       notLoadingCause = exc;
-      Environment.logException("I/O problem loading descriptor for " + LANGUAGE + " plugin", exc);
-      throw new RuntimeException("I/O problem loading descriptor for " + LANGUAGE + " plugin", exc);
+      Environment.logException("I/O problem loading descriptor for " + LANGUAGE
+          + " plugin", exc);
+      throw new RuntimeException("I/O problem loading descriptor for "
+          + LANGUAGE + " plugin", exc);
     }
   }
 
-  private static String getPluginLocation()
-  { 
-    return MetacParseController.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+  private static String getPluginLocation() {
+    return MetacParseController.class.getProtectionDomain().getCodeSource()
+        .getLocation().getFile();
   }
 
-  @Override public IParseController getWrapped()
-  { 
-    if(!isInitialized())
-    { 
-      if(notLoadingCause != null)
+  @Override
+  public IParseController getWrapped() {
+    if (!isInitialized()) {
+      if (notLoadingCause != null)
         throw new RuntimeException(notLoadingCause);
-      try
-      { 
+      try {
         initialize(this, getDescriptor().getLanguage());
-      }
-      catch(BadDescriptorException exc)
-      { 
+      } catch (BadDescriptorException exc) {
         notLoadingCause = exc;
         throw new RuntimeException(exc);
       }
@@ -100,8 +97,8 @@ public class MetacParseControllerGenerated extends DynamicParseController
     return super.getWrapped();
   }
 
-  @Override protected void setNotLoadingCause(Throwable value)
-  { 
+  @Override
+  protected void setNotLoadingCause(Throwable value) {
     notLoadingCause = value;
     super.setNotLoadingCause(value);
   }

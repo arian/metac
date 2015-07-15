@@ -2,10 +2,10 @@ module pp
 
 imports
 
-	libstratego-gpp
-	lib/runtime/refactoring/-
-	include/Metac-parenthesize
-	src-gen/pp/Metac-pp
+  libstratego-gpp
+  lib/runtime/refactoring/-
+  include/Metac-parenthesize
+  src-gen/pp/-
 
 rules
 
@@ -29,7 +29,7 @@ rules
     ;  result := ""
 
 rules
-  
+
   /**
   * Given an old AST and a new AST, pretty-prints the new AST while presevering 
   * layout (e.g. whitespacing and comments) associated with the old AST.

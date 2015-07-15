@@ -1,4 +1,5 @@
 package metac;
 
-public class MetacParseController extends MetacParseControllerGenerated 
-{ }
+public class MetacParseController extends MetacParseControllerGenerated {
+
+}

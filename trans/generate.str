@@ -1,7 +1,8 @@
 module generate
 
 imports
-	
-	include/Metac
+
+  include/Metac
+
 rules 
 

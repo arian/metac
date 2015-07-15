@@ -1,10 +1,9 @@
 module names
 
 imports
-	
-	include/Metac
-	
-namespaces
-	
-binding rules
 
+  include/Metac
+
+namespaces
+
+binding rules
