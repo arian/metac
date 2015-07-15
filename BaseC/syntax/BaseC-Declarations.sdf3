@@ -14,57 +14,143 @@ context-free syntax
 
   Decl.NoInit = Identifier
 
-  StorageClass.Auto     = <auto>
-  StorageClass.Register = <register>
-  StorageClass.Static   = <static>
-  StorageClass.Extern   = <extern>
-  StorageClass.Typedef  = <typedef>
+  // storage-class-specifiers
+  StorageClass.Auto =
+    <auto>
 
-  Qualifier.Const     = <const>
-  Qualifier.Volatile  = <volatile>
+  StorageClass.Register =
+    <register>
 
-  TypeSpecifier = PureType
-  TypeSpecifier = StructOrUnionSpecifier
-  TypeSpecifier = EnumSpecifier
-  TypeSpecifier = TypeDefName                {avoid}
+  StorageClass.Static   =
+    <static>
 
-  DeclarationSpecifier = StorageClass
-  DeclarationSpecifier = Qualifier
-  DeclarationSpecifier = TypeSpecifier
+  StorageClass.Extern   =
+    <extern>
 
+  StorageClass.Typedef  =
+    <typedef>
+
+
+  // type-qualifier
+  Qualifier.Const     =
+    <const>
+
+  Qualifier.Volatile  =
+    <volatile>
+
+
+  // type-specifier
+  TypeSpecifier =
+    PureType
+
+  TypeSpecifier =
+    StructOrUnionSpecifier
+
+  TypeSpecifier =
+    EnumSpecifier
+
+  TypeSpecifier =
+    TypeDefName {avoid}
+
+
+  // declaration-specifiers
+  DeclarationSpecifier =
+    StorageClass
+
+  DeclarationSpecifier =
+    Qualifier
+
+  DeclarationSpecifier =
+    TypeSpecifier
+
+  // typedef-name
   TypeDefName = Identifier
 
-  Declaration.Declaration = <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
 
-  InitDeclarator                 = Declarator
-  InitDeclarator.InitDeclarator  = <<Declarator> = <Initializer>>
+  // declaration
+  Declaration.Declaration =
+    <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
 
-  Pointer.Pointer = <* <Qualifier*> <Pointer?>>
 
-  Declarator.Declarator                 = <<Pointer?> <DirectDeclarator>>
-  // Abstract declarator is a declaration without eventually an identifier,
+  // init-declarator
+  InitDeclarator =
+    Declarator
+
+  InitDeclarator.InitDeclarator =
+    <<Declarator> = <Initializer>>
+
+
+  // pointer
+  Pointer.Pointer =
+    <* <Qualifier*> <Pointer?>>
+
+
+  // declarator
+  Declarator.Declarator =
+    <<Pointer?> <DirectDeclarator>>
+
+
+  // direct-declarator
+  DirectDeclarator =
+    Identifier
+
+  DirectDeclarator.ParensDecl =
+    <(<Declarator>)>
+
+  DirectDeclarator.ArrayDecl =
+    <<DirectDeclarator> [<Constant?>]>
+
+  DirectDeclarator.FuncDecl =
+    <<DirectDeclarator> (<ParameterList?>)> {prefer}
+
+  DirectDeclarator.AbstractFuncDecl =
+    <<DirectDeclarator> (<AbstractParameterList?>)>
+
+
+  // abstract-declarator is a declaration without eventually an identifier,
   // used in parameter lists
-  AbstractDeclarator.AbstractDeclarator = <<Pointer?> <AbstractDirectDeclarator>>
+  AbstractDeclarator.AbstractDeclarator =
+    <<Pointer?> <AbstractDirectDeclarator>>
 
-  DirectDeclarator                        = Identifier
-  DirectDeclarator.ParensDecl             = <(<Declarator>)>
-  DirectDeclarator.ArrayDecl              = <<DirectDeclarator> [<Constant?>]>
-  DirectDeclarator.FuncDecl               = <<DirectDeclarator> (<ParameterList?>)> {prefer}
-  DirectDeclarator.AbstractFuncDecl       = <<DirectDeclarator> (<AbstractParameterList?>)>
+  AbstractDirectDeclarator.ParensDecl =
+    <(<AbstractDeclarator>)>
 
-  AbstractDirectDeclarator.ParensDecl     = <(<AbstractDeclarator>)>
-  AbstractDirectDeclarator.ArrayDecl      = <<AbstractDirectDeclarator?> [<Constant?>]>
-  AbstractDirectDeclarator.FuncDecl       = <<AbstractDirectDeclarator?> (<AbstractParameterList?>)>
+  AbstractDirectDeclarator.ArrayDecl =
+    <<AbstractDirectDeclarator?> [<Constant?>]>
 
-  Parameter.Parameter                     = <<DeclarationSpecifier+> <Declarator>>
-  AbstractParameter.AbstractParameter     = <<DeclarationSpecifier+> <AbstractDeclarator?>>
-  AbstractParameter.Parameter             = <<DeclarationSpecifier+> <Declarator>> {prefer}
+  AbstractDirectDeclarator.FuncDecl =
+    <<AbstractDirectDeclarator?> (<AbstractParameterList?>)>
 
-  VArg.VArg = <, ...>
-  ParameterList.Parameters         = <<{Parameter ","}+> <VArg?>>
-  AbstractParameterList.Parameters = <<{AbstractParameter ","}+> <VArg?>>
 
-  Initializer = Expr
-  Initializer = BlockInitializer
+  // parameter-declaration
+  Parameter.Parameter =
+    <<DeclarationSpecifier+> <Declarator>>
 
-  BlockInitializer.BlockInitializer = <{}>
+
+  // parameter-list
+  ParameterList.Parameters =
+    <<{Parameter ","}+> <VArg?>>
+
+
+  AbstractParameter.AbstractParameter =
+    <<DeclarationSpecifier+> <AbstractDeclarator?>>
+
+
+  AbstractParameter.Parameter =
+    <<DeclarationSpecifier+> <Declarator>> {prefer}
+
+
+  AbstractParameterList.Parameters =
+    <<{AbstractParameter ","}+> <VArg?>>
+
+
+  VArg.VArg =
+    <, ...>
+
+
+  // initializer
+  Initializer =
+    Expr
+
+  Initializer.BlockInitializer =
+    <{}>

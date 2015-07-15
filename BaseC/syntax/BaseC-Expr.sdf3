@@ -6,4 +6,5 @@ imports
 
 context-free syntax
 
-  Expr.Constant = Constant
+  Expr.Constant =
+    Constant

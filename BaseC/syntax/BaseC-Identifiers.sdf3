@@ -6,4 +6,5 @@ imports
 
 context-free syntax
 
-  Identifier.Identifier = <<ID>>
+  Identifier.Identifier =
+    <<ID>>

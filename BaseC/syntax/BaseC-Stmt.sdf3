@@ -8,28 +8,65 @@ imports
 
 context-free syntax
 
-  Statement.ExpressionStatement = <<Expr?>;>
-  Statement                     = CompoundStatement
-  Statement                     = LabeledStatement
-  Statement                     = SelectionStatement
-  Statement                     = IterationStatement
-  Statement                     = JumpStatement
+  Statement.ExpressionStatement =
+    <<Expr?>;>
+  Statement =
+    CompoundStatement
 
-  CompoundStatement.CompoundStatement = <{<Statement*>}>
+  Statement =
+    LabeledStatement
 
-  LabeledStatement.Label   = <<Identifier>: <Statement>>
-  LabeledStatement.Case    = <case <Constant>: <Statement>>
-  LabeledStatement.Default = <default : <Statement>> {prefer} // prever over Label
+  Statement =
+    SelectionStatement
 
-  SelectionStatement.If     = <if (<Expr>) <Statement>> {prefer}
-  SelectionStatement.IfElse = <if (<Expr>) <Statement> else <Statement>>
-  SelectionStatement.Switch = <switch (<Expr>) <Statement>>
+  Statement =
+    IterationStatement
 
-  IterationStatement.While = <while (<Expr>) <Statement>>
-  IterationStatement.Do    = <do <Statement> while (<Expr>);>
-  IterationStatement.For   = <for (<Expr?>; <Expr?>; <Expr?>) <Statement>>
+  Statement =
+    JumpStatement
 
-  JumpStatement.Goto     = <goto <Identifier>;>
-  JumpStatement.Continue = <continue;>
-  JumpStatement.Break    = <break;>
-  JumpStatement.Return   = <return <Expr?>;>
+
+  CompoundStatement.CompoundStatement =
+     <{<Statement*>}>
+
+  LabeledStatement.Label =
+    <<Identifier>: <Statement>>
+
+  LabeledStatement.Case =
+     <case <Constant>: <Statement>>
+
+  LabeledStatement.Default =
+    <default : <Statement>> {prefer} // prever over Label
+
+
+  SelectionStatement.If =
+    <if (<Expr>) <Statement>> {prefer} // prefer over IfElse
+
+  SelectionStatement.IfElse =
+    <if (<Expr>) <Statement> else <Statement>>
+
+  SelectionStatement.Switch =
+    <switch (<Expr>) <Statement>>
+
+
+  IterationStatement.While =
+    <while (<Expr>) <Statement>>
+
+  IterationStatement.Do =
+    <do <Statement> while (<Expr>);>
+
+  IterationStatement.For =
+    <for (<Expr?>; <Expr?>; <Expr?>) <Statement>>
+
+
+  JumpStatement.Goto =
+    <goto <Identifier>;>
+
+  JumpStatement.Continue =
+    <continue;>
+
+  JumpStatement.Break =
+    <break;>
+
+  JumpStatement.Return =
+    <return <Expr?>;>

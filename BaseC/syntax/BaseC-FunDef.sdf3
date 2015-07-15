@@ -10,10 +10,16 @@ context-free syntax
 
   Declaration = FunDef
 
-  FunName           = Identifier
-  FunName.ParenName = <(<Identifier>)>
+  FunName =
+    Identifier
 
-  FunDeclarator.FunDeclarator = <<Pointer?> <FunName> (<ParameterList?>)>
+  FunName.ParenName =
+    <(<Identifier>)>
+
+
+  FunDeclarator.FunDeclarator =
+    <<Pointer?> <FunName> (<ParameterList?>)>
+
 
   FunDef.FunDef = <
     <DeclarationSpecifier*>

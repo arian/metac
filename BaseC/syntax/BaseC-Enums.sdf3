@@ -2,4 +2,5 @@ module BaseC-Enums
 
 context-free syntax
 
-  EnumSpecifier.Enum = <enum>
+  EnumSpecifier.Enum =
+    <enum>
