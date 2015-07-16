@@ -20,6 +20,7 @@ imports
   generate
   pp
   test-utils
+  BaseC/trans/analysis/BaseC-disamb
 
 rules // Analysis
 

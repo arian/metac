@@ -19,3 +19,5 @@ rules
 
   get-stmt-from-program:
     Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> stmt
+
+  get-x: [x | xs] -> xs
