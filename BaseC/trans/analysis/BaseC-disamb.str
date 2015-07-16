@@ -1,0 +1,11 @@
+module BaseC-disamb
+
+imports
+
+  libstratego-lib
+  libstratego-aterm
+  libstratego-sglr
+
+  include/Metac
+
+strategies

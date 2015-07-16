@@ -3,8 +3,13 @@ module BaseC-Identifiers
 imports
 
   Common
+  BaseC-Keywords
 
 context-free syntax
 
   Identifier.Identifier =
     <<ID>>
+
+  Identifier =
+    Keyword {reject}
+

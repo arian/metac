@@ -1,0 +1,7 @@
+module disamb
+
+language metac
+
+test no typedefs[[
+  x;
+]] run get-x to []

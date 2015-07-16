@@ -11,7 +11,7 @@ test function declaration [[
     None,
     FuncDecl(
       Identifier("a"),
-      None
+      ParameterList([])
     )
   )]
 )
@@ -126,6 +126,44 @@ test function declaration, complex declarations, without parameter names [[
               ArrayDecl(None, None)
             )
           ))
+        ],
+        None
+      ))
+    )
+  )]
+)
+
+test function with any type [[
+  void a(b, c);
+]] run get-decl-from-program to Declaration(
+  [Void],
+  [Declarator(
+    None,
+    AbstractFuncDecl(
+      Identifier("a"),
+      Some(Parameters(
+        [
+          AbstractParameter([Identifier("b")], None),
+          AbstractParameter([Identifier("c")], None)
+        ],
+        None
+      ))
+    )
+  )]
+)
+
+test function with any type [[
+  void a(const b, c);
+]] run get-decl-from-program to Declaration(
+  [Void],
+  [Declarator(
+    None,
+    AbstractFuncDecl(
+      Identifier("a"),
+      Some(Parameters(
+        [
+          AbstractParameter([Const, Identifier("b")], None),
+          AbstractParameter([Identifier("c")], None)
         ],
         None
       ))

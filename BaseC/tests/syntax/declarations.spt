@@ -3,6 +3,24 @@ language metac
 
 start symbol Program
 
+test just a useless declaration [[
+  a;
+]] run get-decl-from-program to Declaration(
+  [], [Declarator(None, Identifier("a"))]
+)
+
+test declaration cannot be a keyword [[
+  int32;
+]] parse fails
+
+test declaration cannot be another keyword (type qualifier) [[
+  const;
+]] parse fails
+
+test declaration cannot be another keyword (storage class) [[
+  volatile;
+]] parse fails
+
 test a single variable declaration [[
   int32 a;
 ]] run get-decl-from-program to Declaration(

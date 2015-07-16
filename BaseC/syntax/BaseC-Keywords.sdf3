@@ -1,0 +1,17 @@
+module BaseC-Keywords
+
+imports
+
+  BaseC-Types
+  BaseC-Declarations
+
+context-free syntax
+
+  Keyword =
+    PureType
+
+  Keyword =
+    StorageClassSpecifierKeyword
+
+  Keyword =
+    TypeQualifierKeyword

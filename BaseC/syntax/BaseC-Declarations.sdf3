@@ -15,29 +15,34 @@ context-free syntax
   Decl.NoInit = Identifier
 
   // storage-class-specifiers
-  StorageClass.Auto =
+  StorageClassSpecifierKeyword.Auto =
     <auto>
 
-  StorageClass.Register =
+  StorageClassSpecifierKeyword.Register =
     <register>
 
-  StorageClass.Static   =
+  StorageClassSpecifierKeyword.Static   =
     <static>
 
-  StorageClass.Extern   =
+  StorageClassSpecifierKeyword.Extern   =
     <extern>
 
-  StorageClass.Typedef  =
+  StorageClassSpecifierKeyword.Typedef  =
     <typedef>
 
+  StorageClass =
+    StorageClassSpecifierKeyword
 
   // type-qualifier
-  Qualifier.Const     =
+
+  TypeQualifierKeyword.Const =
     <const>
 
-  Qualifier.Volatile  =
+  TypeQualifierKeyword.Volatile =
     <volatile>
 
+  Qualifier =
+    TypeQualifierKeyword
 
   // type-specifier
   TypeSpecifier =
@@ -69,7 +74,7 @@ context-free syntax
 
   // declaration
   Declaration.Declaration =
-    <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
+    <<DeclarationSpecifier*> <{InitDeclarator ", "}+>;>
 
 
   // init-declarator
@@ -92,7 +97,7 @@ context-free syntax
 
   // direct-declarator
   DirectDeclarator =
-    Identifier
+    Identifier {avoid}
 
   DirectDeclarator.ParensDecl =
     <(<Declarator>)>
@@ -101,51 +106,26 @@ context-free syntax
     <<DirectDeclarator> [<Constant?>]>
 
   DirectDeclarator.FuncDecl =
-    <<DirectDeclarator> (<ParameterList?>)> {prefer}
-
-  DirectDeclarator.AbstractFuncDecl =
-    <<DirectDeclarator> (<AbstractParameterList?>)>
+    <<DirectDeclarator> (<ParameterTypeList>)> {prefer}
 
 
-  // abstract-declarator is a declaration without eventually an identifier,
-  // used in parameter lists
-  AbstractDeclarator.AbstractDeclarator =
-    <<Pointer?> <AbstractDirectDeclarator>>
+  // parameter-type-list
+  ParameterTypeList =
+    ParameterList
 
-  AbstractDirectDeclarator.ParensDecl =
-    <(<AbstractDeclarator>)>
+  ParameterTypeList.VarArgs =
+    <<ParameterList>, ...>
 
-  AbstractDirectDeclarator.ArrayDecl =
-    <<AbstractDirectDeclarator?> [<Constant?>]>
-
-  AbstractDirectDeclarator.FuncDecl =
-    <<AbstractDirectDeclarator?> (<AbstractParameterList?>)>
+  // parameter-list
+  ParameterList.ParameterList = <<{ParameterDeclaration ","}*>>
 
 
   // parameter-declaration
-  Parameter.Parameter =
+  ParameterDeclaration.Parameter =
     <<DeclarationSpecifier+> <Declarator>>
 
-
-  // parameter-list
-  ParameterList.Parameters =
-    <<{Parameter ","}+> <VArg?>>
-
-
-  AbstractParameter.AbstractParameter =
+  ParameterDeclaration.AbstractParameter =
     <<DeclarationSpecifier+> <AbstractDeclarator?>>
-
-
-  AbstractParameter.Parameter =
-    <<DeclarationSpecifier+> <Declarator>> {prefer}
-
-
-  AbstractParameterList.Parameters =
-    <<{AbstractParameter ","}+> <VArg?>>
-
-
-  VArg.VArg =
-    <, ...>
 
 
   // initializer
@@ -154,3 +134,23 @@ context-free syntax
 
   Initializer.BlockInitializer =
     <{}>
+
+  // abstract-declarator
+  AbstractDeclarator =
+    Pointer
+
+  AbstractDeclarator.Declarator =
+    <<Pointer?> <DirectAbstractDeclarator>>
+
+
+  // direct-abstract-declarator
+  DirectAbstractDeclarator.ParensDecl =
+    <(<AbstractDeclarator>)>
+
+  DirectAbstractDeclarator.ArrayDecl =
+    <<DirectAbstractDeclarator?> [<Constant?>]>
+
+  DirectAbstractDeclarator.FuncDecl =
+    <<DirectAbstractDeclarator?> (<ParameterTypeList?>)>
+
+
