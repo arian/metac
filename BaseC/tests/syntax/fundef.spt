@@ -30,10 +30,10 @@ test parenthesized function name [[
   _
 )
 
-test function with one parameter
-  <parse-string ; disamb; get-fundef-from-program> ("
-    x (int32 a) {}
-  ") => FunDef(
+test function with one parameter [[
+   x (int32 a) {}
+]] run get-fundef-from-program to
+  FunDef(
     [],
     FunDeclarator(
       None,

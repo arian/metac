@@ -17,10 +17,9 @@ test function declaration [[
     )]
   )
 
-test function declaration one argument
-  <parse-string ; disamb ; get-decl-from-program> (
-    "void a(int32 c);"
-  ) =>
+test function declaration one argument [[
+  void a(int32 c);
+]] run get-decl-from-program to
   Declaration(
     [Type(Void)],
     [Declarator(
@@ -34,10 +33,9 @@ test function declaration one argument
     )]
   )
 
-test function declaration more arguments
-  <parse-string ; disamb ; get-decl-from-program> (
-    "void a(int32 b, const int32 c, int32 *d);"
-  ) =>
+test function declaration more arguments [[
+  void a(int32 b, const int32 c, int32 *d);
+]] run get-decl-from-program to
   Declaration(
     [Type(Void)],
     [Declarator(
@@ -69,10 +67,9 @@ test function declaration without parameter names [[
   )]
 )
 
-test function declaration with mixed parameters
-  <parse-string ; disamb ; get-decl-from-program> (
-    "void a(const int32, int32 a, int32);"
-  ) =>
+test function declaration with mixed parameters [[
+  void a(const int32, int32 a, int32);
+]] run get-decl-from-program to
   Declaration(
     [Type(Void)],
     [Declarator(
@@ -110,11 +107,11 @@ test function declaration, complex declarations, without parameter names [[
   )]
 )
 
-test function with any type
-  <parse-string ; disamb> ("
+test function with any type [[
     typedef int32 B;
     void a(b, const B, B);
-  ") => Declarations([
+]] parse to
+  Declarations([
     _,
     Declaration(
       [Type(Void)],
@@ -132,13 +129,10 @@ test function with any type
     )
   ])
 
-test function declaration with varargs
-  <parse-string
-  ; disamb
-  ; find-elem(?Declaration(_, _))
-  > ("
-    void a(int32 b, int32 const c, ...);
-  ") => Declaration(
+test function declaration with varargs [[
+  void a(int32 b, int32 const c, ...);
+]] run get-decl-from-program to
+  Declaration(
     [Type(Void)],
     [Declarator(
       None,
@@ -158,12 +152,10 @@ test function declaration with varargs
     )]
   )
 
-test function declaration with vararg, directly after comma
-  <parse-string ; disamb> ("
-    void a(int32 b, int32 const c,...);
-  ") => Declarations(_)
+test function declaration with vararg, directly after comma [[
+  void a(int32 b, int32 const c,...);
+]] parse succeeds
 
-test function declaration with vararg, directly after comma
-  <parse-string ; disamb <+ !0> ("
-    void a(int32 b, int32 const c...);
-  ") => 0
+test function declaration with vararg, directly after comma [[
+  void a(int32 b, int32 const c...);
+]] parse fails

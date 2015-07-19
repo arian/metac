@@ -29,6 +29,8 @@ language General properties
 
   observer:      editor-analyze (multifile)
 
+  disambiguator: disamb
+
   on save:       editor-save
 
   jvm opts:      -server -Xss8m -Xmx1024m
