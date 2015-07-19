@@ -20,7 +20,7 @@ imports
   generate
   pp
   test-utils
-  BaseC/trans/analysis/BaseC-disamb
+  BaseC/trans/analysis/-
 
 rules // Analysis
 
@@ -29,7 +29,7 @@ rules // Analysis
   analysis-single-default-interface =
     analysis-single-default(id, id, id|<language>)
   analysis-multiple-default-interface =
-    analysis-multiple-default(parse-file <+ !(), id, id, id|<language>, <project-path>)
+    analysis-multiple-default(parse-file <+ !(), disamb, id, id|<language>, <project-path>)
 
   editor-save = analysis-save-default(|<language>)
 

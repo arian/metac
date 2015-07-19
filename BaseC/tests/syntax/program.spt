@@ -3,4 +3,5 @@ language metac
 
 start symbol Program
 
-test [[ ]] parse to Declarations([])
+test empty program [[ ]] parse to
+  Declarations([])

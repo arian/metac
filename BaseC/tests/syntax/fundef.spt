@@ -11,7 +11,7 @@ test minimal function definition [[
   FunDeclarator(
     None,
     Identifier("x"),
-    None
+    ParameterList([])
   ),
   [],
   CompoundStatement([])
@@ -24,24 +24,33 @@ test parenthesized function name [[
   FunDeclarator(
     None,
     ParenName(Identifier("x")),
-    None
+    ParameterList([])
   ),
   [],
   _
 )
 
-test function with one parameter [[
-  x (int32 a) {}
-]] run get-fundef-from-program to FunDef(
-  [],
-  FunDeclarator(
-    None,
-    Identifier("x"),
-    Some(Parameters(_, _))
-  ),
-  [],
-  CompoundStatement([])
-)
+test function with one parameter
+  <parse-string ; disamb; get-fundef-from-program> ("
+    x (int32 a) {}
+  ") => FunDef(
+    [],
+    FunDeclarator(
+      None,
+      Identifier("x"),
+      ParameterList([
+        Parameter([Type(Int32)], Declarator(None, Identifier("a")))
+      ])
+    ),
+    [],
+    CompoundStatement([])
+  )
+
+test old style declaration [[
+  void x(a, b) int32 a, b; {
+
+  }
+]] parse succeeds
 
 test function without parameter name [[x (int32) {}]] parse fails
 test function without parameter name [[x (const int32) {}]] parse fails
@@ -49,11 +58,11 @@ test function without parameter name [[x (const int32) {}]] parse fails
 test function return type [[
   int32 x () {}
 ]] run get-fundef-from-program to FunDef(
-  [Int32],
+  [Type(Int32)],
   FunDeclarator(
     None,
     Identifier("x"),
-    None
+    ParameterList([])
   ),
   [],
   CompoundStatement([])
@@ -62,11 +71,11 @@ test function return type [[
 test function complicated return type [[
   const static int32 * const x() {}
 ]] run get-fundef-from-program to FunDef(
-  [Const, Static, Int32],
+  [Const, Static, Type(Int32)],
   FunDeclarator(
     Some(Pointer([Const], None)),
     Identifier("x"),
-    None
+    ParameterList([])
   ),
   _,
   _

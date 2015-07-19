@@ -9,3 +9,92 @@ imports
   include/Metac
 
 strategies
+
+  disamb =
+    rules(td-names := [])
+    ; traverse(try(disamb-typedef))
+
+  traverse(s) =
+    s ; all(enter-scope(s) <+ traverse(s))
+
+  disamb-typedef =
+    resolve-amb ; try(collect-name)
+    <+ collect-name
+
+  resolve-amb =
+    disamb-params(|<td-names>)
+
+  enter-scope(s) =
+    (?FunDef(_, _, _, _))
+    ; {| td-names : traverse(s) |}
+
+  collect-name =
+    ?x ; collect-td-name ; !x
+
+  collect-td-name =
+    get-declaration-name
+    ; ?name
+    ; update-td-names(union | [name])
+
+  update-td-names(s | ids) =
+    rules(td-names := <s> (<td-names>, ids))
+
+  test-collect-td-name =
+    rules(td-names := [])
+    ; collect-td-name
+    ; td-names
+
+rules
+
+  get-declaration-name: Declaration(
+      [Typedef() | _],
+      [Declarator(_, Identifier(name))]
+    ) -> name
+
+  get-parameter-type:
+    Parameter(specifiers, _) -> type
+    where
+      type' := <fetch-elem(?Type(_))> specifiers
+    ; Type(type) := type'
+
+  param-if-is-type(|names):
+    p@Parameter(_, _) -> x
+    where
+      t := <get-parameter-type> p
+    ; if ?Identifier(name) then
+        <elem> (name, names) ; x := p
+      else
+        x := p
+      end
+
+rules
+
+/*
+
+ParameterList([
+  amb([
+    Parameter([Type(Int32)],Declarator(None,Identifier("c"))),
+    AbstractParameter([Type(Int32),Type(Identifier("c"))],None)
+  ])
+])
+
+[
+  AbstractParameter([Type(Identifier("b"))],None),
+  amb([
+    Parameter([Const],Declarator(None,Identifier("B"))),
+    AbstractParameter([Const,Type(Identifier("B"))],None)
+  ]),
+  AbstractParameter([Type(Identifier("B"))],None)])))
+]
+*/
+
+  disamb-param(|names): amb(ambs) -> p
+    where
+      p := <fetch-elem(?Parameter(_, _))> ambs
+        ; param-if-is-type(|names)
+      <+ p := <fetch-elem(?AbstractParameter(_, _))> ambs
+
+  disamb-params(|names):
+    ParameterList(ps) -> ParameterList(params)
+    where
+      params := <map(disamb-param(|names) <+ id)> ps

@@ -2,6 +2,133 @@ module disamb
 
 language metac
 
-test no typedefs[[
-  x;
-]] run get-x to []
+test get typedef name simple
+  <parse-string
+    ; get-decl-from-program
+    ; get-declaration-name
+  > ("typedef int32 X;")
+  => "X"
+
+test get typedef name complexer
+  <parse-string
+    ; get-decl-from-program
+    ; get-declaration-name
+  > ("typedef const int32 * X;")
+  => "X"
+
+test get param type
+  <parse-string
+    ; find-elem(?Parameter(_, _))
+    ; get-parameter-type
+  > ("void y(int32 a);")
+  => Int32
+
+test param if is type native type
+  <parse-string
+    ; find-elem(?Parameter(_, _))
+    ; param-if-is-type(|[])
+  > ("void y(int32 a);")
+  => Parameter(_, _)
+
+test param if is type with typedef'd type
+  <parse-string
+    ; find-elem(?Parameter(_, _))
+    ; param-if-is-type(|["abc"])
+  > ("void y(abc a);")
+  => Parameter(_, _)
+
+test param if is type with typedef'd type, not existent
+  <parse-string
+    ; find-elem(?Parameter(_, _))
+    ; param-if-is-type(|["abc"]) <+ ![]
+  > ("void y(xxx b);")
+  => []
+
+test get parameter from amb list
+  <parse-string
+    ; find-elem(?amb(_))
+    ; disamb-param(|["abc"])
+  > ("void x(abc b);")
+  => Parameter(_, _)
+
+test get parameter from amb list with native type
+  <parse-string
+    ; disamb
+    ; find-elem(?ParameterList(_))
+  > ("void x(int32 b);")
+  => ParameterList([Parameter([Type(Int32)], _)])
+
+test get parameter from amb list with defined type
+  <parse-string
+    ; disamb
+    ; find-elem(?ParameterList(_))
+  > ("
+    typedef int32 A;
+    void x(A b);
+  ")
+  => ParameterList([
+    Parameter([Type(Identifier("A"))], _)
+  ])
+
+/*
+test get parameter from amb list
+  <disamb-param(|["abc"])> (
+    amb([
+      Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
+      AbstractParameter([Type(Identifier("abc")), Type(Identifier("b"))], None())
+    ])
+  ) => Parameter(_, _)
+
+test resolve amb test
+  <disamb-params(|["abc"])> (
+    ParameterList([
+      amb([
+        Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
+        AbstractParameter([Type(Identifier("abc")), Type(Identifier("b"))], None())
+      ]),
+      Parameter([Type(Identifier("x"))], Declarator(None(), Identifier("y")))
+    ])
+  ) => ParameterList([
+    Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
+    Parameter([Type(Identifier("x"))], Declarator(None(), Identifier("y")))
+  ])
+
+test fix param that is typedefed
+  <parse-string ; disamb> ("
+    typedef int32 a;
+    void x(a b, c);
+  ") => Declarations([
+    Declaration([Typedef,Type(Int32)],[Declarator(None,Identifier("a"))]),
+    Declaration(
+      [Type(Void)],
+      [Declarator(
+        None,
+        FuncDecl(
+          Identifier("x"),
+          ParameterList([
+            Parameter([Type(Identifier("a"))], Declarator(None, Identifier("b"))),
+            AbstractParameter([Type(Identifier("c"))], None)
+          ])
+        )
+      )]
+    )
+  ])
+
+test fix param with an int32
+  <parse-string ;  get-decl-from-program> ("
+    void x(int32 b);
+  ") => Declaration(
+    [Type(Void)],
+    [Declarator(
+      None,
+      FuncDecl(
+        Identifier("x"),
+        ParameterList([
+          Parameter([Type(Int32)], Declarator(None, Identifier("b")))
+        ])
+      )
+    )]
+  )
+
+
+*/

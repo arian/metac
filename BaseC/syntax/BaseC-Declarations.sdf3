@@ -65,7 +65,7 @@ context-free syntax
   DeclarationSpecifier =
     Qualifier
 
-  DeclarationSpecifier =
+  DeclarationSpecifier.Type =
     TypeSpecifier
 
   // typedef-name
@@ -108,6 +108,8 @@ context-free syntax
   DirectDeclarator.FuncDecl =
     <<DirectDeclarator> (<ParameterTypeList>)> {prefer}
 
+  DirectDeclarator.FuncDeclIDs =
+    <<DirectDeclarator> (<{Identifier ","}*>)>
 
   // parameter-type-list
   ParameterTypeList =

@@ -2,6 +2,7 @@ module test-utils
 
 imports
 
+  BaseC/trans/analysis/-
   include/Metac
 
 rules
@@ -20,4 +21,7 @@ rules
   get-stmt-from-program:
     Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> stmt
 
-  get-x: [x | xs] -> xs
+strategies
+
+  find-elem(s) =
+    oncetd(s ; ?x) ; !x
