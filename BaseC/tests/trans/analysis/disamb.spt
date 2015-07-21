@@ -75,9 +75,17 @@ test all-valid-types, some is not valid
   ]
   => 0
 
+test all-valid-types, some is not valid
+  <is-valid-parameter(|[]); !1 <+ !0> AbstractParameter([
+    Type(Int32()),
+    Type(Identifier("c"))
+  ], None())
+  => 0
+
 test get parameter from amb list
   <parse-string
     ; find-elem(?amb(_))
+    ; debug
     ; disamb-parameter(|["abc"])
   > ("void x(abc b);")
   => Parameter(_, _)

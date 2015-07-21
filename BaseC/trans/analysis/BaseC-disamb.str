@@ -79,48 +79,35 @@ rules
 
 rules
 
-/*
-
-ParameterList([
-  amb([
-    Parameter([Type(Int32)],Declarator(None,Identifier("c"))),
-    AbstractParameter([Type(Int32),Type(Identifier("c"))],None)
-  ])
-])
-
-[
-  AbstractParameter([Type(Identifier("b"))],None),
-  amb([
-    Parameter([Const],Declarator(None,Identifier("B"))),
-    AbstractParameter([Const,Type(Identifier("B"))],None)
-  ]),
-  AbstractParameter([Type(Identifier("B"))],None)])))
-]
-*/
-
   is-valid-type(|names):
     Type(Identifier(name)) -> <elem> (name, names)
 
   is-valid-type(|names) =
-    not(?Type(_))
+    not(?Type(Identifier(_)))
 
   is-valid-parameter(|names):
     p@Parameter(specifiers, _) -> p
     where
-      all(is-valid-type(|names))
+      <all(is-valid-type(|names))> specifiers
 
   is-valid-parameter(|names):
     p@AbstractParameter(specifiers, _) -> p
     where
-      all(is-valid-type(|names))
+      <all(is-valid-type(|names))> specifiers
+
+  disamb-parameter-sort:
+    x@(AbstractParameter(_, _), Parameter(_, _)) -> x
 
   disamb-parameter(|names):
-    amb(ambs) -> <fetch-elem(is-valid-parameter(|names))> ambs
+    amb(ambs) -> p
+    where
+      ps := <sort-list(LSort(disamb-parameter-sort)) ; reverse> ambs
+      ; p := <fetch-elem(is-valid-parameter(|names))>
 
   disamb-parameters(|names):
     ParameterList(ps) -> ParameterList(params)
     where
-      params := <map(disamb-parameter(|names) <+ id)> ps
+      params := <map(try(disamb-parameter(|names)))> ps
 
 rules
 
@@ -137,19 +124,12 @@ rules
       func@FuncDecl(_, ParameterList(parameterList))]
     ) -> x
     where
-      if <bottomup(is-valid-type(|names))> parameterList then
-        x := func
-      else
-        x := ids
-      end
+      x := <bottomup(is-valid-type(|names)) < !func + !ids> parameterList
 
 rules
 
-  disamb-parens-decl-or-func-decl(|names):
-    amb([
-      p@Declaration(specifiers, [Declarator(_, ParensDecl(_))]),
-      f@Declaration(_, _)
-    ]) -> x
+  internal-disamb-parens-decl-or-func-decl(|names):
+    (specifiers, f, p) -> x
     where
       if <all(is-valid-type(|names))> specifiers then
         x := p
@@ -157,3 +137,15 @@ rules
         x:= f
       end
 
+  disamb-parens-decl-or-func-decl(|names):
+    amb([
+      f@Declaration(_, _),
+      p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _])
+    ]) -> <internal-disamb-parens-decl-or-func-decl(|names)> (specifiers, f, p)
+
+
+  disamb-parens-decl-or-func-decl(|names):
+    amb([
+      p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _]),
+      f@Declaration(_, _)
+    ]) -> <internal-disamb-parens-decl-or-func-decl(|names)> (specifiers, f, p)

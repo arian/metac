@@ -52,8 +52,9 @@ test old style declaration [[
   }
 ]] parse succeeds
 
-test function without parameter name [[x (int32) {}]] parse fails
-test function without parameter name [[x (const int32) {}]] parse fails
+// TODO this should give some errors
+// test function without parameter name [[x (int32) {}]] parse fails
+// test function without parameter name [[x (const int32) {}]] parse fails
 
 test function return type [[
   int32 x () {}

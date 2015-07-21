@@ -47,26 +47,25 @@ test function declaration with one named parameter [[
     )]
   )
 
-// TODO
 test paren decl and fn [[
   typedef int32 x;
-  x (a), y(x);
-  // const x z(x),(b);
+  x (a), y (x);
+  const x z (x), (b);
 ]] parse to Declarations([
     _,
     Declaration(
       [Type(Identifier("x"))],
-      [Declarator([
-        ParensDecl(Declarator(None, Identifier("a"))),
-        FuncDecl(_, _)
-      ])]
+      [
+        Declarator(None, ParensDecl(Declarator(None, Identifier("a")))),
+        Declarator(None, FuncDecl(_, _))
+      ]
     ),
     Declaration(
       [Const, Type(Identifier("x"))],
-      [Declarator([
-        FuncDecl(_, _),
-        ParensDecl(_)
-      ])]
+      [
+        Declarator(None, FuncDecl(_, _)),
+        Declarator(None, ParensDecl(Declarator(None, Identifier("b"))))
+      ]
     )
   ])
 
@@ -181,7 +180,7 @@ test function declaration, complex declarations, without parameter names [[
 
 test function with any type [[
     typedef int32 B;
-    void a(b, const B, C A);
+    void a(d, const *c, const B, B);
 ]] parse to
   Declarations([
     _,
@@ -192,7 +191,8 @@ test function with any type [[
         FuncDecl(
           Identifier("a"),
           ParameterList([
-            Parameter([], Identifier("b")),
+            AbstractParameter([Type(Identifier("d"))], None),
+            Parameter([Const], Declarator(Some(Pointer([], None)), Identifier("c"))),
             AbstractParameter([Const, Type(Identifier("B"))], None),
             AbstractParameter([Type(Identifier("B"))], None)
           ])
