@@ -15,3 +15,38 @@ context-free syntax
 
   Keyword =
     TypeQualifierKeyword
+
+lexical syntax
+
+  Keyword = "auto"
+  Keyword = "break"
+  Keyword = "case"
+  Keyword = "char"
+  Keyword = "const"
+  Keyword = "continue"
+  Keyword = "default"
+  Keyword = "do"
+  Keyword = "double"
+  Keyword = "else"
+  Keyword = "enum"
+  Keyword = "extern"
+  Keyword = "float"
+  Keyword = "for"
+  Keyword = "goto"
+  Keyword = "if"
+  Keyword = "int"
+  Keyword = "long"
+  Keyword = "register"
+  Keyword = "return"
+  Keyword = "short"
+  Keyword = "signed"
+  Keyword = "sizeof"
+  Keyword = "static"
+  Keyword = "struct"
+  Keyword = "switch"
+  Keyword = "typedef"
+  Keyword = "union"
+  Keyword = "unsigned"
+  Keyword = "void"
+  Keyword = "volatile"
+  Keyword = "while"

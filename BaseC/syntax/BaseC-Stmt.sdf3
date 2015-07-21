@@ -5,11 +5,13 @@ imports
   BaseC-Constants
   BaseC-Identifiers
   BaseC-Expr
+  BaseC-Declarations
 
 context-free syntax
 
   Statement.ExpressionStatement =
     <<Expr?>;>
+
   Statement =
     CompoundStatement
 
@@ -26,8 +28,15 @@ context-free syntax
     JumpStatement
 
 
+  BlockItem =
+    Statement
+
+  BlockItem =
+    Declaration
+
+
   CompoundStatement.CompoundStatement =
-     <{<Statement*>}>
+     <{<BlockItem*>}>
 
   LabeledStatement.Label =
     <<Identifier>: <Statement>>

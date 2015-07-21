@@ -18,6 +18,12 @@ test compound with an expression statement [[
   ExpressionStatement(_)
 ])
 
+test compound with a declaration [[
+  {int32 x;}
+]] run get-stmt-from-program to CompoundStatement([
+  Declaration([Type(Int32())], [Declarator(None(), Identifier("x"))])
+])
+
 test expression statement empty [[
   ;
 ]] run get-stmt-from-program to ExpressionStatement(None)
