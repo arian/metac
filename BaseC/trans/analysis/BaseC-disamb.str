@@ -55,35 +55,15 @@ rules
       [Declarator(_, Identifier(name))]
     ) -> name
 
-  get-specifiers-type:
-    specifiers -> type
-    where
-      type' := <fetch-elem(?Type(_))> specifiers
-    ; Type(type) := type'
-
-  get-parameter-type:
-    Parameter(specifiers, _) -> <get-specifiers-type> specifiers
-
-  get-parameter-type:
-    AbstractParameter(specifiers, _) -> <get-specifiers-type> specifiers
-
-  parameter-if-is-type(|names):
-    p -> x
-    where
-      t := <get-parameter-type> p
-    ; if ?Identifier(name) then
-        <elem> (name, names) ; x := p
-      else
-        x := p
-      end
-
 rules
 
   is-valid-type(|names):
-    Type(Identifier(name)) -> <elem> (name, names)
+    Type(TypedefName(Identifier(name))) -> <elem> (name, names)
 
   is-valid-type(|names) =
-    not(?Type(Identifier(_)))
+    not(?Type(TypedefName(_)))
+
+rules
 
   is-valid-parameter(|names):
     p@Parameter(specifiers, _) -> p

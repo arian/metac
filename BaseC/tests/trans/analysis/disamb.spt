@@ -16,34 +16,6 @@ test get typedef name complexer
   > ("typedef const int32 * X;")
   => "X"
 
-test get param type
-  <parse-string
-    ; find-elem(?Parameter(_, _))
-    ; get-parameter-type
-  > ("void y(int32 a);")
-  => Int32
-
-test param if is type native type
-  <parse-string
-    ; find-elem(?Parameter(_, _))
-    ; parameter-if-is-type(|[])
-  > ("void y(int32 a);")
-  => Parameter(_, _)
-
-test param if is type with typedef'd type
-  <parse-string
-    ; find-elem(?Parameter(_, _))
-    ; parameter-if-is-type(|["abc"])
-  > ("void y(abc a);")
-  => Parameter(_, _)
-
-test param if is type with typedef'd type, not existent
-  <parse-string
-    ; find-elem(?Parameter(_, _))
-    ; parameter-if-is-type(|["abc"]) <+ ![]
-  > ("void y(xxx b);")
-  => []
-
 test is-valid-type, type is in the list
   <is-valid-type(|["A", "B"]) ; !1 <+ !0>
   Type(Identifier("A"))
@@ -51,7 +23,7 @@ test is-valid-type, type is in the list
 
 test is-valid-type, type is not in the list
   <is-valid-type(|["A", "B"]) ; !1 <+ !0>
-  Type(Identifier("C"))
+  Type(TypedefName(Identifier("C")))
   => 0
 
 test is-valid-type
@@ -69,23 +41,22 @@ test all-valid-types
 
 test all-valid-types, some is not valid
   <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
-    Type(Identifier("A")),
+    Type(TypedefName(Identifier("A"))),
     Const(),
-    Type(Identifier("C"))
+    Type(TypedefName(Identifier("C")))
   ]
   => 0
 
 test all-valid-types, some is not valid
   <is-valid-parameter(|[]); !1 <+ !0> AbstractParameter([
     Type(Int32()),
-    Type(Identifier("c"))
+    Type(TypedefName(Identifier("c")))
   ], None())
   => 0
 
 test get parameter from amb list
   <parse-string
     ; find-elem(?amb(_))
-    ; debug
     ; disamb-parameter(|["abc"])
   > ("void x(abc b);")
   => Parameter(_, _)
@@ -106,7 +77,7 @@ test get parameter from amb list with defined type
     void x(A b);
   ")
   => ParameterList([
-    Parameter([Type(Identifier("A"))], _)
+    Parameter([Type(TypedefName(Identifier("A")))], _)
   ])
 
 test get parameter from amb list with defined type
@@ -118,7 +89,7 @@ test get parameter from amb list with defined type
     void x(A);
   ")
   => ParameterList([
-    AbstractParameter([Type(Identifier("A"))], _)
+    AbstractParameter([Type(TypedefName(Identifier("A")))], _)
   ])
 
 test func-decl vs func-decl with only IDs, param __isn't__ a type, so func decl with IDs
@@ -126,7 +97,7 @@ test func-decl vs func-decl with only IDs, param __isn't__ a type, so func decl 
     FuncDeclIDs(Identifier("a"), [Identifier("B")]),
      FuncDecl(
        Identifier("a"),
-       ParameterList([AbstractParameter([Type(Identifier("B"))], None())])
+       ParameterList([AbstractParameter([Type(TypedefName(Identifier("B")))], None())])
       )
   ])
   => FuncDeclIDs(_, _)
@@ -144,7 +115,7 @@ test func-decl vs func-decl with only IDs, param __is__ a type, so func decl wit
 test paren decl vs func decl, x isn't a type, so should be a function
   <disamb-parens-decl-or-func-decl(|[])> amb([
     Declaration(
-      [Type(Identifier("x"))],
+      [Type(TypedefName(Identifier("x")))],
       [Declarator(None(), ParensDecl(Declarator(None(), Identifier("a"))))]
     ),
     Declaration(
@@ -153,7 +124,7 @@ test paren decl vs func decl, x isn't a type, so should be a function
         None(),
         FuncDecl(
           Identifier("x"),
-          ParameterList([AbstractParameter([Type(Identifier("a"))],None())])
+          ParameterList([AbstractParameter([Type(TypedefName(Identifier("a")))],None())])
         )
       )]
     )
@@ -179,76 +150,3 @@ test paren decl vs func decl, x __is__ a type, so should be a function
   ])
   => Declaration(_, [Declarator(_, ParensDecl(_))])
 
-/*
-test get parameter from amb list with defined type
-  <debug ; disamb-parameters(|[])> (
-    ParameterList([AbstractParameter([Type(Identifier("A"))],None)])
-  )
-  => ParameterList([
-    Parameter([], Declarator(None, Identifier("A")))
-  ])
-*/
-
-
-/*
-test get parameter from amb list
-  <disamb-param(|["abc"])> (
-    amb([
-      Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
-      AbstractParameter([Type(Identifier("abc")), Type(Identifier("b"))], None())
-    ])
-  ) => Parameter(_, _)
-
-test resolve amb test
-  <disamb-params(|["abc"])> (
-    ParameterList([
-      amb([
-        Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
-        AbstractParameter([Type(Identifier("abc")), Type(Identifier("b"))], None())
-      ]),
-      Parameter([Type(Identifier("x"))], Declarator(None(), Identifier("y")))
-    ])
-  ) => ParameterList([
-    Parameter([Type(Identifier("abc"))], Declarator(None(), Identifier("b"))),
-    Parameter([Type(Identifier("x"))], Declarator(None(), Identifier("y")))
-  ])
-
-test fix param that is typedefed
-  <parse-string ; disamb> ("
-    typedef int32 a;
-    void x(a b, c);
-  ") => Declarations([
-    Declaration([Typedef,Type(Int32)],[Declarator(None,Identifier("a"))]),
-    Declaration(
-      [Type(Void)],
-      [Declarator(
-        None,
-        FuncDecl(
-          Identifier("x"),
-          ParameterList([
-            Parameter([Type(Identifier("a"))], Declarator(None, Identifier("b"))),
-            AbstractParameter([Type(Identifier("c"))], None)
-          ])
-        )
-      )]
-    )
-  ])
-
-test fix param with an int32
-  <parse-string ;  get-decl-from-program> ("
-    void x(int32 b);
-  ") => Declaration(
-    [Type(Void)],
-    [Declarator(
-      None,
-      FuncDecl(
-        Identifier("x"),
-        ParameterList([
-          Parameter([Type(Int32)], Declarator(None, Identifier("b")))
-        ])
-      )
-    )]
-  )
-
-
-*/

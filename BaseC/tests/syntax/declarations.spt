@@ -170,7 +170,7 @@ test typedef [[
 test a typedefed decl [[
   a b, c;
 ]] run get-decl-from-program to Declaration(
-  [Type(Identifier("a"))],
+  [Type(TypedefName(Identifier("a")))],
   [
     Declarator(None, Identifier("b")),
     Declarator(None, Identifier("c"))

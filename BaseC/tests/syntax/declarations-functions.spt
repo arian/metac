@@ -54,14 +54,14 @@ test paren decl and fn [[
 ]] parse to Declarations([
     _,
     Declaration(
-      [Type(Identifier("x"))],
+      [Type(TypedefName(Identifier("x")))],
       [
         Declarator(None, ParensDecl(Declarator(None, Identifier("a")))),
         Declarator(None, FuncDecl(_, _))
       ]
     ),
     Declaration(
-      [Const, Type(Identifier("x"))],
+      [Const, Type(TypedefName(Identifier("x")))],
       [
         Declarator(None, FuncDecl(_, _)),
         Declarator(None, ParensDecl(Declarator(None, Identifier("b"))))
@@ -81,7 +81,7 @@ test function declaration with one typedef'd parameter [[
         FuncDecl(
           Identifier("a"),
           ParameterList([
-            AbstractParameter([Type(Identifier("B"))], _)
+            AbstractParameter([Type(TypedefName(Identifier("B")))], _)
           ])
         )
       )]
@@ -178,6 +178,27 @@ test function declaration, complex declarations, without parameter names [[
   )]
 )
 
+test function with a typedef'ed parameter [[
+  typedef int32 a;
+  void x(a b, c);
+]] parse to
+  Declarations([
+    _,
+    Declaration(
+      [Type(Void)],
+      [Declarator(
+        None,
+        FuncDecl(
+          Identifier("x"),
+          ParameterList([
+            Parameter([Type(TypedefName(Identifier("a")))], Declarator(None, Identifier("b"))),
+            AbstractParameter([Type(TypedefName(Identifier("c")))], None)
+          ])
+        )
+      )]
+    )
+  ])
+
 test function with any type [[
     typedef int32 B;
     void a(d, const *c, const B, B);
@@ -191,10 +212,10 @@ test function with any type [[
         FuncDecl(
           Identifier("a"),
           ParameterList([
-            AbstractParameter([Type(Identifier("d"))], None),
+            AbstractParameter([Type(TypedefName(Identifier("d")))], None),
             Parameter([Const], Declarator(Some(Pointer([], None)), Identifier("c"))),
-            AbstractParameter([Const, Type(Identifier("B"))], None),
-            AbstractParameter([Type(Identifier("B"))], None)
+            AbstractParameter([Const, Type(TypedefName(Identifier("B")))], None),
+            AbstractParameter([Type(TypedefName(Identifier("B")))], None)
           ])
         )
       )]

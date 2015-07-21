@@ -69,7 +69,7 @@ context-free syntax
     TypeSpecifier
 
   // typedef-name
-  TypeDefName = Identifier
+  TypeDefName.TypedefName = Identifier
 
 
   // declaration
