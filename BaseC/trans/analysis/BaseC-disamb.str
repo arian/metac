@@ -24,7 +24,9 @@ strategies
     <+ collect-name
 
   resolve-amb =
-    disamb-params(|<td-names>)
+    try(disamb-parameters(|<td-names>))
+    ; try(disamb-parens-decl-or-func-decl(|<td-names>))
+    ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
 
   enter-scope(s) =
     (?FunDef(_, _, _, _))
@@ -34,7 +36,7 @@ strategies
     ?x ; collect-td-name ; !x
 
   collect-td-name =
-    get-declaration-name
+    get-typedef-declaration-name
     ; ?name
     ; update-td-names(union | [name])
 
@@ -48,19 +50,25 @@ strategies
 
 rules
 
-  get-declaration-name: Declaration(
+  get-typedef-declaration-name: Declaration(
       [Typedef() | _],
       [Declarator(_, Identifier(name))]
     ) -> name
 
-  get-parameter-type:
-    Parameter(specifiers, _) -> type
+  get-specifiers-type:
+    specifiers -> type
     where
       type' := <fetch-elem(?Type(_))> specifiers
     ; Type(type) := type'
 
-  param-if-is-type(|names):
-    p@Parameter(_, _) -> x
+  get-parameter-type:
+    Parameter(specifiers, _) -> <get-specifiers-type> specifiers
+
+  get-parameter-type:
+    AbstractParameter(specifiers, _) -> <get-specifiers-type> specifiers
+
+  parameter-if-is-type(|names):
+    p -> x
     where
       t := <get-parameter-type> p
     ; if ?Identifier(name) then
@@ -90,13 +98,62 @@ ParameterList([
 ]
 */
 
-  disamb-param(|names): amb(ambs) -> p
-    where
-      p := <fetch-elem(?Parameter(_, _))> ambs
-        ; param-if-is-type(|names)
-      <+ p := <fetch-elem(?AbstractParameter(_, _))> ambs
+  is-valid-type(|names):
+    Type(Identifier(name)) -> <elem> (name, names)
 
-  disamb-params(|names):
+  is-valid-type(|names) =
+    not(?Type(_))
+
+  is-valid-parameter(|names):
+    p@Parameter(specifiers, _) -> p
+    where
+      all(is-valid-type(|names))
+
+  is-valid-parameter(|names):
+    p@AbstractParameter(specifiers, _) -> p
+    where
+      all(is-valid-type(|names))
+
+  disamb-parameter(|names):
+    amb(ambs) -> <fetch-elem(is-valid-parameter(|names))> ambs
+
+  disamb-parameters(|names):
     ParameterList(ps) -> ParameterList(params)
     where
-      params := <map(disamb-param(|names) <+ id)> ps
+      params := <map(disamb-parameter(|names) <+ id)> ps
+
+rules
+
+  // empty parameters parses to fun decl
+  disamb-func-decl-or-func-decl-ids(|names):
+    amb([
+      FuncDeclIDs(_, []),
+      func@FuncDecl(_, ParameterList([]))]
+    ) -> func
+
+  disamb-func-decl-or-func-decl-ids(|names):
+    amb([
+      ids@FuncDeclIDs(_, _),
+      func@FuncDecl(_, ParameterList(parameterList))]
+    ) -> x
+    where
+      if <bottomup(is-valid-type(|names))> parameterList then
+        x := func
+      else
+        x := ids
+      end
+
+rules
+
+  disamb-parens-decl-or-func-decl(|names):
+    amb([
+      p@Declaration(specifiers, [Declarator(_, ParensDecl(_))]),
+      f@Declaration(_, _)
+    ]) -> x
+    where
+      if <all(is-valid-type(|names))> specifiers then
+        x := p
+      else
+        x:= f
+      end
+

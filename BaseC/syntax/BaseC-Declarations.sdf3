@@ -106,7 +106,7 @@ context-free syntax
     <<DirectDeclarator> [<Constant?>]>
 
   DirectDeclarator.FuncDecl =
-    <<DirectDeclarator> (<ParameterTypeList>)> {prefer}
+    <<DirectDeclarator> (<ParameterTypeList>)>
 
   DirectDeclarator.FuncDeclIDs =
     <<DirectDeclarator> (<{Identifier ","}*>)>

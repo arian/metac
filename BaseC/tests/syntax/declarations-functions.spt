@@ -17,6 +17,78 @@ test function declaration [[
     )]
   )
 
+test function declaration with one parameter [[
+  void a(int32);
+]] run get-decl-from-program to
+  Declaration(
+    [Type(Void)],
+    [Declarator(
+      None,
+      FuncDecl(
+        Identifier("a"),
+        ParameterList([
+          AbstractParameter(_, _)
+        ])
+      )
+    )]
+  )
+
+test function declaration with one named parameter [[
+  x(a);
+]] run get-decl-from-program to
+  Declaration(
+    [],
+    [Declarator(
+      None,
+      FuncDeclIDs(
+        Identifier("x"),
+        [Identifier("a")]
+      )
+    )]
+  )
+
+// TODO
+test paren decl and fn [[
+  typedef int32 x;
+  x (a), y(x);
+  // const x z(x),(b);
+]] parse to Declarations([
+    _,
+    Declaration(
+      [Type(Identifier("x"))],
+      [Declarator([
+        ParensDecl(Declarator(None, Identifier("a"))),
+        FuncDecl(_, _)
+      ])]
+    ),
+    Declaration(
+      [Const, Type(Identifier("x"))],
+      [Declarator([
+        FuncDecl(_, _),
+        ParensDecl(_)
+      ])]
+    )
+  ])
+
+test function declaration with one typedef'd parameter [[
+  typedef int32 B;
+  void a(B);
+]] parse to Declarations([
+    _,
+    Declaration(
+      [Type(Void)],
+      [Declarator(
+        None,
+        FuncDecl(
+          Identifier("a"),
+          ParameterList([
+            AbstractParameter([Type(Identifier("B"))], _)
+          ])
+        )
+      )]
+    )
+  ])
+
 test function declaration one argument [[
   void a(int32 c);
 ]] run get-decl-from-program to
@@ -109,7 +181,7 @@ test function declaration, complex declarations, without parameter names [[
 
 test function with any type [[
     typedef int32 B;
-    void a(b, const B, B);
+    void a(b, const B, C A);
 ]] parse to
   Declarations([
     _,
