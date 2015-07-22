@@ -29,7 +29,7 @@ strategies
     ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
 
   enter-scope(s) =
-    (?FunDef(_, _, _, _))
+    (?CompoundStatement(_))
     ; {| td-names : traverse(s) |}
 
   collect-name =

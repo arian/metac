@@ -31,3 +31,4 @@ lib-refactoring/*.generated.str
 /builddeps
 /include/
 *.aterm
+tests/*.pp*
