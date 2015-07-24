@@ -10,10 +10,8 @@ rules
   get-decl-from-program:
     Declarations([decl]) -> decl
 
-  get-expr-from-program:
-    Declarations([
-      Declaration(_, [InitDeclarator(_, expr)])
-    ]) -> expr
+  get-expr-from-program =
+    find-elem(?Return(Some(x))) ; !x
 
   get-fundef-from-program:
     Declarations([fundef]) -> fundef

@@ -6,4 +6,5 @@ imports
 
 context-free syntax
 
-  Constant.Integer = INT
+  Constant.Integer =
+    INT

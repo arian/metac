@@ -21,13 +21,13 @@ context-free syntax
   StorageClassSpecifierKeyword.Register =
     <register>
 
-  StorageClassSpecifierKeyword.Static   =
+  StorageClassSpecifierKeyword.Static =
     <static>
 
-  StorageClassSpecifierKeyword.Extern   =
+  StorageClassSpecifierKeyword.Extern =
     <extern>
 
-  StorageClassSpecifierKeyword.Typedef  =
+  StorageClassSpecifierKeyword.Typedef =
     <typedef>
 
   StorageClass =
@@ -85,6 +85,14 @@ context-free syntax
     <<Declarator> = <Initializer>>
 
 
+  // specifier-qualifier-list
+  SpecifierQualifier =
+    TypeSpecifier
+
+  SpecifierQualifier =
+    Qualifier
+
+
   // pointer
   Pointer.Pointer =
     <* <Qualifier*> <Pointer?>>
@@ -136,6 +144,12 @@ context-free syntax
 
   Initializer.BlockInitializer =
     <{}>
+
+
+  // type-name
+  TypeName.TypeName =
+    <<SpecifierQualifier*> <AbstractDeclarator?>>
+
 
   // abstract-declarator
   AbstractDeclarator =

@@ -2,9 +2,194 @@ module BaseC-Expr
 
 imports
 
+  Common
   BaseC-Constants
+  BaseC-Declarations
+  BaseC-Identifiers
 
 context-free syntax
 
-  Expr.Constant =
-    Constant
+  // expression
+  Expr = <(<Expr>)> {bracket}
+
+  Expr.Comma =
+    <<{Expr ","}+>> {avoid}
+
+
+  // assignment-expression
+  Expr.Assign =
+    <<UnaryExpr> <AssignOp> <Expr>>
+
+  // assignment-operator
+  AssignOp.Assign =
+    <=>
+  AssignOp.PlusAssign =
+    <+=>
+  AssignOp.MinusAssign =
+    <-=>
+  AssignOp.MultiplyAssign =
+    <*=>
+  AssignOp.DivisionAssign =
+    </=>
+  AssignOp.ModuloAssign =
+    <%=>
+  AssignOp.BitwiseAndAssign =
+    <&=>
+  AssignOp.BitwiseXorAssign =
+    <^=>
+  AssignOp.BitwiseOrAssign =
+    <|=>
+  AssignOp.BitshiftLeftAssign =
+    [<<=]
+  AssignOp.BitshiftRightAssign =
+    [>>=]
+
+  // conditional-expression
+  // TODO Fix me
+  Expr.Conditional =
+    <<Expr> ? <Expr> : <Expr>> {right}
+
+
+  // logical-OR-expression
+  Expr.LogicalOr =
+    <<Expr> || <Expr>> {left}
+
+
+  // logical-AND-expression
+  Expr.LogicalAnd =
+    <<Expr> && <Expr>> {left}
+
+  // inclusive-OR-expression
+  Expr.InclusiveOr =
+    <<Expr> | <Expr>> {left}
+
+  // exclusive-OR-expression
+  Expr.ExclusiveOr =
+    <<Expr> ^ <Expr>> {left}
+
+  // AND-expression
+  Expr.InclusiveAnd =
+    <<Expr> & <Expr>> {left}
+
+  // equality-expression
+  Expr.Equal =
+    <<Expr> == <Expr>> {left}
+
+  Expr.InEqual =
+    <<Expr> != <Expr>> {left}
+
+  // relational-expression
+  Expr.Lt =
+    [[Expr] < [Expr]] {left}
+
+  Expr.Gt =
+    [[Expr] > [Expr]] {left}
+
+  Expr.Lte =
+    [[Expr] <= [Expr]] {left}
+
+  Expr.Gte =
+    [[Expr] >= [Expr]] {left}
+
+  // shift-expression
+  Expr.ShiftLeft =
+    [[Expr] << [Expr]] {left}
+
+  Expr.ShiftRight =
+    [[Expr] >> [Expr]] {left}
+
+  // additive-expression
+  Expr.Add =
+    <<Expr> + <Expr>> {left}
+
+  Expr.Subtract =
+    <<Expr> - <Expr>> {left}
+
+  // multiplicative-expression
+  Expr.Mult =
+    <<Expr> * <Expr>> {left}
+
+  Expr.Div =
+    <<Expr> / <Expr>> {left}
+
+  Expr.Mod =
+    <<Expr> % <Expr>> {left}
+
+  // cast-expression
+  Expr.Cast =
+    <(<TypeName>) <Expr>>
+
+  Expr =
+    UnaryExpr
+
+  // unary-expression
+  UnaryExpr.IncrementPrefix =
+    <++<Expr>> {right}
+
+  UnaryExpr.DecrementPrefix =
+    <--<Expr>> {right}
+
+  UnaryExpr.Address =
+    <& <Expr>> {right}
+
+  UnaryExpr.Deref =
+    <* <Expr>> {right}
+
+  UnaryExpr.Positive =
+    <+ <Expr>> {right}
+
+  UnaryExpr.Negative =
+    <- <Expr>> {right}
+
+  UnaryExpr.Complement =
+    <~ <Expr>> {right}
+
+  UnaryExpr.Negate =
+    <! <Expr>> {right}
+
+  UnaryExpr =
+    PostFixExpr
+
+  // postfix-expression
+  PostFixExpr =
+    PrimaryExpr
+
+  PostFixExpr.ArrayField =
+    <<Expr> [<Expr>]>
+
+  PostFixExpr.Call =
+    <<Expr> (<{Expr ","}*>)>
+
+  PostFixExpr.Field =
+    <<Expr>.<Identifier>>
+
+  PostFixExpr.FieldViaPointer =
+    [[Expr]->[Identifier]]
+
+  PostFixExpr.Increment =
+    <<Expr>++> {left}
+
+  PostFixExpr.Decrement =
+    <<Expr>--> {left}
+
+
+  // primary-expression
+  PrimaryExpr =
+    Identifier
+
+  PrimaryExpr =
+    Constant {prefer}
+
+  PrimaryExpr.String =
+    STRING
+
+
+context-free priorities
+  { left:
+    Expr.Add
+  }
+
+lexical restrictions
+  "+" -/- [\+]
+  "-" -/- [\-]
+  "&" -/- [\&]

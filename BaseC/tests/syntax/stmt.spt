@@ -55,14 +55,14 @@ test labeled statement with default [[
 test if select statement [[
   if (1) {}
 ]] run get-stmt-from-program to If(
-  Constant(_),
+  Integer(_),
   CompoundStatement([])
 )
 
 test if-else select statement [[
   if (1) {} else ;
 ]] run get-stmt-from-program to IfElse(
-  Constant(_),
+  Integer(_),
   CompoundStatement([]),
   ExpressionStatement(None)
 )
@@ -70,14 +70,14 @@ test if-else select statement [[
 test switch select statement [[
   switch (1) {}
 ]] run get-stmt-from-program to Switch(
-  Constant(_),
+  Integer(_),
   CompoundStatement([])
 )
 
 test while iteration statement [[
   while (1) {}
 ]] run get-stmt-from-program to While(
-  Constant(_),
+  Integer(_),
   CompoundStatement([])
 )
 
@@ -85,7 +85,7 @@ test do iteration statement [[
   do {} while (1);
 ]] run get-stmt-from-program to Do(
   CompoundStatement([]),
-  Constant(_)
+  Integer(_)
 )
 
 test do iteration statement ; [[do {} while (1) ;]] parse succeeds

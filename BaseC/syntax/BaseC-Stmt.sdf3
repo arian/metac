@@ -36,7 +36,9 @@ context-free syntax
 
 
   CompoundStatement.CompoundStatement =
-     <{<BlockItem*>}>
+<{
+  <BlockItem*>
+}>
 
   LabeledStatement.Label =
     <<Identifier>: <Statement>>

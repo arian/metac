@@ -14,4 +14,3 @@ rules // Extensions for error/warning/note reporting
 
   constraint-note:
     _ -> <fail>
-
