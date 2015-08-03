@@ -35,10 +35,45 @@ test assignment expression [[
 ]] run get-expr-from-program to
   Assign(Identifier("a"), Assign(), Integer("1"))
 
+test assignment expression right assoc [[
+  a = 1 + 2
+]] run get-expr-from-program to
+  Assign(Identifier("a"), Assign(), Add(Integer("1"), Integer("2")))
+
+test assignment unary expr [[
+  *a = 1
+]] run get-expr-from-program to
+  Assign(Deref(Identifier("a")), Assign(), Integer("1"))
+
+test assignment to field [[
+  a.b = 1
+]] run get-expr-from-program to
+  Assign(Field(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+
+test assignment to pointer field [[
+  a->b = 1
+]] run get-expr-from-program to
+  Assign(PointerField(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+
+test assignment to array [[
+  a[b] = 1
+]] run get-expr-from-program to
+  Assign(ArrayField(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+
+
 test conditional expression [[
   a ? b : c
 ]] run get-expr-from-program to
-  Conditional(Integer("1"), Integer("2"), Integer("3"))
+  Conditional(Identifier("a"), Identifier("b"), Identifier("c"))
+
+test conditional expression with sub-exprs [[
+  1 ? 2 + 3 : 4 | 5
+]] run get-expr-from-program to
+  Conditional(
+    Integer("1"),
+    Add(Integer("2"), Integer("3")),
+    InclusiveOr(Integer("4"), Integer("5"))
+  )
 
 
 test cast [[(int32) 1]] run get-expr-from-program to
@@ -47,43 +82,8 @@ test cast [[(int32) 1]] run get-expr-from-program to
 test cast pointer [[(int32 *) 1]] run get-expr-from-program to
   Cast(TypeName([Int32], Some(Pointer([], None))), Integer("1"))
 
-
-test incr pre [[++a]] run get-expr-from-program to
-  IncrementPrefix(Identifier("a"))
-
-
-test decr pre [[--a]] run get-expr-from-program to
-  DecrementPrefix(Identifier("a"))
-
-
-test address [[&a]] run get-expr-from-program to
-  Address(Identifier("a"))
-
-
-test deref [[*a]] run get-expr-from-program to
-  Deref(Identifier("a"))
-
-
-test postive [[ +1 ]] run get-expr-from-program to
-  Positive(Integer("1"))
-
-
-test negative int [[-1]] run get-expr-from-program to
-  Integer("-1")
-
-test negative op [[
-  -(1)
-]] run get-expr-from-program to
-  Negative(Integer("1"))
-
-
-test complement [[ ~3 ]] run get-expr-from-program to
-  Complement(Integer("3"))
-
-
-test negate [[!a]] run get-expr-from-program to
-  Negate(Identifier("a"))
-
+test cast assoc [[ (int32) 1 * 2 ]] run get-expr-from-program to
+  Mult(Cast(TypeName([Int32], None), Integer("1")), Integer("2"))
 
 
 test string [[

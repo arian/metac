@@ -10,7 +10,6 @@ setup before [[
 ]]
 
 
-
 test array field [[ a[0] ]] run get-expr-from-program to
   ArrayField(Identifier("a"), Integer("0"))
 
@@ -31,7 +30,7 @@ test field [[ a.b ]] run get-expr-from-program to
 
 
 test field pointer [[ a->b ]] run get-expr-from-program to
-  FieldViaPointer(Identifier("a"), Identifier("b"))
+  PointerField(Identifier("a"), Identifier("b"))
 
 
 test increment expr [[ a++ ]] run get-expr-from-program to
@@ -40,6 +39,7 @@ test increment expr [[ a++ ]] run get-expr-from-program to
 
 test decrement expr [[ a-- ]] run get-expr-from-program to
   Decrement(Identifier("a"))
+
 
 setup after [[
     ;

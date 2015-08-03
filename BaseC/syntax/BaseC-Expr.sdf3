@@ -44,6 +44,7 @@ context-free syntax
   AssignOp.BitshiftRightAssign =
     [>>=]
 
+
   // conditional-expression
   // TODO Fix me
   Expr.Conditional =
@@ -102,6 +103,7 @@ context-free syntax
   Expr.Add =
     <<Expr> + <Expr>> {left}
 
+
   Expr.Subtract =
     <<Expr> - <Expr>> {left}
 
@@ -119,6 +121,7 @@ context-free syntax
   Expr.Cast =
     <(<TypeName>) <Expr>>
 
+
   Expr =
     UnaryExpr
 
@@ -130,40 +133,39 @@ context-free syntax
     <--<Expr>> {right}
 
   UnaryExpr.Address =
-    <& <Expr>> {right}
+    <&<Expr>> {right}
 
   UnaryExpr.Deref =
-    <* <Expr>> {right}
+    <*<Expr>> {right}
 
   UnaryExpr.Positive =
-    <+ <Expr>> {right}
+    <+<Expr>> {right}
 
   UnaryExpr.Negative =
-    <- <Expr>> {right}
+    <-<Expr>> {right}
 
   UnaryExpr.Complement =
-    <~ <Expr>> {right}
+    <~<Expr>> {right}
 
   UnaryExpr.Negate =
-    <! <Expr>> {right}
+    <!<Expr>> {right}
 
   UnaryExpr =
     PostFixExpr
 
+
   // postfix-expression
-  PostFixExpr =
-    PrimaryExpr
 
   PostFixExpr.ArrayField =
-    <<Expr> [<Expr>]>
+    <<Expr>[<Expr>]>
 
   PostFixExpr.Call =
-    <<Expr> (<{Expr ","}*>)>
+    <<Expr>(<{Expr ","}*>)>
 
   PostFixExpr.Field =
     <<Expr>.<Identifier>>
 
-  PostFixExpr.FieldViaPointer =
+  PostFixExpr.PointerField =
     [[Expr]->[Identifier]]
 
   PostFixExpr.Increment =
@@ -171,6 +173,9 @@ context-free syntax
 
   PostFixExpr.Decrement =
     <<Expr>--> {left}
+
+  PostFixExpr =
+    PrimaryExpr
 
 
   // primary-expression
@@ -186,8 +191,56 @@ context-free syntax
 
 context-free priorities
   { left:
-    Expr.Add
-  }
+      Expr.Cast
+      PostFixExpr.Increment
+      PostFixExpr.Decrement
+      PostFixExpr.ArrayField
+      PostFixExpr.Call
+      PostFixExpr.Field
+      PostFixExpr.PointerField
+  } >
+  { right:
+      UnaryExpr.IncrementPrefix
+      UnaryExpr.DecrementPrefix
+      UnaryExpr.Address
+      UnaryExpr.Deref
+      UnaryExpr.Positive
+      UnaryExpr.Negative
+      UnaryExpr.Complement
+      UnaryExpr.Negate
+  } >
+  { left:
+      Expr.Mult
+      Expr.Div
+      Expr.Mod
+  } >
+  { left:
+      Expr.Add
+      Expr.Subtract
+  } >
+  { left:
+      Expr.ShiftLeft
+      Expr.ShiftRight
+  } >
+  { left:
+      Expr.Gt
+      Expr.Gte
+      Expr.Lt
+      Expr.Lte
+  } >
+  {
+    left:
+      Expr.Equal
+      Expr.InEqual
+  } >
+  { left: Expr.InclusiveAnd } >
+  { left: Expr.ExclusiveOr } >
+  { left: Expr.InclusiveOr } >
+  { left: Expr.LogicalAnd } >
+  { left: Expr.LogicalOr } >
+  { right: Expr.Conditional } >
+  { right: Expr.Assign } >
+  { left: Expr.Comma }
 
 lexical restrictions
   "+" -/- [\+]

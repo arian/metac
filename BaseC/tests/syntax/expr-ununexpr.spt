@@ -1,0 +1,68 @@
+module expr-unexpr
+
+language metac
+
+start symbol Program
+
+setup before [[
+  void main() {
+    return
+]]
+
+
+test incr pre [[++a]] run get-expr-from-program to
+  IncrementPrefix(Identifier("a"))
+
+test incr space [[ ++ a]] parse succeeds
+
+
+test decr pre [[--a]] run get-expr-from-program to
+  DecrementPrefix(Identifier("a"))
+
+test decr space [[ -- a]] parse succeeds
+
+
+test address [[&a]] run get-expr-from-program to
+  Address(Identifier("a"))
+
+test addr space [[ & a]] parse succeeds
+
+
+test deref [[*a]] run get-expr-from-program to
+  Deref(Identifier("a"))
+
+test deref space [[ * a ]] parse succeeds
+
+test postive [[ +1 ]] run get-expr-from-program to
+  Positive(Integer("1"))
+
+test positive space [[ + a ]] parse succeeds
+
+
+test negative int [[-1]] run get-expr-from-program to
+  Integer("-1")
+
+test negative space [[ - a ]] parse succeeds
+
+test negative op [[
+  -(1)
+]] run get-expr-from-program to
+  Negative(Integer("1"))
+
+
+test complement [[ ~3 ]] run get-expr-from-program to
+  Complement(Integer("3"))
+
+test complement space [[ ~ 3 ]] parse succeeds
+
+
+test negate [[!a]] run get-expr-from-program to
+  Negate(Identifier("a"))
+
+test negative space [[ ! a ]] parse succeeds
+
+
+setup after [[
+    ;
+  }
+]]
