@@ -24,9 +24,12 @@ strategies
     <+ collect-name
 
   resolve-amb =
-    try(disamb-parameters(|<td-names>))
+    try(disamb-comma)
+    ; try(disamb-parameters(|<td-names>))
     ; try(disamb-parens-decl-or-func-decl(|<td-names>))
     ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
+    ; try(disamb-expr-or-decl(|<td-names>))
+    ; try(disamb-cast(|<td-names>))
 
   enter-scope(s) =
     (?CompoundStatement(_))
@@ -57,11 +60,15 @@ rules
 
 rules
 
-  is-valid-type(|names):
-    Type(TypedefName(Identifier(name))) -> <elem> (name, names)
-
   is-valid-type(|names) =
-    not(?Type(TypedefName(_)))
+    if (
+      Type(TypedefName(Identifier(?name)))
+      <+ TypedefName(Identifier(?name))
+    ) then
+      <elem> (name, names)
+    else
+      id
+    end
 
 rules
 
@@ -74,6 +81,22 @@ rules
     p@AbstractParameter(specifiers, _) -> p
     where
       <all(is-valid-type(|names))> specifiers
+
+rules
+
+  // In some cases this thing shows up, where the Comma constructor has some
+  // amb, with just one element in some form. If that's the case, use the other
+  // non-comma constructor variant
+  disamb-comma:
+    amb([x@amb([_, _]), Some(Comma(amb([[_], [_]])))]) -> x
+
+  disamb-comma:
+    amb([x@Some(amb([_, _])), Some(Comma([amb([_, _])]))]) -> x
+
+  disamb-comma:
+    amb([x@amb([_, _]), Comma([amb([_, _])])]) -> x
+
+rules
 
   disamb-parameter-sort:
     x@(AbstractParameter(_, _), Parameter(_, _)) -> x
@@ -129,3 +152,39 @@ rules
       p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _]),
       f@Declaration(_, _)
     ]) -> <internal-disamb-parens-decl-or-func-decl(|names)> (specifiers, f, p)
+
+rules
+
+  disamb-expr-or-decl(|names):
+    amb([expr@ExpressionStatement(_), decl@Declaration(specifiers, _)])
+    -> <disamb-intern-expr-or-decl(|names)> (expr, decl, specifiers)
+
+  disamb-expr-or-decl(|names):
+    amb([decl@Declaration(specifiers, _), expr@ExpressionStatement(_)])
+    -> <disamb-intern-expr-or-decl(|names)> (expr, decl, specifiers)
+
+  disamb-intern-expr-or-decl(|names): (expr, decl, specifiers) -> x
+    where
+      if <all(is-valid-type(|names))> specifiers then
+        x := decl
+      else
+        x := expr
+      end
+
+rules
+
+  disamb-cast(|names):
+    amb([a, b]) -> x
+    where
+      x := <disamb-intern-cast(|names)> (a, b)
+      <+ x := <disamb-intern-cast(|names)> (b, a)
+
+  disamb-intern-cast(|names): (a, b) -> x
+  where
+    <oncetd(?Cast(_, _) ; ?cast)> a
+    ; Cast(TypeName(types, _), _) := cast
+    ; if <all(is-valid-type(|names))> types then
+        x := a
+      else
+        x := b
+      end

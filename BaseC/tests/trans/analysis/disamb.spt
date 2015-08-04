@@ -31,11 +31,21 @@ test is-valid-type
   Const()
   => 1
 
+test valid type, using just TypedefName
+  <is-valid-type(|["k"]) ; !1 <+ !0>
+  TypedefName(Identifier("k"))
+  => 1
+
+test not valid type, using just TypedefName
+  <is-valid-type(|["k"]) ; !1 <+ !0>
+  TypedefName(Identifier("l"))
+  => 0
+
 test all-valid-types
   <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
-    Type(Identifier("A")),
+    Type(TypedefName(Identifier("A"))),
     Const(),
-    Type(Identifier("B"))
+    Type(TypedefName(Identifier("B")))
   ]
   => 1
 
@@ -149,4 +159,3 @@ test paren decl vs func decl, x __is__ a type, so should be a function
     )
   ])
   => Declaration(_, [Declarator(_, ParensDecl(_))])
-
