@@ -8,4 +8,5 @@ colorer
   //
   // See the imported file for a brief introduction and examples.
 
-  STRING: blue
+  CONSSTRING: blue
+  CONSCHAR: blue
