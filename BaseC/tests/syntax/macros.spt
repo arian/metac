@@ -41,4 +41,3 @@ test includes between other decls [[
     _,
     Include("stdio.h")
   ])
-

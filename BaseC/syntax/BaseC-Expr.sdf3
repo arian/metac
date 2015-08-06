@@ -10,15 +10,22 @@ imports
 context-free syntax
 
   // expression
-  Expr = <(<Expr>)> {bracket}
+  Expr =
+    <(<Expr>)> {bracket}
 
   Expr.Comma =
-    <<{Expr ","}+>> {avoid}
+    <<{AExpr ","}+>> {avoid}
+
+  Expr =
+    AExpr {prefer}
+
+
+  AExpr = <(<AExpr>)> {bracket}
 
 
   // assignment-expression
-  Expr.Assign =
-    <<UnaryExpr> <AssignOp> <Expr>>
+  AExpr.Assign =
+    <<UnaryExpr> <AssignOp> <AExpr>>
 
   // assignment-operator
   AssignOp.Assign =
@@ -47,108 +54,108 @@ context-free syntax
 
   // conditional-expression
   // TODO Fix me
-  Expr.Conditional =
-    <<Expr> ? <Expr> : <Expr>> {right}
+  AExpr.Conditional =
+    <<AExpr> ? <AExpr> : <AExpr>> {right}
 
 
   // logical-OR-expression
-  Expr.LogicalOr =
-    <<Expr> || <Expr>> {left}
+  AExpr.LogicalOr =
+    <<AExpr> || <AExpr>> {left}
 
 
   // logical-AND-expression
-  Expr.LogicalAnd =
-    <<Expr> && <Expr>> {left}
+  AExpr.LogicalAnd =
+    <<AExpr> && <AExpr>> {left}
 
   // inclusive-OR-expression
-  Expr.InclusiveOr =
-    <<Expr> | <Expr>> {left}
+  AExpr.InclusiveOr =
+    <<AExpr> | <AExpr>> {left}
 
   // exclusive-OR-expression
-  Expr.ExclusiveOr =
-    <<Expr> ^ <Expr>> {left}
+  AExpr.ExclusiveOr =
+    <<AExpr> ^ <AExpr>> {left}
 
   // AND-expression
-  Expr.InclusiveAnd =
-    <<Expr> & <Expr>> {left}
+  AExpr.InclusiveAnd =
+    <<AExpr> & <AExpr>> {left}
 
   // equality-expression
-  Expr.Equal =
-    <<Expr> == <Expr>> {left}
+  AExpr.Equal =
+    <<AExpr> == <AExpr>> {left}
 
-  Expr.InEqual =
-    <<Expr> != <Expr>> {left}
+  AExpr.InEqual =
+    <<AExpr> != <AExpr>> {left}
 
   // relational-expression
-  Expr.Lt =
-    [[Expr] < [Expr]] {left}
+  AExpr.Lt =
+    [[AExpr] < [AExpr]] {left}
 
-  Expr.Gt =
-    [[Expr] > [Expr]] {left}
+  AExpr.Gt =
+    [[AExpr] > [AExpr]] {left}
 
-  Expr.Lte =
-    [[Expr] <= [Expr]] {left}
+  AExpr.Lte =
+    [[AExpr] <= [AExpr]] {left}
 
-  Expr.Gte =
-    [[Expr] >= [Expr]] {left}
+  AExpr.Gte =
+    [[AExpr] >= [AExpr]] {left}
 
   // shift-expression
-  Expr.ShiftLeft =
-    [[Expr] << [Expr]] {left}
+  AExpr.ShiftLeft =
+    [[AExpr] << [AExpr]] {left}
 
-  Expr.ShiftRight =
-    [[Expr] >> [Expr]] {left}
+  AExpr.ShiftRight =
+    [[AExpr] >> [AExpr]] {left}
 
   // additive-expression
-  Expr.Add =
-    <<Expr> + <Expr>> {left}
+  AExpr.Add =
+    <<AExpr> + <AExpr>> {left}
 
 
-  Expr.Subtract =
-    <<Expr> - <Expr>> {left}
+  AExpr.Subtract =
+    <<AExpr> - <AExpr>> {left}
 
   // multiplicative-expression
-  Expr.Mult =
-    <<Expr> * <Expr>> {left}
+  AExpr.Mult =
+    <<AExpr> * <AExpr>> {left}
 
-  Expr.Div =
-    <<Expr> / <Expr>> {left}
+  AExpr.Div =
+    <<AExpr> / <AExpr>> {left}
 
-  Expr.Mod =
-    <<Expr> % <Expr>> {left}
+  AExpr.Mod =
+    <<AExpr> % <AExpr>> {left}
 
   // cast-expression
-  Expr.Cast =
-    <(<TypeName>) <Expr>>
+  AExpr.Cast =
+    <(<TypeName>) <AExpr>>
 
 
-  Expr =
+  AExpr =
     UnaryExpr
 
   // unary-expression
   UnaryExpr.IncrementPrefix =
-    <++<Expr>> {right}
+    <++<AExpr>> {right}
 
   UnaryExpr.DecrementPrefix =
-    <--<Expr>> {right}
+    <--<AExpr>> {right}
 
   UnaryExpr.Address =
-    <&<Expr>> {right}
+    <&<AExpr>> {right}
 
   UnaryExpr.Deref =
-    <*<Expr>> {right}
+    <*<AExpr>> {right}
 
   UnaryExpr.Positive =
-    <+<Expr>> {right}
+    <+<AExpr>> {right}
 
   UnaryExpr.Negative =
-    <-<Expr>> {right}
+    <-<AExpr>> {right}
 
   UnaryExpr.Complement =
-    <~<Expr>> {right}
+    <~<AExpr>> {right}
 
   UnaryExpr.Negate =
-    <!<Expr>> {right}
+    <!<AExpr>> {right}
 
   UnaryExpr =
     PostFixExpr
@@ -157,22 +164,22 @@ context-free syntax
   // postfix-expression
 
   PostFixExpr.ArrayField =
-    <<Expr>[<Expr>]>
+    <<AExpr>[<AExpr>]>
 
   PostFixExpr.Call =
-    <<Expr>(<{Expr ","}*>)>
+    <<AExpr>(<{AExpr ","}*>)>
 
   PostFixExpr.Field =
-    <<Expr>.<Identifier>>
+    <<AExpr>.<Identifier>>
 
   PostFixExpr.PointerField =
-    [[Expr]->[Identifier]]
+    [[AExpr]->[Identifier]]
 
   PostFixExpr.Increment =
-    <<Expr>++> {left}
+    <<AExpr>++> {left}
 
   PostFixExpr.Decrement =
-    <<Expr>--> {left}
+    <<AExpr>--> {left}
 
   PostFixExpr =
     PrimaryExpr
@@ -191,7 +198,7 @@ context-free syntax
 
 context-free priorities
   { left:
-      Expr.Cast
+      AExpr.Cast
       PostFixExpr.Increment
       PostFixExpr.Decrement
       PostFixExpr.ArrayField
@@ -210,36 +217,36 @@ context-free priorities
       UnaryExpr.Negate
   } >
   { left:
-      Expr.Mult
-      Expr.Div
-      Expr.Mod
+      AExpr.Mult
+      AExpr.Div
+      AExpr.Mod
   } >
   { left:
-      Expr.Add
-      Expr.Subtract
+      AExpr.Add
+      AExpr.Subtract
   } >
   { left:
-      Expr.ShiftLeft
-      Expr.ShiftRight
+      AExpr.ShiftLeft
+      AExpr.ShiftRight
   } >
   { left:
-      Expr.Gt
-      Expr.Gte
-      Expr.Lt
-      Expr.Lte
+      AExpr.Gt
+      AExpr.Gte
+      AExpr.Lt
+      AExpr.Lte
   } >
   {
     left:
-      Expr.Equal
-      Expr.InEqual
+      AExpr.Equal
+      AExpr.InEqual
   } >
-  { left: Expr.InclusiveAnd } >
-  { left: Expr.ExclusiveOr } >
-  { left: Expr.InclusiveOr } >
-  { left: Expr.LogicalAnd } >
-  { left: Expr.LogicalOr } >
-  { right: Expr.Conditional } >
-  { right: Expr.Assign } >
+  { left: AExpr.InclusiveAnd } >
+  { left: AExpr.ExclusiveOr } >
+  { left: AExpr.InclusiveOr } >
+  { left: AExpr.LogicalAnd } >
+  { left: AExpr.LogicalOr } >
+  { right: AExpr.Conditional } >
+  { right: AExpr.Assign } >
   { left: Expr.Comma }
 
 lexical restrictions

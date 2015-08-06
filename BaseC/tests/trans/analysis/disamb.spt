@@ -159,3 +159,4 @@ test paren decl vs func decl, x __is__ a type, so should be a function
     )
   ])
   => Declaration(_, [Declarator(_, ParensDecl(_))])
+

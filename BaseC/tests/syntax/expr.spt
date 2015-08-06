@@ -18,6 +18,14 @@ test commas [[
   1, 2
 ]] run get-expr-from-program to Comma([Integer("1"), Integer("2")])
 
+test commas with brackets [[
+  (1, 2, 3)
+]] run  get-expr-from-program to Comma([
+    Integer("1"),
+    Integer("2"),
+    Integer("3")
+  ])
+
 test parens id [[ (a) ]] run get-expr-from-program to
   Identifier("a")
 
@@ -28,7 +36,6 @@ test parens int [[
 test parens neg int [[
   (-1)
 ]] run get-expr-from-program to Integer("-1")
-
 
 test assignment expression [[
   a = 1

@@ -96,6 +96,9 @@ rules
   disamb-comma:
     amb([x@amb([_, _]), Comma([amb([_, _])])]) -> x
 
+  disamb-comma:
+    amb([x@amb([_, _]), Comma(amb([[_], [_]]))]) -> x
+
 rules
 
   disamb-parameter-sort:
