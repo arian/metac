@@ -2,6 +2,12 @@ module BaseC-Types
 
 context-free syntax
 
+  PureType.Int64 =
+    <int64>
+
+  PureType.UInt64 =
+    <uint64>
+
   PureType.Int32 =
     <int32>
 

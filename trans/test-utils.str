@@ -23,6 +23,10 @@ rules
     get-decl-from-program
     ; ?Declaration(_, [InitDeclarator(_, init)]) ; !init
 
+  get-decl-type =
+    get-decl-from-program
+    ; ?Declaration([Type(type)], _) ; !type
+
 strategies
 
   find-elem(s) =

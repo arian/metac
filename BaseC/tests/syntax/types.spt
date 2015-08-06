@@ -1,3 +1,52 @@
 module test-types
 
 language Metac
+
+test int64 [[
+  int64 x;
+]] run get-decl-type to Int64()
+
+test uint64 [[
+  uint64 x;
+]] run get-decl-type to UInt64()
+
+
+test int32 [[
+  int32 x;
+]] run get-decl-type to Int32()
+
+test uint32 [[
+  uint32 x;
+]] run get-decl-type to UInt32()
+
+
+test int16 [[
+  int16 x;
+]] run get-decl-type to Int16()
+
+test uint16 [[
+  uint16 x;
+]] run get-decl-type to UInt16()
+
+test int8 [[
+  int8 x;
+]] run get-decl-type to Int8()
+
+test uint8 [[
+  uint8 x;
+]] run get-decl-type to UInt8()
+
+
+test float [[
+  float x;
+]] run get-decl-type to Float()
+
+test double [[
+  double x;
+]] run get-decl-type to Double()
+
+test void [[
+  void x;
+]] run get-decl-type to Void()
+
+
