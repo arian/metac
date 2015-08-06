@@ -1,5 +1,6 @@
 module test-program
-language metac
+
+language Metac
 
 start symbol Program
 

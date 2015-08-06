@@ -1,6 +1,6 @@
 module expr-disamb
 
-language metac
+language Metac
 
 start symbol Program
 

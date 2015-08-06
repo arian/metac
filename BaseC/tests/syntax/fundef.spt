@@ -1,6 +1,6 @@
 module fundef
 
-language metac
+language Metac
 
 start symbol Program
 

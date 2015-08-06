@@ -1,2 +1,3 @@
 module test-types
-language metac
+
+language Metac

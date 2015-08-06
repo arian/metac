@@ -1,6 +1,6 @@
 module expr-postfix
 
-language metac
+language Metac
 
 start symbol Program
 

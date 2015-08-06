@@ -1,6 +1,6 @@
 module stmt
 
-language metac
+language Metac
 
 start symbol Program
 

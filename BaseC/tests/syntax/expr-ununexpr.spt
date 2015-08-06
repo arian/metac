@@ -1,6 +1,6 @@
 module expr-unexpr
 
-language metac
+language Metac
 
 start symbol Program
 
