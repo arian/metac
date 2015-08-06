@@ -35,10 +35,10 @@ test function declaration with one parameter [[
   )
 
 test function declaration with one named parameter [[
-  x(a);
+  void x(a);
 ]] run get-decl-from-program to
   Declaration(
-    [],
+    [Type(Void)],
     [Declarator(
       None,
       FuncDeclIDs(

@@ -58,3 +58,15 @@ test cast or call [[
       Return(Some(Cast(_, _)))
     ]))
   ])
+
+test assign or decl [[
+  void f () {
+    int32 x;
+    x = 4;
+  }
+]] parse to Declarations([
+    FunDef(_, _, _, CompoundStatement([
+      Declaration(_, _),
+      ExpressionStatement(_)
+    ]))
+  ])

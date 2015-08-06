@@ -74,9 +74,7 @@ context-free syntax
 
   // declaration
   Declaration.Declaration =
-    <
-    <DeclarationSpecifier*> <{InitDeclarator ", "}+>;
-    >
+    <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
 
 
   // init-declarator
