@@ -87,6 +87,22 @@ test variable with init expression [[
   ]
 )
 
+test two variables with init expressions [[
+  int32 a = 1, b = 2;
+]] run get-decl-from-program to Declaration(
+  [Type(Int32)],
+  [
+    InitDeclarator(
+      Declarator(_, _),
+      _
+    ),
+    InitDeclarator(
+      Declarator(_, _),
+      _
+    )
+  ]
+)
+
 test double pointer [[
   int32 ** a;
 ]] run get-decl-from-program to Declaration(
