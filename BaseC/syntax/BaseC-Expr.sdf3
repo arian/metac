@@ -192,9 +192,6 @@ context-free syntax
   PrimaryExpr =
     Constant {prefer}
 
-  PrimaryExpr.String =
-    STRING
-
 
 context-free priorities
   { left:

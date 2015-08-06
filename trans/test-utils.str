@@ -19,6 +19,10 @@ rules
   get-stmt-from-program:
     Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> stmt
 
+  get-init-decl =
+    get-decl-from-program
+    ; ?Declaration(_, [InitDeclarator(_, init)]) ; !init
+
 strategies
 
   find-elem(s) =

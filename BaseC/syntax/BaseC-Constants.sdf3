@@ -6,5 +6,11 @@ imports
 
 context-free syntax
 
+  Constant.String =
+    CONSSTRING
+
+  Constant.Char =
+    CONSCHAR
+
   Constant.Integer =
     INT

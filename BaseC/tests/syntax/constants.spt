@@ -4,3 +4,34 @@ language Metac
 
 start symbol Program
 
+test empty string [[
+  uint8 x[] = "";
+]] run get-init-decl to String("\"\"")
+
+test string [[
+  uint8 x[] = "abc";
+]] run get-init-decl to String("\"abc\"")
+
+test string escaped quote [[
+  uint8 x[] = "a\"bc";
+]] run get-init-decl to String("\"a\\\"bc\"")
+
+test string escaped quote [[
+  uint8 x[] = "ab'c";
+]] run get-init-decl to String("\"ab'c\"")
+
+test string with newline [[
+  uint8 x[] = "abc\n";
+]] run get-init-decl to String("\"abc\\n\"")
+
+test char [[
+  uint8 x = 'a';
+]] run get-init-decl to Char("'a'")
+
+test newline char [[
+  uint8 x = '\n';
+]] run get-init-decl to Char("'\\n'")
+
+test escaped single quote [[
+  uint8 x = '\'';
+]] run get-init-decl to Char("'\\''")

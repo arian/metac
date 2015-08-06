@@ -2,13 +2,42 @@ module Common
 
 lexical syntax
 
-  ID             = [a-zA-Z] [a-zA-Z0-9]*
-  INT            = "-"? [0-9]+
-  STRING         = "\"" StringChar* "\""
-  StringChar     = ~[\"\n]
-  StringChar     = "\\\""
-  StringChar     = BackSlashChar
-  BackSlashChar  = "\\"
+  ID =
+    [a-zA-Z] [a-zA-Z0-9]*
+
+
+  INT =
+    "-"? [0-9]+
+
+
+  CHAR =
+    ~[\'\n]
+  CHAR =
+    [\\] [ntvbrfa\\\?\'\"]
+  CHAR =
+    [\\] [x] [0-9A-E] [0-9A-E]
+  CHAR =
+    [\\] [0-7] [0-7]? [0-7]?
+
+
+  CONSCHAR =
+    [\']CHAR[\']
+
+
+  STRINGCHAR =
+    ~[\"\n]
+  STRINGCHAR =
+    [\\] [ntvbrfa\\\?\'\"]
+  STRINGCHAR =
+    [\\] [x] [0-9A-E] [0-9A-E]
+  STRINGCHAR =
+    [\\] [0-7] [0-7]? [0-7]?
+
+
+  CONSSTRING =
+    [\"]STRINGCHAR*[\"]
+
+
   LAYOUT         = [\ \t\n\r]
   CommentChar    = [\*]
   LAYOUT         = "/*" InsideComment* "*/"
@@ -31,11 +60,6 @@ lexical restrictions
   // EOF may not be followed by any char
 
   EOF           -/- ~[]
-
-  // Backslash chars in strings may not be followed by "
-
-  BackSlashChar -/- [\"]
-
 
 context-free restrictions
 
