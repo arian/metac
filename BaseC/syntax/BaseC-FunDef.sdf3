@@ -21,9 +21,8 @@ context-free syntax
     <<Pointer?> <FunName> (<ParameterList>)>
 
 
-  FunDef.FunDef = <
-    <DeclarationSpecifier*>
-    <FunDeclarator>
-    <Declaration*>
-    <CompoundStatement>
-  >
+  FunDef.FunDef =
+    <
+
+    <DeclarationSpecifier*><FunDeclarator><Declaration*> <CompoundStatement>
+    >

@@ -49,4 +49,3 @@ test void [[
   void x;
 ]] run get-decl-type to Void()
 
-

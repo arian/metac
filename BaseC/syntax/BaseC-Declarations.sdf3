@@ -74,7 +74,9 @@ context-free syntax
 
   // declaration
   Declaration.Declaration =
-    <<DeclarationSpecifier*> <{InitDeclarator ", "}+>;>
+    <
+    <DeclarationSpecifier*> <{InitDeclarator ", "}+>;
+    >
 
 
   // init-declarator
@@ -100,7 +102,7 @@ context-free syntax
 
   // declarator
   Declarator.Declarator =
-    <<Pointer?> <DirectDeclarator>>
+    <<Pointer?><DirectDeclarator>>
 
 
   // direct-declarator
@@ -156,7 +158,7 @@ context-free syntax
     Pointer
 
   AbstractDeclarator.Declarator =
-    <<Pointer?> <DirectAbstractDeclarator>>
+    <<Pointer?><DirectAbstractDeclarator>>
 
 
   // direct-abstract-declarator

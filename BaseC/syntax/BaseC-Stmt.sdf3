@@ -36,9 +36,11 @@ context-free syntax
 
 
   CompoundStatement.CompoundStatement =
-<{
-  <BlockItem*>
-}>
+    <
+    {
+      <{BlockItem "\n"}*>
+    }
+    >
 
   LabeledStatement.Label =
     <<Identifier>: <Statement>>
@@ -47,14 +49,17 @@ context-free syntax
      <case <Constant>: <Statement>>
 
   LabeledStatement.Default =
-    <default : <Statement>> {prefer} // prever over Label
+    <default: <Statement>> {prefer} // prever over Label
 
 
   SelectionStatement.If =
     <if (<Expr>) <Statement>> {prefer} // prefer over IfElse
 
   SelectionStatement.IfElse =
-    <if (<Expr>) <Statement> else <Statement>>
+    <
+    if (<Expr>) <Statement>
+    else <Statement>
+    >
 
   SelectionStatement.Switch =
     <switch (<Expr>) <Statement>>

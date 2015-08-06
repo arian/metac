@@ -12,4 +12,4 @@ context-free syntax
     Macro
 
   Program.Declarations =
-    Declaration*
+    <<{Declaration "\n"}*>>
