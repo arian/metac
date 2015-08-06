@@ -1,0 +1,24 @@
+module BaseC-Macros
+
+imports
+
+  Common
+
+lexical syntax
+
+  FileNameChar =
+    ~[\"\n\>]
+
+  FileName =
+    FileNameChar*
+
+  GlobalFileName =
+    StringChar*
+
+context-free syntax
+
+  Macro.Include =
+    [#include <[FileName]>]
+
+  Macro.IncludeLocal =
+    [#include "[GlobalFileName]"]

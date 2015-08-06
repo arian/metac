@@ -4,8 +4,12 @@ imports
 
   BaseC-Declarations
   BaseC-FunDef
+  BaseC-Macros
 
 context-free syntax
+
+  Declaration =
+    Macro
 
   Program.Declarations =
     Declaration*

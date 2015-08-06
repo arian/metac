@@ -1,0 +1,44 @@
+module macros
+
+language metac
+
+start symbol Program
+
+test simple include [[
+  #include <stdio>
+]] parse to Declarations([Include("stdio")])
+
+test can't have > in filename [[
+  #include <asdf>asdf
+]] parse fails
+
+test local include [[
+  #include "stdio"
+]] parse to Declarations([IncludeLocal("stdio")])
+
+test include with " in filename [[
+  #include "std\"io"
+]] parse to Declarations([IncludeLocal("std\\\"io")])
+
+test relative file path [[
+  #include "../../foo/bar.h"
+]] parse to Declarations([IncludeLocal("../../foo/bar.h")])
+
+test multiple includes [[
+  #include "bar.h"
+  #include <stdio.h>
+]] parse to Declarations([
+    IncludeLocal("bar.h"),
+    Include("stdio.h")
+  ])
+
+test includes between other decls [[
+  #include "bar.h"
+  x a;
+  #include <stdio.h>
+]] parse to Declarations([
+    IncludeLocal("bar.h"),
+    _,
+    Include("stdio.h")
+  ])
+
