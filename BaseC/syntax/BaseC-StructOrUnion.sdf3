@@ -17,6 +17,16 @@ context-free syntax
   StructDeclaration.StructDeclaration =
     <<SpecifierQualifier+> <StructDeclarator+>;>
 
+  StructOrUnion.Struct =
+    <struct <Identifier>>
+
+  StructOrUnion.Union =
+    <union <Identifier>>
+
+
+  StructOrUnionSpecifier =
+    StructOrUnion
+
   StructOrUnionSpecifier.Struct =
     <struct <Identifier?> { <StructDeclaration*>}>
 

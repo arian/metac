@@ -4,19 +4,19 @@ language Metac
 
 start symbol Program
 
-test struct declaration [[
-  struct x;
+test union declaration [[
+  union x;
 ]] parse to Declarations([
-    Declaration([Struct(Identifier("x")], [])
+    Declaration([Union(Identifier("x")], [])
   ])
 
-test one element struct [[
-  struct {
+test one element union [[
+  union {
     int32 x;
   };
 ]] parse to Declarations([
     Declaration(
-      [Struct(None, [
+      [Union(None, [
         StructDeclaration(
           [Int32],
           [Declarator(None, Identifier("x"))]
@@ -27,13 +27,13 @@ test one element struct [[
   ])
 
 test more elements struct [[
-  struct {
+  union {
     int32 x;
     int32 *y;
   };
 ]] parse to Declarations([
     Declaration(
-      [Struct(None, [
+      [Union(None, [
         StructDeclaration(
           [Int32],
           [Declarator(None, Identifier("x"))]
@@ -47,26 +47,26 @@ test more elements struct [[
     )
   ])
 
-test named struct [[
-  struct X {
+test named union [[
+  union X {
     int32 x;
   };
 ]] parse to Declarations([
     Declaration(
-      [Struct(Some(Identifier("X")), [_])],
+      [Union(Some(Identifier("X")), [_])],
       []
     )
   ])
 
-test typedef'ed named struct [[
-  typedef struct Y {
+test typedef'ed named union [[
+  typedef union Y {
     int32 x;
   } X;
 ]] parse to Declarations([
     Declaration(
       [
         Typedef(),
-        Struct(Some(_), [_])
+        Union(Some(_), [_])
       ],
       [Declarator(None(), Identifier("X"))]
     )

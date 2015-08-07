@@ -29,6 +29,7 @@ test declaration cannot be a keyword [[
   void int32;
 ]] parse fails
 */
+
 test declaration type/qualifier without declarator [[
   void const;
 ]] parse succeeds
