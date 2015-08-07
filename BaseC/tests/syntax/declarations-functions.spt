@@ -8,7 +8,7 @@ test function declaration [[
   void a();
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
@@ -22,7 +22,7 @@ test function declaration with one parameter [[
   void a(int32);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
@@ -38,7 +38,7 @@ test function declaration with one named parameter [[
   void x(a);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDeclIDs(
@@ -55,14 +55,14 @@ test paren decl and fn [[
 ]] parse to Declarations([
     _,
     Declaration(
-      [Type(TypedefName(Identifier("x")))],
+      [TypedefName(Identifier("x"))],
       [
         Declarator(None, ParensDecl(Declarator(None, Identifier("a")))),
         Declarator(None, FuncDecl(_, _))
       ]
     ),
     Declaration(
-      [Const, Type(TypedefName(Identifier("x")))],
+      [Const, TypedefName(Identifier("x"))],
       [
         Declarator(None, FuncDecl(_, _)),
         Declarator(None, ParensDecl(Declarator(None, Identifier("b"))))
@@ -76,13 +76,13 @@ test function declaration with one typedef'd parameter [[
 ]] parse to Declarations([
     _,
     Declaration(
-      [Type(Void)],
+      [Void],
       [Declarator(
         None,
         FuncDecl(
           Identifier("a"),
           ParameterList([
-            AbstractParameter([Type(TypedefName(Identifier("B")))], _)
+            AbstractParameter([TypedefName(Identifier("B"))], _)
           ])
         )
       )]
@@ -93,13 +93,13 @@ test function declaration one argument [[
   void a(int32 c);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
         Identifier("a"),
         ParameterList([
-          Parameter([Type(Int32)], Declarator(None, Identifier("c")))
+          Parameter([Int32], Declarator(None, Identifier("c")))
         ])
       )
     )]
@@ -109,15 +109,15 @@ test function declaration more arguments [[
   void a(int32 b, const int32 c, int32 *d);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
         Identifier("a"),
         ParameterList([
-          Parameter([Type(Int32)], Declarator(None, Identifier("b"))),
-          Parameter([Const, Type(Int32)], Declarator(None, Identifier("c"))),
-          Parameter([Type(Int32)], Declarator(Some(Pointer([], None)), Identifier("d")))
+          Parameter([Int32], Declarator(None, Identifier("b"))),
+          Parameter([Const, Int32], Declarator(None, Identifier("c"))),
+          Parameter([Int32], Declarator(Some(Pointer([], None)), Identifier("d")))
         ])
       )
     )]
@@ -126,14 +126,14 @@ test function declaration more arguments [[
 test function declaration without parameter names [[
   void a(int32, int32);
 ]] run get-decl-from-program to Declaration(
-  [Type(Void)],
+  [Void],
   [Declarator(
     None,
     FuncDecl(
       Identifier("a"),
       ParameterList([
-          AbstractParameter([Type(Int32)], None),
-          AbstractParameter([Type(Int32)], None)
+          AbstractParameter([Int32], None),
+          AbstractParameter([Int32], None)
       ])
     )
   )]
@@ -143,15 +143,15 @@ test function declaration with mixed parameters [[
   void a(const int32, int32 a, int32);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
         Identifier("a"),
         ParameterList([
-          AbstractParameter([Const, Type(Int32)], None),
-          Parameter([Type(Int32)], Declarator(None, Identifier("a"))),
-          AbstractParameter([Type(Int32)], None)
+          AbstractParameter([Const, Int32], None),
+          Parameter([Int32], Declarator(None, Identifier("a"))),
+          AbstractParameter([Int32], None)
         ])
       )
     )]
@@ -160,15 +160,15 @@ test function declaration with mixed parameters [[
 test function declaration, complex declarations, without parameter names [[
   void a(const int32, int32 * const []);
 ]] run get-decl-from-program to Declaration(
-  [Type(Void)],
+  [Void],
   [Declarator(
     None,
     FuncDecl(
       Identifier("a"),
       ParameterList([
-        AbstractParameter([Const, Type(Int32)], None),
+        AbstractParameter([Const, Int32], None),
         AbstractParameter(
-          [Type(Int32)],
+          [Int32],
           Some(Declarator(
             Some(Pointer([Const], None)),
             ArrayDecl(None, None)
@@ -186,14 +186,14 @@ test function with a typedef'ed parameter [[
   Declarations([
     _,
     Declaration(
-      [Type(Void)],
+      [Void],
       [Declarator(
         None,
         FuncDecl(
           Identifier("x"),
           ParameterList([
-            Parameter([Type(TypedefName(Identifier("a")))], Declarator(None, Identifier("b"))),
-            AbstractParameter([Type(TypedefName(Identifier("c")))], None)
+            Parameter([TypedefName(Identifier("a"))], Declarator(None, Identifier("b"))),
+            AbstractParameter([TypedefName(Identifier("c"))], None)
           ])
         )
       )]
@@ -207,16 +207,16 @@ test function with any type [[
   Declarations([
     _,
     Declaration(
-      [Type(Void)],
+      [Void],
       [Declarator(
         None,
         FuncDecl(
           Identifier("a"),
           ParameterList([
-            AbstractParameter([Type(TypedefName(Identifier("d")))], None),
+            AbstractParameter([TypedefName(Identifier("d"))], None),
             Parameter([Const], Declarator(Some(Pointer([], None)), Identifier("c"))),
-            AbstractParameter([Const, Type(TypedefName(Identifier("B")))], None),
-            AbstractParameter([Type(TypedefName(Identifier("B")))], None)
+            AbstractParameter([Const, TypedefName(Identifier("B"))], None),
+            AbstractParameter([TypedefName(Identifier("B"))], None)
           ])
         )
       )]
@@ -227,18 +227,18 @@ test function declaration with varargs [[
   void a(int32 b, int32 const c, ...);
 ]] run get-decl-from-program to
   Declaration(
-    [Type(Void)],
+    [Void],
     [Declarator(
       None,
       FuncDecl(
         Identifier("a"),
         VarArgs(ParameterList([
           Parameter(
-            [Type(Int32)],
+            [Int32],
             Declarator(None, Identifier("b"))
           ),
           Parameter(
-            [Type(Int32), Const],
+            [Int32, Const],
             Declarator(None, Identifier("c"))
           )
         ]))

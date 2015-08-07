@@ -4,35 +4,51 @@ language Metac
 
 start symbol Program
 
+test [[
+  int32;
+]] run get-decl-from-program to Declaration(
+  [Int32],
+  []
+)
+
+test [[
+  a b;
+]] run get-decl-from-program to Declaration(
+    [TypedefName(Identifier("a"))],
+    [Declarator(None(), Identifier("b"))]
+  )
+
 test just a useless declaration [[
   void a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Void)], [Declarator(None, Identifier("a"))]
+  [Void], [Declarator(None, Identifier("a"))]
 )
 
+/* Make some errors for this case
 test declaration cannot be a keyword [[
   void int32;
 ]] parse fails
-
-test declaration cannot be another keyword (type qualifier) [[
+*/
+test declaration type/qualifier without declarator [[
   void const;
-]] parse fails
+]] parse succeeds
 
-test declaration cannot be another keyword (storage class) [[
+test declaration type / storage class without declarator [[
   void volatile;
-]] parse fails
+]] parse succeeds
+
 
 test a single variable declaration [[
   int32 a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [Declarator(None(), Identifier("a"))]
 )
 
 test multiple variable declarations [[
   int32 a, b;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(None(), Identifier("a")),
     Declarator(None(), Identifier("b"))
@@ -42,21 +58,21 @@ test multiple variable declarations [[
 test const int [[
   const int32 a;
 ]] run get-decl-from-program to Declaration(
-  [Const, Type(Int32)],
+  [Const, Int32],
   _
 )
 
 test int const [[
   int32 const a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32), Const],
+  [Int32, Const],
   _
 )
 
 test pointer int [[
   int32 * a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(
       Some(Pointer([], None)),
@@ -68,7 +84,7 @@ test pointer int [[
 test two varables of which one is a pointer [[
   int32 a, * b;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(None, _),
     Declarator(Some(_), _)
@@ -78,7 +94,7 @@ test two varables of which one is a pointer [[
 test variable with init expression [[
   int32 a = 1;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     InitDeclarator(
       Declarator(_, _),
@@ -90,7 +106,7 @@ test variable with init expression [[
 test two variables with init expressions [[
   int32 a = 1, b = 2;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     InitDeclarator(
       Declarator(_, _),
@@ -106,7 +122,7 @@ test two variables with init expressions [[
 test double pointer [[
   int32 ** a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(
       Some(Pointer([], Some(Pointer([], None)))),
@@ -118,7 +134,7 @@ test double pointer [[
 test int * const volatile [[
   int32 * const volatile a;
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(
       Some(Pointer([Const, Volatile], None)),
@@ -134,7 +150,7 @@ test int with storage class [[
     Static,
     Const,
     Extern,
-    Type(Int32)
+    Int32
   ],
   [
     Declarator(
@@ -147,7 +163,7 @@ test int with storage class [[
 test declaration with parens [[
   int32 (* a);
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(
       None,
@@ -162,7 +178,7 @@ test declaration with parens [[
 test array decl [[
   int32 a[];
 ]] run get-decl-from-program to Declaration(
-  [Type(Int32)],
+  [Int32],
   [
     Declarator(
       None,
@@ -177,7 +193,7 @@ test array decl [[
 test typedef [[
   typedef int32 a;
 ]] run get-decl-from-program to Declaration(
-  [Typedef, Type(Int32)],
+  [Typedef, Int32],
   [Declarator(
     None,
     Identifier("a")
@@ -187,7 +203,7 @@ test typedef [[
 test a typedefed decl [[
   a b, c;
 ]] run get-decl-from-program to Declaration(
-  [Type(TypedefName(Identifier("a")))],
+  [TypedefName(Identifier("a"))],
   [
     Declarator(None, Identifier("b")),
     Declarator(None, Identifier("c"))

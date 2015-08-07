@@ -1,11 +1,24 @@
 module BaseC-StructOrUnion
 
+imports
+
+  BaseC-Constants
+  BaseC-Identifiers
+  BaseC-Declarations
+
 context-free syntax
 
-  StructDeclaration.Nothing = <;>
+  StructDeclarator =
+    Declarator
+
+  StructDeclarator.StructSizedFieldDeclarator =
+    <<Declarator?>: <Constant>>
+
+  StructDeclaration.StructDeclaration =
+    <<SpecifierQualifier+> <StructDeclarator+>;>
 
   StructOrUnionSpecifier.Struct =
-    <struct { <StructDeclaration*>}>
+    <struct <Identifier?> { <StructDeclaration*>}>
 
   StructOrUnionSpecifier.Union =
-    <union { <StructDeclaration*>}>
+    <union <Identifier?> { <StructDeclaration*>}>

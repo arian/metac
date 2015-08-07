@@ -12,8 +12,6 @@ imports
 
 context-free syntax
 
-  Decl.NoInit = Identifier
-
   // storage-class-specifiers
   StorageClassSpecifierKeyword.Auto =
     <auto>
@@ -65,7 +63,7 @@ context-free syntax
   DeclarationSpecifier =
     Qualifier
 
-  DeclarationSpecifier.Type =
+  DeclarationSpecifier =
     TypeSpecifier
 
   // typedef-name
@@ -74,7 +72,7 @@ context-free syntax
 
   // declaration
   Declaration.Declaration =
-    <<DeclarationSpecifier+> <{InitDeclarator ", "}+>;>
+    <<DeclarationSpecifier+> <{InitDeclarator ", "}*>;>
 
 
   // init-declarator

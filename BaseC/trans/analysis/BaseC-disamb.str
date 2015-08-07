@@ -25,6 +25,7 @@ strategies
 
   resolve-amb =
     try(disamb-comma)
+    ; try(disamb-decl-specifiers(|<td-names>))
     ; try(disamb-parameters(|<td-names>))
     ; try(disamb-parens-decl-or-func-decl(|<td-names>))
     ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
@@ -61,10 +62,7 @@ rules
 rules
 
   is-valid-type(|names) =
-    if (
-      Type(TypedefName(Identifier(?name)))
-      <+ TypedefName(Identifier(?name))
-    ) then
+    if TypedefName(Identifier(?name)) then
       <elem> (name, names)
     else
       id
@@ -98,6 +96,20 @@ rules
 
   disamb-comma:
     amb([x@amb([_, _]), Comma(amb([[_], [_]]))]) -> x
+
+rules
+
+  disamb-decl-specifiers(|names):
+    amb([
+      a@Declaration(specsA, []),
+      b@Declaration(_, _)
+    ]) -> x
+    where
+      if <last ; is-valid-type(|names)> specsA then
+        x := a
+      else
+        x := b
+      end
 
 rules
 

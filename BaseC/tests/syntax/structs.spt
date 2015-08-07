@@ -1,0 +1,21 @@
+module structs
+
+language Metac
+
+start symbol Program
+
+test one element struct [[
+  struct {
+    int32 x;
+  };
+]] parse to Declarations([
+    Declaration(
+      [Struct(None, [
+        StructDeclaration(
+          [Int32],
+          [Declarator(None, Identifier("x"))]
+        )
+      ])],
+      []
+    )
+  ])

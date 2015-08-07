@@ -25,7 +25,7 @@ rules
 
   get-decl-type =
     get-decl-from-program
-    ; ?Declaration([Type(type)], _) ; !type
+    ; ?Declaration([type], _) ; !type
 
 strategies
 

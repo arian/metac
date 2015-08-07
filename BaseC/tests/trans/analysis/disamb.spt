@@ -4,8 +4,8 @@ language Metac
 
 test get typedef name simple
   <parse-string
-    ; get-decl-from-program
-    ; get-typedef-declaration-name
+    ; oncetd(get-typedef-declaration-name ; ?x)
+    ; !x
   > ("typedef int32 X;")
   => "X"
 
@@ -23,7 +23,7 @@ test is-valid-type, type is in the list
 
 test is-valid-type, type is not in the list
   <is-valid-type(|["A", "B"]) ; !1 <+ !0>
-  Type(TypedefName(Identifier("C")))
+  TypedefName(Identifier("C"))
   => 0
 
 test is-valid-type
@@ -43,24 +43,24 @@ test not valid type, using just TypedefName
 
 test all-valid-types
   <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
-    Type(TypedefName(Identifier("A"))),
+    TypedefName(Identifier("A")),
     Const(),
-    Type(TypedefName(Identifier("B")))
+    TypedefName(Identifier("B"))
   ]
   => 1
 
 test all-valid-types, some is not valid
   <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
-    Type(TypedefName(Identifier("A"))),
+    TypedefName(Identifier("A")),
     Const(),
-    Type(TypedefName(Identifier("C")))
+    TypedefName(Identifier("C"))
   ]
   => 0
 
 test all-valid-types, some is not valid
   <is-valid-parameter(|[]); !1 <+ !0> AbstractParameter([
-    Type(Int32()),
-    Type(TypedefName(Identifier("c")))
+    Int32(),
+    TypedefName(Identifier("c"))
   ], None())
   => 0
 
@@ -76,7 +76,7 @@ test get parameter from amb list with native type
     ; disamb
     ; find-elem(?ParameterList(_))
   > ("void x(int32 b);")
-  => ParameterList([Parameter([Type(Int32)], _)])
+  => ParameterList([Parameter([Int32], _)])
 
 test get parameter from amb list with defined type
   <parse-string
@@ -87,7 +87,7 @@ test get parameter from amb list with defined type
     void x(A b);
   ")
   => ParameterList([
-    Parameter([Type(TypedefName(Identifier("A")))], _)
+    Parameter([TypedefName(Identifier("A"))], _)
   ])
 
 test get parameter from amb list with defined type
@@ -99,7 +99,7 @@ test get parameter from amb list with defined type
     void x(A);
   ")
   => ParameterList([
-    AbstractParameter([Type(TypedefName(Identifier("A")))], _)
+    AbstractParameter([TypedefName(Identifier("A"))], _)
   ])
 
 test func-decl vs func-decl with only IDs, param __isn't__ a type, so func decl with IDs
@@ -125,7 +125,7 @@ test func-decl vs func-decl with only IDs, param __is__ a type, so func decl wit
 test paren decl vs func decl, x isn't a type, so should be a function
   <disamb-parens-decl-or-func-decl(|[])> amb([
     Declaration(
-      [Type(TypedefName(Identifier("x")))],
+      [TypedefName(Identifier("x"))],
       [Declarator(None(), ParensDecl(Declarator(None(), Identifier("a"))))]
     ),
     Declaration(
