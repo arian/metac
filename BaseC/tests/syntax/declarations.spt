@@ -120,6 +120,46 @@ test two variables with init expressions [[
   ]
 )
 
+test empty block initializer [[
+  int32 a[] = {};
+]] run get-decl-from-program to Declaration(
+  _,
+  [InitDeclarator(_,
+    BlockInitializer([])
+  )]
+)
+
+test block initializer with one expr [[
+  int32 a[] = {2 * 3};
+]] run get-decl-from-program to Declaration(
+  _,
+  [InitDeclarator(_,
+    BlockInitializer([Mult(_, _)])
+  )]
+)
+
+test block initializer with more exprs [[
+  int32 a[] = {2 * 3, 5, 'a'};
+]] run get-decl-from-program to Declaration(
+  _,
+  [InitDeclarator(_,
+    BlockInitializer([Mult(_, _), Integer("5"), Char("'a'")])
+  )]
+)
+
+test block initializer matrix initializer [[
+  int32 a[][] = {{2 * 3}, {4}};
+]] run get-decl-from-program to Declaration(
+  _,
+  [InitDeclarator(_,
+    BlockInitializer([
+      BlockInitializer([Mult(_, _)]),
+      BlockInitializer([Integer(_)])
+    ])
+  )]
+)
+
+
 test double pointer [[
   int32 ** a;
 ]] run get-decl-from-program to Declaration(

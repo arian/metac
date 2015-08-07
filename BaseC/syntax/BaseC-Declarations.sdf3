@@ -109,13 +109,13 @@ context-free syntax
     <(<Declarator>)>
 
   DirectDeclarator.ArrayDecl =
-    <<DirectDeclarator> [<Constant?>]>
+    <<DirectDeclarator>[<Constant?>]>
 
   DirectDeclarator.FuncDecl =
-    <<DirectDeclarator> (<ParameterTypeList>)>
+    <<DirectDeclarator>(<ParameterTypeList>)>
 
   DirectDeclarator.FuncDeclIDs =
-    <<DirectDeclarator> (<{Identifier ","}*>)>
+    <<DirectDeclarator>(<{Identifier ","}*>)>
 
   // parameter-type-list
   ParameterTypeList =
@@ -141,7 +141,7 @@ context-free syntax
     AExpr
 
   Initializer.BlockInitializer =
-    <{}>
+    <{<{Initializer ","}*>}>
 
 
   // type-name
@@ -162,9 +162,9 @@ context-free syntax
     <(<AbstractDeclarator>)>
 
   DirectAbstractDeclarator.ArrayDecl =
-    <<DirectAbstractDeclarator?> [<Constant?>]>
+    <<DirectAbstractDeclarator?>[<Constant?>]>
 
   DirectAbstractDeclarator.FuncDecl =
-    <<DirectAbstractDeclarator?> (<ParameterTypeList?>)>
+    <<DirectAbstractDeclarator?>(<ParameterTypeList?>)>
 
 
