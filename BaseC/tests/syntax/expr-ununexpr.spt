@@ -15,11 +15,14 @@ test incr pre [[++a]] run get-expr-from-program to
 
 test incr space [[ ++ a]] parse succeeds
 
+//test comma'd ++ [[ ++(a, b) ]] parse fails
 
 test decr pre [[--a]] run get-expr-from-program to
   DecrementPrefix(Identifier("a"))
 
 test decr space [[ -- a]] parse succeeds
+
+// test comma'd -- [[ --(a, b) ]] parse fails
 
 
 test address [[&a]] run get-expr-from-program to
@@ -27,16 +30,23 @@ test address [[&a]] run get-expr-from-program to
 
 test addr space [[ & a]] parse succeeds
 
+// test comma'd addr [[ &(a, b) ]] parse fails
+
 
 test deref [[*a]] run get-expr-from-program to
   Deref(Identifier("a"))
 
 test deref space [[ * a ]] parse succeeds
 
+// test comma'd deref [[ *(a, b) ]] parse fails
+
+
 test postive [[ +1 ]] run get-expr-from-program to
   Positive(Integer("1"))
 
 test positive space [[ + a ]] parse succeeds
+
+test comma'd + [[ +(1, 2) ]] parse succeeds
 
 
 test negative int [[-1]] run get-expr-from-program to
@@ -49,17 +59,23 @@ test negative op [[
 ]] run get-expr-from-program to
   Negative(Integer("1"))
 
+test comma'd - [[ -(1, 2) ]] parse succeeds
+
 
 test complement [[ ~3 ]] run get-expr-from-program to
   Complement(Integer("3"))
 
 test complement space [[ ~ 3 ]] parse succeeds
 
+test comma'd ~ [[ ~(1, 2) ]] parse succeeds
+
 
 test negate [[!a]] run get-expr-from-program to
   Negate(Identifier("a"))
 
 test negative space [[ ! a ]] parse succeeds
+
+test comma'd ! [[ !(1, 2) ]] parse succeeds
 
 
 setup after [[

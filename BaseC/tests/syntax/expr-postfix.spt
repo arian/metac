@@ -13,6 +13,19 @@ setup before [[
 test array field [[ a[0] ]] run get-expr-from-program to
   ArrayField(Identifier("a"), Integer("0"))
 
+test array field with expr [[ a[1 + 2] ]]run get-expr-from-program to
+  ArrayField(Identifier("a"), Add(_, _))
+
+test array field with comma expr [[
+  a[(1, 3)]
+]] run get-expr-from-program to
+  ArrayField(Identifier("a"), Paren(Comma(_, [_])))
+
+test array field with comma pre-expr [[
+  (1, a)[1]
+]]run get-expr-from-program to
+  ArrayField(Paren(Comma(Integer(_), [Identifier("a")])), Integer(_))
+
 
 test fn call [[
   fn()
@@ -29,12 +42,24 @@ test fn call scanf call [[
 ]] run get-expr-from-program to
   Call(Identifier("fn"), [Integer("0"), Integer("1"), Integer("2")])
 
+test fn call with comma pre-expr [[
+  (1+2, fn)(4);
+]] run get-expr-from-program to
+  Call(Paren(Comma(Add(_, _), [Identifier("fn")])), [Integer("4")])
+
+
 test field [[ a.b ]] run get-expr-from-program to
   Field(Identifier("a"), Identifier("b"))
+
+test field with comma [[ (a, a).b ]] run get-expr-from-program to
+  Field(Paren(Comma(Identifier("a"), [Identifier("a")])), Identifier("b"))
 
 
 test field pointer [[ a->b ]] run get-expr-from-program to
   PointerField(Identifier("a"), Identifier("b"))
+
+test field pointer with comma [[ (a, a)->b ]] run get-expr-from-program to
+  PointerField(Paren(Comma(Identifier("a"), [Identifier("a")])), Identifier("b"))
 
 
 test increment expr [[ a++ ]] run get-expr-from-program to

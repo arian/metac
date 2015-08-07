@@ -14,7 +14,7 @@ context-free syntax
     <(<Expr>)> {bracket}
 
   Expr.Comma =
-    <<{AExpr ","}+>> {avoid}
+    <<AExpr>, <{AExpr ","}+>>
 
   Expr =
     AExpr {prefer}
@@ -134,28 +134,28 @@ context-free syntax
 
   // unary-expression
   UnaryExpr.IncrementPrefix =
-    <++<AExpr>> {right}
+    <++<PostFixExpr>> {right}
 
   UnaryExpr.DecrementPrefix =
-    <--<AExpr>> {right}
+    <--<PostFixExpr>> {right}
 
   UnaryExpr.Address =
-    <&<AExpr>> {right}
+    <&<PostFixExpr>> {right}
 
   UnaryExpr.Deref =
-    <*<AExpr>> {right}
+    <*<PostFixExpr>> {right}
 
   UnaryExpr.Positive =
-    <+<AExpr>> {right}
+    <+<PostFixExpr>> {right}
 
   UnaryExpr.Negative =
     <-<AExpr>> {right}
 
   UnaryExpr.Complement =
-    <~<AExpr>> {right}
+    <~<PostFixExpr>> {right}
 
   UnaryExpr.Negate =
-    <!<AExpr>> {right}
+    <!<PostFixExpr>> {right}
 
   UnaryExpr =
     PostFixExpr
@@ -164,22 +164,22 @@ context-free syntax
   // postfix-expression
 
   PostFixExpr.ArrayField =
-    <<AExpr>[<AExpr>]>
+    <<PrimaryExpr>[<Expr>]>
 
   PostFixExpr.Call =
-    <<AExpr>(<{AExpr ","}*>)>
+    <<PrimaryExpr>(<{AExpr ","}*>)>
 
   PostFixExpr.Field =
-    <<AExpr>.<Identifier>>
+    <<PrimaryExpr>.<Identifier>>
 
   PostFixExpr.PointerField =
-    [[AExpr]->[Identifier]]
+    [[PrimaryExpr]->[Identifier]]
 
   PostFixExpr.Increment =
-    <<AExpr>++> {left}
+    <<PrimaryExpr>++> {left}
 
   PostFixExpr.Decrement =
-    <<AExpr>--> {left}
+    <<PrimaryExpr>--> {left}
 
   PostFixExpr =
     PrimaryExpr
@@ -191,6 +191,9 @@ context-free syntax
 
   PrimaryExpr =
     Constant {prefer}
+
+  PrimaryExpr.Paren =
+    <(<Expr>)> {avoid}
 
 
 context-free priorities

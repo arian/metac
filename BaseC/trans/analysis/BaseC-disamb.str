@@ -24,8 +24,7 @@ strategies
     <+ collect-name
 
   resolve-amb =
-    try(disamb-comma)
-    ; try(disamb-decl-specifiers(|<td-names>))
+    try(disamb-decl-specifiers(|<td-names>))
     ; try(disamb-parameters(|<td-names>))
     ; try(disamb-parens-decl-or-func-decl(|<td-names>))
     ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
@@ -79,23 +78,6 @@ rules
     p@AbstractParameter(specifiers, _) -> p
     where
       <all(is-valid-type(|names))> specifiers
-
-rules
-
-  // In some cases this thing shows up, where the Comma constructor has some
-  // amb, with just one element in some form. If that's the case, use the other
-  // non-comma constructor variant
-  disamb-comma:
-    amb([x@amb([_, _]), Some(Comma(amb([[_], [_]])))]) -> x
-
-  disamb-comma:
-    amb([x@Some(amb([_, _])), Some(Comma([amb([_, _])]))]) -> x
-
-  disamb-comma:
-    amb([x@amb([_, _]), Comma([amb([_, _])])]) -> x
-
-  disamb-comma:
-    amb([x@amb([_, _]), Comma(amb([[_], [_]]))]) -> x
 
 rules
 

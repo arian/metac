@@ -16,15 +16,18 @@ test constant expression [[
 
 test commas [[
   1, 2
-]] run get-expr-from-program to Comma([Integer("1"), Integer("2")])
+]] run get-expr-from-program to Comma(Integer("1"), [Integer("2")])
+
+test more commas [[
+  1, 2, a=4
+]] run get-expr-from-program to Comma(Integer("1"), [Integer("2"), Assign(_, _, _)])
 
 test commas with brackets [[
   (1, 2, 3)
-]] run  get-expr-from-program to Comma([
+]] run  get-expr-from-program to Paren(Comma(
     Integer("1"),
-    Integer("2"),
-    Integer("3")
-  ])
+    [Integer("2"), Integer("3")]
+  ))
 
 test parens id [[ (a) ]] run get-expr-from-program to
   Identifier("a")
