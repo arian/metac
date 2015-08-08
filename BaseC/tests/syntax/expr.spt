@@ -85,6 +85,25 @@ test conditional expression with sub-exprs [[
     InclusiveOr(Integer("4"), Integer("5"))
   )
 
+test conditional expression with sub-exprs [[
+  1 ? (2, 3) : 4, 5
+]] run get-expr-from-program to
+  Comma(
+    Conditional(
+      Integer("1"),
+      Paren(_),
+      Integer("4")
+    ),
+    [Integer("5")]
+  )
+
+// TODO FIXME
+// test conditional expression with sub-exprs [[
+//   0 * 1 ? 2 : 3
+// ]] run get-expr-from-program to
+//   Mult(_, Conditional(_, _, _))
+
+
 
 test cast [[(int32) 1]] run get-expr-from-program to
   Cast(TypeName([Int32], None), Integer("1"))

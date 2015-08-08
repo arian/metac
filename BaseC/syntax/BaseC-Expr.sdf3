@@ -53,9 +53,8 @@ context-free syntax
 
 
   // conditional-expression
-  // TODO Fix me
   AExpr.Conditional =
-    <<AExpr> ? <AExpr> : <AExpr>> {right}
+    <<AExpr> ? <Expr> : <AExpr>> {right}
 
 
   // logical-OR-expression
