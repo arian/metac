@@ -57,7 +57,7 @@ test negative space [[ - a ]] parse succeeds
 test negative op [[
   -(1)
 ]] run get-expr-from-program to
-  Negative(Integer("1"))
+  Negative(Paren(Integer("1")))
 
 test comma'd - [[ -(1, 2) ]] parse succeeds
 
@@ -76,6 +76,15 @@ test negate [[!a]] run get-expr-from-program to
 test negative space [[ ! a ]] parse succeeds
 
 test comma'd ! [[ !(1, 2) ]] parse succeeds
+
+
+test combination of unary operators [[
+  !~+-*++&--a;
+]] parse succeeds
+
+test combinations of unary and cast [[
+  !+ (int32) *a++
+]] parse succeeds
 
 
 setup after [[

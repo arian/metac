@@ -125,37 +125,40 @@ context-free syntax
     <<AExpr> % <AExpr>> {left}
 
   // cast-expression
-  AExpr.Cast =
-    <(<TypeName>) <AExpr>>
-
-
   AExpr =
+    CastExpr
+
+  CastExpr =
     UnaryExpr
+
+  CastExpr.Cast =
+    <(<TypeName>) <CastExpr>>
+
 
   // unary-expression
   UnaryExpr.IncrementPrefix =
-    <++<PostFixExpr>> {right}
+    <++<UnaryExpr>> {right}
 
   UnaryExpr.DecrementPrefix =
-    <--<PostFixExpr>> {right}
+    <--<UnaryExpr>> {right}
 
   UnaryExpr.Address =
-    <&<PostFixExpr>> {right}
+    <&<CastExpr>> {right}
 
   UnaryExpr.Deref =
-    <*<PostFixExpr>> {right}
+    <*<CastExpr>> {right}
 
   UnaryExpr.Positive =
-    <+<PostFixExpr>> {right}
+    <+<CastExpr>> {right}
 
   UnaryExpr.Negative =
-    <-<AExpr>> {right}
+    <-<CastExpr>> {right}
 
   UnaryExpr.Complement =
-    <~<PostFixExpr>> {right}
+    <~<CastExpr>> {right}
 
   UnaryExpr.Negate =
-    <!<PostFixExpr>> {right}
+    <!<CastExpr>> {right}
 
   UnaryExpr =
     PostFixExpr
@@ -164,22 +167,22 @@ context-free syntax
   // postfix-expression
 
   PostFixExpr.ArrayField =
-    <<PrimaryExpr>[<Expr>]>
+    <<PostFixExpr>[<Expr>]>
 
   PostFixExpr.Call =
-    <<PrimaryExpr>(<{AExpr ","}*>)>
+    <<PostFixExpr>(<{AExpr ","}*>)>
 
   PostFixExpr.Field =
-    <<PrimaryExpr>.<Identifier>>
+    <<PostFixExpr>.<Identifier>>
 
   PostFixExpr.PointerField =
-    [[PrimaryExpr]->[Identifier]]
+    [[PostFixExpr]->[Identifier]]
 
   PostFixExpr.Increment =
-    <<PrimaryExpr>++> {left}
+    <<PostFixExpr>++> {left}
 
   PostFixExpr.Decrement =
-    <<PrimaryExpr>--> {left}
+    <<PostFixExpr>--> {left}
 
   PostFixExpr =
     PrimaryExpr
@@ -198,7 +201,7 @@ context-free syntax
 
 context-free priorities
   { left:
-      AExpr.Cast
+      CastExpr.Cast
       PostFixExpr.Increment
       PostFixExpr.Decrement
       PostFixExpr.ArrayField

@@ -70,6 +70,15 @@ test decrement expr [[ a-- ]] run get-expr-from-program to
   Decrement(Identifier("a"))
 
 
+test combination of unary and postfix [[ *a++ ]] parse succeeds
+
+test combinations of postfix [[ a->b++ ]] parse succeeds
+
+test combination of deref and post incr [[
+  *a++;
+]] parse succeeds
+
+
 setup after [[
     ;
   }
