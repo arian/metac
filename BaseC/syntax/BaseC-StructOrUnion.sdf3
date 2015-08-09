@@ -8,6 +8,16 @@ imports
 
 context-free syntax
 
+  StructOrUnion.Struct =
+    <struct <Identifier>>
+
+  StructOrUnion.Union =
+    <union <Identifier>>
+
+  StructOrUnionSpecifier =
+    StructOrUnion
+
+
   StructDeclarator =
     Declarator
 
@@ -15,20 +25,17 @@ context-free syntax
     <<Declarator?>: <Constant>>
 
   StructDeclaration.StructDeclaration =
-    <<SpecifierQualifier+> <StructDeclarator+>;>
+    <<SpecifierQualifier+> <{StructDeclarator ","}+>;>
 
-  StructOrUnion.Struct =
-    <struct <Identifier>>
-
-  StructOrUnion.Union =
-    <union <Identifier>>
-
-
-  StructOrUnionSpecifier =
-    StructOrUnion
 
   StructOrUnionSpecifier.Struct =
-    <struct <Identifier?> { <StructDeclaration*>}>
+    <
+    struct <Identifier?> {
+      <{StructDeclaration "\n"}*>
+    }>
 
   StructOrUnionSpecifier.Union =
-    <union <Identifier?> { <StructDeclaration*>}>
+    <
+    union <Identifier?> {
+      <{StructDeclaration "\n"}*>
+    }>

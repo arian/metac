@@ -81,17 +81,40 @@ rules
 
 rules
 
-  disamb-decl-specifiers(|names):
-    amb([
-      a@Declaration(specsA, []),
-      b@Declaration(_, _)
-    ]) -> x
+  disamb-intern-longest-list:
+    (a, b) -> x
     where
-      if <last ; is-valid-type(|names)> specsA then
+      if <gt> (<length> a, <length> b)
+      then x := a
+      else x := b
+      end
+
+  disamb-intern-decl-specifiers(|names):
+    (a, b, specsOfA, specsOfB) -> x
+    where
+      if <disamb-intern-longest-list
+           ; last
+           ; is-valid-type(|names)
+         > (specsOfA, specsOfB)
+       then
         x := a
       else
         x := b
       end
+
+  disamb-decl-specifiers(|names):
+    amb([
+      a@Declaration(specsA, []),
+      b@Declaration(specsB, _)
+    ]) -> <disamb-intern-decl-specifiers(|names)> (a, b, specsA, specsB)
+
+  disamb-decl-specifiers(|names):
+    amb([
+      a@StructDeclaration(specsA, _),
+      b@StructDeclaration(specsB, _)
+    ]) -> <disamb-intern-decl-specifiers(|names)> (a, b, specsA, specsB)
+
+
 
 rules
 

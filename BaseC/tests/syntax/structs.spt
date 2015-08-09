@@ -9,7 +9,7 @@ test struct declaration [[
 ]] parse to Declarations([
     Declaration(
       [Struct(Identifier("x"))],
-      []
+      _
     )
   ])
 
@@ -25,7 +25,7 @@ test one element struct [[
           [Declarator(None, Identifier("x"))]
         )
       ])],
-      []
+      _
     )
   ])
 
@@ -75,3 +75,63 @@ test typedef'ed named struct [[
     )
   ])
 
+
+test custom type declarator [[
+  typedef int32 x;
+  struct X {
+    const x y;
+  };
+]] parse to Declarations([
+    _,
+    Declaration([
+      Struct(Some(Identifier("X")), [
+        StructDeclaration(
+          [Const(), TypedefName(Identifier("x"))],
+          [Declarator(None, Identifier("y"))]
+        )
+      ])
+    ], _)
+  ])
+
+test multiple declarators [[
+  typedef int32 z;
+  struct X {
+    const x y, z;
+  };
+]] parse to Declarations([
+    _,
+    Declaration([
+      Struct(Some(Identifier("X")), [
+        StructDeclaration(
+          [Const(), TypedefName(Identifier("x"))],
+          [
+            Declarator(None, Identifier("y")),
+            Declarator(None, Identifier("z"))
+          ]
+        )
+      ])
+    ], _)
+  ])
+
+test multiple declarators with bit-size [[
+  typedef int32 z;
+  struct X {
+    const x y, z : 3;
+  };
+]] parse to Declarations([
+    _,
+    Declaration([
+      Struct(Some(Identifier("X")), [
+        StructDeclaration(
+          [Const(), TypedefName(Identifier("x"))],
+          [
+            Declarator(None, Identifier("y")),
+            StructSizedFieldDeclarator(
+              Some(Declarator(None, Identifier("z"))),
+              Integer("3")
+            )
+          ]
+        )
+      ])
+    ], _)
+  ])
