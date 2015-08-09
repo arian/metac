@@ -38,6 +38,26 @@ test integer literal 10UL [[
   uint64 x = 10UL;
 ]] run get-init-decl to Integer("10UL")
 
+test integer literal 10LU [[
+  uint64 x = 10LU;
+]] run get-init-decl to Integer("10LU")
+
+test long long integer literal 1LL [[
+  long long x = 1LL;
+]] run get-init-decl to Integer("1LL")
+
+test long long integer literal 1ULL [[
+  long long x = 1ULL;
+]] run get-init-decl to Integer("1ULL")
+
+test long long integer literal 1LLU [[
+  long long x = 1LLU;
+]] run get-init-decl to Integer("1LLU")
+
+test integer literal 1LUL not allowed ;-) [[
+  long long x = 1LUL;
+]] parse fails
+
 test integer literal with hex digit 1A [[
   uint32 x = 1A;
 ]] parse fails
