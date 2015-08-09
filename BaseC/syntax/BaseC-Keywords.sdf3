@@ -50,3 +50,23 @@ lexical syntax
   Keyword = "void"
   Keyword = "volatile"
   Keyword = "while"
+
+  Keyword = "true"
+  Keyword = "false"
+
+  // types
+
+  Keyword = "int8"
+  Keyword = "uint8"
+
+  Keyword = "int16"
+  Keyword = "uint16"
+
+  Keyword = "int32"
+  Keyword = "uint32"
+
+  Keyword = "int64"
+  Keyword = "uint64"
+
+  Keyword = "float32"
+  Keyword = "float64"
