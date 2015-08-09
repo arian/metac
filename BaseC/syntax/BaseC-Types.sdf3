@@ -26,11 +26,38 @@ context-free syntax
   PureType.UInt8 =
     <uint8>
 
+  PureType.Float32 =
+    <float32>
+
+  PureType.Float64 =
+    <float64>
+
+  PureType.Void =
+    <void>
+
+
+  // Old types
+
+  PureType.Char =
+    <char>
+
+  PureType.Short =
+    <short>
+
+  PureType.Int =
+    <int>
+
+  PureType.Long =
+    <long>
+
   PureType.Float =
     <float>
 
   PureType.Double =
     <double>
 
-  PureType.Void =
-    <void>
+  PureType.Signed =
+    <signed>
+
+  PureType.Unsigned =
+    <unsigned>

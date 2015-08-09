@@ -36,6 +36,34 @@ test uint8 [[
   uint8 x;
 ]] run get-decl-type to UInt8()
 
+test float32 [[
+  float32 x;
+]] run get-decl-type to Float32()
+
+test float64 [[
+  float64 x;
+]] run get-decl-type to Float64()
+
+test void [[
+  void x;
+]] run get-decl-type to Void()
+
+
+test char [[
+  char x;
+]] run get-decl-type to Char()
+
+test short [[
+  short x;
+]] run get-decl-type to Short()
+
+test int [[
+  int x;
+]] run get-decl-type to Int()
+
+test long [[
+  long x;
+]] run get-decl-type to Long()
 
 test float [[
   float x;
@@ -45,7 +73,6 @@ test double [[
   double x;
 ]] run get-decl-type to Double()
 
-test void [[
-  void x;
-]] run get-decl-type to Void()
-
+test signed char [[
+  signed char x;
+]] parse to Declarations(_)
