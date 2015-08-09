@@ -2,7 +2,7 @@ module BaseC-Macros
 
 imports
 
-  Common
+  BaseC-Constants
 
 lexical syntax
 
