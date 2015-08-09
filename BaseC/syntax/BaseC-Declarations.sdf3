@@ -93,7 +93,7 @@ context-free syntax
 
   // pointer
   Pointer.Pointer =
-    <* <Qualifier*> <Pointer?>>
+    <*<Qualifier*><Pointer?>>
 
 
   // declarator
@@ -146,7 +146,7 @@ context-free syntax
 
   // type-name
   TypeName.TypeName =
-    <<SpecifierQualifier*> <AbstractDeclarator?>>
+    <<SpecifierQualifier*><AbstractDeclarator?>>
 
 
   // abstract-declarator
