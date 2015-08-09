@@ -46,10 +46,16 @@ context-free syntax
     <<Identifier>: <Statement>>
 
   LabeledStatement.Case =
-     <case <Constant>: <Statement>>
+     <
+     case <Constant>:
+       <Statement>
+     >
 
   LabeledStatement.Default =
-    <default: <Statement>> {prefer} // prever over Label
+    <
+    default:
+      <Statement>
+    > {prefer} // prever over Label
 
 
   SelectionStatement.If =
@@ -79,10 +85,10 @@ context-free syntax
     <goto <Identifier>;>
 
   JumpStatement.Continue =
-    <continue;>
+    <continue ;>
 
   JumpStatement.Break =
-    <break;>
+    <break ;>
 
   JumpStatement.Return =
     <return <Expr?>;>

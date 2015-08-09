@@ -109,18 +109,27 @@ test goto jump statement [[
 ]] run get-stmt-from-program to Goto(
   Identifier("a")
 )
+test goto space ; [[ goto a ; ]] parse succeeds
+
 
 test continue statement [[
   continue;
 ]] run get-stmt-from-program to Continue
 
+test continue space ; [[ continue ; ]] parse succeeds
+
 test break statement [[
   break;
 ]] run get-stmt-from-program to Break
 
+test break space ; [[ break ; ]] parse succeeds
+
+
 test return statement without expr[[
   return;
 ]] run get-stmt-from-program to Return(None)
+
+test return space ; [[ return ; ]] parse succeeds
 
 test return statement with expr[[
   return 1;
