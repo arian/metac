@@ -7,7 +7,10 @@ start symbol Program
 test struct declaration [[
   struct x;
 ]] parse to Declarations([
-    Declaration([Struct(Identifier("x")], [])
+    Declaration(
+      [Struct(Identifier("x"))],
+      []
+    )
   ])
 
 test one element struct [[
