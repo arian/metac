@@ -1,5 +1,8 @@
 module BaseC-Types
 
+imports
+  BaseC-Identifiers
+
 context-free syntax
 
   PureType.Int64 =
@@ -61,3 +64,6 @@ context-free syntax
 
   PureType.Unsigned =
     <unsigned>
+
+context-free restrictions
+  PureType -/- [a-zA-Z0-9\_]

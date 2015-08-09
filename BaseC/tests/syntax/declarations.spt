@@ -250,3 +250,16 @@ test a typedefed decl [[
     Declarator(None, Identifier("c"))
   ]
 )
+
+
+test custom type including base types [[
+  int32_t x = 1;
+]] parse succeeds
+
+test custom type including storage class specifier [[
+  extern_t x = 1;
+]] parse succeeds
+
+test custom type including type qualifier [[
+  const_t x = 1;
+]] parse succeeds

@@ -42,6 +42,16 @@ context-free syntax
   Qualifier =
     TypeQualifierKeyword
 
+
+context-free restrictions
+
+  StorageClassSpecifierKeyword -/- [a-zA-Z0-9\_]
+
+  TypeQualifierKeyword -/- [a-zA-Z0-9\_]
+
+
+context-free syntax
+
   // type-specifier
   TypeSpecifier =
     PureType
