@@ -48,6 +48,26 @@ test function declaration with one named parameter [[
     )]
   )
 
+test function declaration with more named parameters [[
+  void x(a, b);
+]] run get-decl-from-program to
+  Declaration(
+    [Void],
+    [Declarator(
+      None,
+      FuncDeclIDs(
+        Identifier("x"),
+        [Identifier("a"), Identifier("b")]
+      )
+    )]
+  )
+
+test function declaration with spaces [[
+  void x(a,b,c);
+]] parse to [[
+  void x ( a, b, c );
+]]
+
 test paren decl and fn [[
   typedef int32 x;
   x (a), y (x);
@@ -253,3 +273,15 @@ test function declaration with vararg, directly after comma [[
 test function declaration with vararg, directly after comma [[
   void a(int32 b, int32 const c...);
 ]] parse fails
+
+test function declarations with(out) spaces [[
+  void a(int32 b,int32 c,const int32 d);
+]] parse to [[
+  void a (int32 b, int32 c, const int32 d);
+]]
+
+test abstract function declarations with(out) spaces [[
+  void a(int32,int32,const int32);
+]] parse to [[
+  void a (int32, int32, const int32);
+]]

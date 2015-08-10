@@ -56,6 +56,12 @@ test multiple variable declarations [[
   ]
 )
 
+test multiple variables without spaces [[
+  int32 a,b,c;
+]] parse to [[
+  int32 a, b, c;
+]]
+
 test const int [[
   const int32 a;
 ]] run get-decl-from-program to Declaration(
@@ -158,6 +164,16 @@ test block initializer matrix initializer [[
     ])
   )]
 )
+
+test block initializer without spaces [[
+  int32 a[] = {1,2,3};
+]] parse to [[
+  int32 a[] = {
+    1,
+    2,
+    3
+  };
+]]
 
 
 test double pointer [[

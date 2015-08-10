@@ -1,0 +1,25 @@
+module pp-declarations
+
+language Metac
+
+start symbol Program
+
+test variable declarations [[
+  int32 a,b,c;
+]] run pp-test to PPString("int32 a, b, c;")
+
+test block initializers  [[
+  int32 a[] = {1,2,3};
+]] run pp-test to PPString("int32 a[] = {1, 2, 3};")
+
+test paren decl [[
+  void a(b, c);
+]] run pp-test to PPString("void a(b, c);")
+
+test abstract function declarations [[
+  void a(int32,int32 *,const int32);
+]] run pp-test to PPString("void a(int32, int32*, const int32);")
+
+test function declarations [[
+  void a(int32 b,int32 * c,const int32 d);
+]] run pp-test to PPString("void a(int32 b, int32 *c, const int32 d);")

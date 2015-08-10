@@ -16,10 +16,16 @@ test array field [[ a[0] ]] run get-expr-from-program to
 test array field with expr [[ a[1 + 2] ]]run get-expr-from-program to
   ArrayField(Identifier("a"), Add(_, _))
 
-test array field with comma expr [[
+test array field with paren/comma expr [[
   a[(1, 3)]
 ]] run get-expr-from-program to
   ArrayField(Identifier("a"), Paren(Comma(_, [_])))
+
+// TODO FIXME!!
+// test array field with comma expr [[
+//   a[1, 3]
+// ]] run get-expr-from-program to
+//   ArrayField(Identifier("a"), Comma(_, [_]))
 
 test array field with comma pre-expr [[
   (1, a)[1]
@@ -41,6 +47,12 @@ test fn call scanf call [[
   fn(0, 1, 2);
 ]] run get-expr-from-program to
   Call(Identifier("fn"), [Integer("0"), Integer("1"), Integer("2")])
+
+test fn call without spaces to [[
+  fn(0,1,2);
+]] parse to [[
+  fn(0, 1, 2);
+]]
 
 test fn call with comma pre-expr [[
   (1+2, fn)(4);

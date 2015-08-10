@@ -14,7 +14,7 @@ context-free syntax
     <(<Expr>)> {bracket}
 
   Expr.Comma =
-    <<AExpr>, <{AExpr ","}+>>
+    <<AExpr>, <{AExpr ", "}+>>
 
   Expr =
     AExpr {prefer}
@@ -175,7 +175,7 @@ context-free syntax
     <<PostFixExpr>[<Expr>]>
 
   PostFixExpr.Call =
-    <<PostFixExpr>(<{AExpr ","}*>)>
+    <<PostFixExpr>(<{AExpr ", "}*>)>
 
   PostFixExpr.Field =
     <<PostFixExpr>.<Identifier>>
