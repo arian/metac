@@ -9,3 +9,7 @@ test typedef name [[
   [[x]] y;
 ]] resolve #2 to #1
 
+test variable usage [[
+  int32 [[x]] = 1;
+  int32 y = [[x]] + 1;
+]] resolve #2 to #1

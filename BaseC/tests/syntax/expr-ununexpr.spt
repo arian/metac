@@ -6,20 +6,22 @@ start symbol Program
 
 setup before [[
   typedef int32 b;
+  int32 a;
+  int32 c;
   void main() {
     return
 ]]
 
 
 test incr pre [[++a]] run get-expr-from-program to
-  IncrementPrefix(Identifier("a"))
+  IncrementPrefix(Var(Identifier("a")))
 
 test incr space [[ ++ a]] parse succeeds
 
 //test comma'd ++ [[ ++(a, b) ]] parse fails
 
 test decr pre [[--a]] run get-expr-from-program to
-  DecrementPrefix(Identifier("a"))
+  DecrementPrefix(Var(Identifier("a")))
 
 test decr space [[ -- a]] parse succeeds
 
@@ -27,7 +29,7 @@ test decr space [[ -- a]] parse succeeds
 
 
 test address [[&a]] run get-expr-from-program to
-  Address(Identifier("a"))
+  Address(Var(Identifier("a")))
 
 test addr space [[ & a]] parse succeeds
 
@@ -35,7 +37,7 @@ test addr space [[ & a]] parse succeeds
 
 
 test deref [[*a]] run get-expr-from-program to
-  Deref(Identifier("a"))
+  Deref(Var(Identifier("a")))
 
 test deref space [[ * a ]] parse succeeds
 
@@ -72,7 +74,7 @@ test comma'd ~ [[ ~(1, 2) ]] parse succeeds
 
 
 test negate [[!a]] run get-expr-from-program to
-  Negate(Identifier("a"))
+  Negate(Var(Identifier("a")))
 
 test negative space [[ ! a ]] parse succeeds
 
@@ -98,7 +100,7 @@ test sizeof identifier [[ sizeof (b); ]] run get-expr-from-program to
   Sizeof(TypeName([TypedefName(Identifier("b"))], None))
 
 test sizeof identifier [[ sizeof (c); ]] run get-expr-from-program to
-  SizeofExpr(Paren(Identifier("c")))
+  SizeofExpr(Paren(Var(Identifier("c"))))
 
 
 

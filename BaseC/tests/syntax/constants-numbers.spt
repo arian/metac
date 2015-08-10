@@ -95,8 +95,9 @@ test hexadecimal literal 0xEF [[
 ]] run get-init-decl to Hexadecimal("0xEF")
 
 test hexadecimal literal without 0x [[
+  int32 x6;
   int32 x = x6;
-]] run get-init-decl to Identifier("x6")
+]] run get-2nd-init-decl to Var(_)
 
 test hexadecimal literal whitespace after 0 [[
   int32 x = 0 x6;

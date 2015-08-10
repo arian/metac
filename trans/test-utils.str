@@ -10,6 +10,9 @@ rules
   get-decl-from-program:
     Declarations([decl]) -> <strip-annos> decl
 
+  get-2nd-decl-from-program:
+    Declarations([_, decl]) -> <strip-annos> decl
+
   get-expr-from-program =
     find-elem(?Return(Some(x))) ; !x ; strip-annos
 
@@ -19,9 +22,14 @@ rules
   get-stmt-from-program:
     Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
 
+  get-init-from-decl:
+    Declaration(_, [InitDeclarator(_, init)]) -> <strip-annos> init
+
   get-init-decl =
-    get-decl-from-program
-    ; ?Declaration(_, [InitDeclarator(_, init)]) ; !init ; strip-annos
+    get-decl-from-program ; get-init-from-decl
+
+  get-2nd-init-decl =
+    get-2nd-decl-from-program ; get-init-from-decl
 
   get-decl-type =
     get-decl-from-program

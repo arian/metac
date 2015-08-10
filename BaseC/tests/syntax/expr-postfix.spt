@@ -5,48 +5,50 @@ language Metac
 start symbol Program
 
 setup before [[
+  int32 a = 1;
+  int32 fn();
   void main() {
     return
 ]]
 
 
 test array field [[ a[0] ]] run get-expr-from-program to
-  ArrayField(Identifier("a"), Integer("0"))
+  ArrayField(Var(Identifier("a")), Integer("0"))
 
 test array field with expr [[ a[1 + 2] ]]run get-expr-from-program to
-  ArrayField(Identifier("a"), Add(_, _))
+  ArrayField(Var(Identifier("a")), Add(_, _))
 
 test array field with paren/comma expr [[
   a[(1, 3)]
 ]] run get-expr-from-program to
-  ArrayField(Identifier("a"), Paren(Comma(_, [_])))
+  ArrayField(Var(Identifier("a")), Paren(Comma(_, [_])))
 
 // TODO FIXME!!
 // test array field with comma expr [[
 //   a[1, 3]
 // ]] run get-expr-from-program to
-//   ArrayField(Identifier("a"), Comma(_, [_]))
+//   ArrayField(Var(Identifier("a")), Comma(_, [_]))
 
 test array field with comma pre-expr [[
   (1, a)[1]
 ]]run get-expr-from-program to
-  ArrayField(Paren(Comma(Integer(_), [Identifier("a")])), Integer(_))
+  ArrayField(Paren(Comma(Integer(_), [Var(Identifier("a"))])), Integer(_))
 
 
 test fn call [[
   fn()
 ]] run get-expr-from-program to
-  Call(Identifier("fn"), [])
+  Call(Var(Identifier("fn")), [])
 
 test fn call multi args [[
   fn(0, a)
 ]] run get-expr-from-program to
-  Call(Identifier("fn"), [Integer("0"), Identifier("a")])
+  Call(Var(Identifier("fn")), [Integer("0"), Var(Identifier("a"))])
 
 test fn call scanf call [[
   fn(0, 1, 2);
 ]] run get-expr-from-program to
-  Call(Identifier("fn"), [Integer("0"), Integer("1"), Integer("2")])
+  Call(Var(Identifier("fn")), [Integer("0"), Integer("1"), Integer("2")])
 
 test fn call without spaces to [[
   fn(0,1,2);
@@ -57,29 +59,29 @@ test fn call without spaces to [[
 test fn call with comma pre-expr [[
   (1+2, fn)(4);
 ]] run get-expr-from-program to
-  Call(Paren(Comma(Add(_, _), [Identifier("fn")])), [Integer("4")])
+  Call(Paren(Comma(Add(_, _), [Var(Identifier("fn"))])), [Integer("4")])
 
 
 test field [[ a.b ]] run get-expr-from-program to
-  Field(Identifier("a"), Identifier("b"))
+  Field(Var(Identifier("a")), Identifier("b"))
 
 test field with comma [[ (a, a).b ]] run get-expr-from-program to
-  Field(Paren(Comma(Identifier("a"), [Identifier("a")])), Identifier("b"))
+  Field(Paren(Comma(Var(Identifier("a")), [Var(Identifier("a"))])), Identifier("b"))
 
 
 test field pointer [[ a->b ]] run get-expr-from-program to
-  PointerField(Identifier("a"), Identifier("b"))
+  PointerField(Var(Identifier("a")), Identifier("b"))
 
 test field pointer with comma [[ (a, a)->b ]] run get-expr-from-program to
-  PointerField(Paren(Comma(Identifier("a"), [Identifier("a")])), Identifier("b"))
+  PointerField(Paren(Comma(Var(Identifier("a")), [Var(Identifier("a"))])), Identifier("b"))
 
 
 test increment expr [[ a++ ]] run get-expr-from-program to
-  Increment(Identifier("a"))
+  Increment(Var(Identifier("a")))
 
 
 test decrement expr [[ a-- ]] run get-expr-from-program to
-  Decrement(Identifier("a"))
+  Decrement(Var(Identifier("a")))
 
 
 test combination of unary and postfix [[ *a++ ]] parse succeeds

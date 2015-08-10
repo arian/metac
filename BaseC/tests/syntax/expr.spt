@@ -5,6 +5,9 @@ language Metac
 start symbol Program
 
 setup before [[
+  int32 a;
+  int32 b;
+  int32 c;
   void main() {
     return
 ]]
@@ -20,7 +23,11 @@ test commas [[
 
 test more commas [[
   1, 2, a=4
-]] run get-expr-from-program to Comma(Integer("1"), [Integer("2"), Assign(_, _, _)])
+]] run get-expr-from-program to Comma(
+    Integer("1"), [
+      Integer("2"), Assign(_, _, _)
+    ]
+  )
 
 test commas with brackets [[
   (1, 2, 3)
@@ -30,7 +37,7 @@ test commas with brackets [[
   ))
 
 test parens id [[ (a) ]] run get-expr-from-program to
-  Identifier("a")
+  Var(Identifier("a"))
 
 test parens int [[
   (1)
@@ -43,38 +50,38 @@ test parens neg int [[
 test assignment expression [[
   a = 1
 ]] run get-expr-from-program to
-  Assign(Identifier("a"), Assign(), Integer("1"))
+  Assign(Var(Identifier("a")), Assign(), Integer("1"))
 
 test assignment expression right assoc [[
   a = 1 + 2
 ]] run get-expr-from-program to
-  Assign(Identifier("a"), Assign(), Add(Integer("1"), Integer("2")))
+  Assign(Var(Identifier("a")), Assign(), Add(Integer("1"), Integer("2")))
 
 test assignment unary expr [[
   *a = 1
 ]] run get-expr-from-program to
-  Assign(Deref(Identifier("a")), Assign(), Integer("1"))
+  Assign(Deref(Var(Identifier("a"))), Assign(), Integer("1"))
 
 test assignment to field [[
   a.b = 1
 ]] run get-expr-from-program to
-  Assign(Field(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+  Assign(Field(Var(Identifier("a")), Identifier("b")), Assign(), Integer("1"))
 
 test assignment to pointer field [[
   a->b = 1
 ]] run get-expr-from-program to
-  Assign(PointerField(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+  Assign(PointerField(Var(Identifier("a")), Identifier("b")), Assign(), Integer("1"))
 
 test assignment to array [[
   a[b] = 1
 ]] run get-expr-from-program to
-  Assign(ArrayField(Identifier("a"), Identifier("b")), Assign(), Integer("1"))
+  Assign(ArrayField(Var(Identifier("a")), Var(Identifier("b"))), Assign(), Integer("1"))
 
 
 test conditional expression [[
   a ? b : c
 ]] run get-expr-from-program to
-  Conditional(Identifier("a"), Identifier("b"), Identifier("c"))
+  Conditional(Var(Identifier("a")), Var(Identifier("b")), Var(Identifier("c")))
 
 test conditional expression with sub-exprs [[
   1 ? 2 + 3 : 4 | 5

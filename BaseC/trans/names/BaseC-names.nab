@@ -12,16 +12,33 @@ namespaces
 
 binding rules
 
+  // Typedefs
+
   Declaration(
     [Typedef(), _],
     [Declarator(_, Identifier(name))]
   ) :
     defines unique Typedef name
 
+  TypedefName(Identifier(name)):
+    refers to Typedef name
+
+  // Variables
+
+  Declarator(_, Identifier(name)):
+    defines unique Variable name
+
+  Var(Identifier(name)):
+    refers to Variable name
+    otherwise refers to Function name
+
+  // Functions
+
+  FuncDecl(Identifier(name), _):
+    defines unique Function name
+
   FunDeclarator(_, Identifier(name), _) :
     defines unique Function name
     scopes Variable, Typedef
 
-  TypedefName(Identifier(name)):
-    refers to Typedef name
 

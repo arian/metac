@@ -83,6 +83,162 @@ rules
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
 
+  nabl-get-name :
+    TypedefName(Identifier(name)) -> name
+
+  nabl-name-apply(s) =
+    TypedefName(Identifier(s))
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?TypedefName(Identifier(name))
+    ; origin-track-forced(
+        TypedefName(
+          origin-track-forced(
+            Identifier(
+              nabl-use(
+              | lang__
+              , ctx__
+              , uniques__
+              , uris__
+              , [ <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsTypedef()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                ]
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+
+  nabl-get-name :
+    Declarator(_, Identifier(name)) -> name
+
+  nabl-name-apply(s) =
+    Declarator(id, Identifier(s))
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?Declarator(_, Identifier(name))
+    ; origin-track-forced(
+        Declarator(
+          id
+        , origin-track-forced(
+            Identifier(
+              nabl-def(
+                ?c-uri1__
+              , ?s-uri1__
+              | lang__
+              , ctx__
+              , uniques__
+              , uri__
+              , uri__
+              , NablNsVariable()
+              , Unique()
+              , Current()
+              , []
+              , []
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-get-name :
+    Var(Identifier(name)) -> name
+
+  nabl-name-apply(s) =
+    Var(Identifier(s))
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?Var(Identifier(name))
+    ; origin-track-forced(
+        Var(
+          origin-track-forced(
+            Identifier(
+              nabl-use(
+              | lang__
+              , ctx__
+              , uniques__
+              , uris__
+              , [ <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsVariable()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                , <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsFunction()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                ]
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+
+  nabl-get-name :
+    FuncDecl(Identifier(name), _) -> name
+
+  nabl-name-apply(s) =
+    FuncDecl(Identifier(s), id)
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?FuncDecl(Identifier(name), _)
+    ; origin-track-forced(
+        FuncDecl(
+          origin-track-forced(
+            Identifier(
+              nabl-def(
+                ?c-uri1__
+              , ?s-uri1__
+              | lang__
+              , ctx__
+              , uniques__
+              , uri__
+              , uri__
+              , NablNsFunction()
+              , Unique()
+              , Current()
+              , []
+              , []
+              )
+            )
+          |
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
   nabl-get-scope =
     ?FunDeclarator(_, Identifier(name), _)
     ; ![NablNsVariable(), NablNsTypedef()]
@@ -124,39 +280,3 @@ rules
     ; match(child-uris__|c-uri1__)
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
-
-  nabl-get-name :
-    TypedefName(Identifier(name)) -> name
-
-  nabl-name-apply(s) =
-    TypedefName(Identifier(s))
-
-  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
-    ?TypedefName(Identifier(name))
-    ; origin-track-forced(
-        TypedefName(
-          origin-track-forced(
-            Identifier(
-              nabl-use(
-              | lang__
-              , ctx__
-              , uniques__
-              , uris__
-              , [ <{:
-                     id
-                     ; !UseCandidate(
-                          NablNsTypedef()
-                        , []
-                        , Current()
-                        , True()
-                        , []
-                        )
-                   }>
-                ]
-              )
-            )
-          |
-          )
-        )
-      |
-      )
