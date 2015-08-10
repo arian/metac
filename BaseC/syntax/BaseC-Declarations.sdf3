@@ -135,15 +135,15 @@ context-free syntax
     <<ParameterList>, ...>
 
   // parameter-list
-  ParameterList.ParameterList = <<{ParameterDeclaration ","}*>>
+  ParameterList.ParameterList = {ParameterDeclaration ","}*
 
 
   // parameter-declaration
   ParameterDeclaration.Parameter =
-    <<DeclarationSpecifier+> <Declarator>>
+    <<DeclarationSpecifier+><Declarator>>
 
   ParameterDeclaration.AbstractParameter =
-    <<DeclarationSpecifier+> <AbstractDeclarator?>>
+    <<DeclarationSpecifier+><AbstractDeclarator?>>
 
 
   // initializer

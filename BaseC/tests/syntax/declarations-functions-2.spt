@@ -1,0 +1,71 @@
+module declarations
+
+language Metac
+
+start symbol Program
+
+// TODO fix this
+
+// test function decl with whitespace [[
+//   void fn( int32 a , int32 b );
+// ]] run get-decl-from-program to
+//   Declaration(
+//     _,
+//     [Declarator(
+//       None,
+//       FuncDecl(
+//         _,
+//         ParameterList([
+//           Parameter(_, _),
+//           Parameter(_, _)
+//         ])
+//       )
+//     )]
+//   )
+
+test function with direct decl parameter [[
+  void fn(a b);
+]] run get-decl-from-program to
+  Declaration(
+    [Void],
+    [Declarator(
+      None,
+      FuncDecl(
+        Identifier("fn"),
+        ParameterList([
+          Parameter(
+            [TypedefName(Identifier("a"))],
+            Declarator(None(), Identifier("b"))
+          )
+        ])
+      )
+    )]
+  )
+
+
+test function with complex parameters [[
+  static const uint8_t  func_5(const union U3  p_6, int64_t  p_7, int64_t  p_8);
+]] run get-decl-from-program to
+  Declaration(
+    [Static, Const, TypedefName(Identifier("uint8_t"))],
+    [Declarator(
+      None,
+      FuncDecl(
+        Identifier("func_5"),
+        ParameterList([
+          Parameter(
+            [Const, Union(Identifier("U3"))],
+            Declarator(None(), Identifier("p_6"))
+          ),
+          Parameter(
+            [TypedefName(Identifier("int64_t"))],
+            Declarator(None(), Identifier("p_7"))
+          ),
+          Parameter(
+            [TypedefName(Identifier("int64_t"))],
+            Declarator(None(), Identifier("p_8"))
+          )
+        ])
+      )
+    )]
+  )

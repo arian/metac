@@ -124,8 +124,12 @@ rules
   disamb-parameter(|names):
     amb(ambs) -> p
     where
+      // sort parameter options for abstract first, then normal parameter
       ps := <sort-list(LSort(disamb-parameter-sort)) ; reverse> ambs
-      ; p := <fetch-elem(is-valid-parameter(|names))>
+      ; (
+          p := <fetch-elem(is-valid-parameter(|names))> ps
+          <+ p := <last> ps
+        )
 
   disamb-parameters(|names):
     ParameterList(ps) -> ParameterList(params)
