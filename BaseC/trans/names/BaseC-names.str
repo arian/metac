@@ -33,19 +33,19 @@ rules
   nabl-get-name :
     Declaration(
       [Typedef(), _]
-    , [Declarator(_, Identifier(name))]
+    , [Declarator(_, Decl(Identifier(name)))]
     ) -> name
 
   nabl-name-apply(s) =
     Declaration(
       [Typedef(), id]
-    , [Declarator(id, Identifier(s))]
+    , [Declarator(id, Decl(Identifier(s)))]
     )
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
     ?Declaration(
        [Typedef(), _]
-     , [Declarator(_, Identifier(name))]
+     , [Declarator(_, Decl(Identifier(name)))]
      )
     ; origin-track-forced(
         Declaration(
@@ -54,20 +54,25 @@ rules
               Declarator(
                 id
               , origin-track-forced(
-                  Identifier(
-                    nabl-def(
-                      ?c-uri1__
-                    , ?s-uri1__
-                    | lang__
-                    , ctx__
-                    , uniques__
-                    , uri__
-                    , uri__
-                    , NablNsTypedef()
-                    , Unique()
-                    , Current()
-                    , []
-                    , []
+                  Decl(
+                    origin-track-forced(
+                      Identifier(
+                        nabl-def(
+                          ?c-uri1__
+                        , ?s-uri1__
+                        | lang__
+                        , ctx__
+                        , uniques__
+                        , uri__
+                        , uri__
+                        , NablNsTypedef()
+                        , Unique()
+                        , Current()
+                        , []
+                        , []
+                        )
+                      )
+                    |
                     )
                   )
                 |
@@ -120,17 +125,16 @@ rules
       )
 
   nabl-get-name :
-    Declarator(_, Identifier(name)) -> name
+    Decl(Identifier(name)) -> name
 
   nabl-name-apply(s) =
-    Declarator(id, Identifier(s))
+    Decl(Identifier(s))
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Declarator(_, Identifier(name))
+    ?Decl(Identifier(name))
     ; origin-track-forced(
-        Declarator(
-          id
-        , origin-track-forced(
+        Decl(
+          origin-track-forced(
             Identifier(
               nabl-def(
                 ?c-uri1__
@@ -239,10 +243,6 @@ rules
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
 
-  nabl-get-scope =
-    ?FunDeclarator(_, Identifier(name), _)
-    ; ![NablNsVariable(), NablNsTypedef()]
-
   nabl-get-name :
     FunDeclarator(_, Identifier(name), _) -> name
 
@@ -267,7 +267,7 @@ rules
               , NablNsFunction()
               , Unique()
               , Current()
-              , [NablNsVariable(), NablNsTypedef()]
+              , []
               , []
               )
             )
@@ -280,3 +280,23 @@ rules
     ; match(child-uris__|c-uri1__)
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
+
+  nabl-scoping-site =
+    ?FunDef(_, _, _, _)
+    ; nabl-scope(
+      | [NablNsVariable(), NablNsTypedef()]
+      )
+
+  nabl-get-scope =
+    ?FunDef(_, _, _, _)
+    ; ![NablNsVariable(), NablNsTypedef()]
+
+  nabl-scoping-site =
+    ?CompoundStatement(_)
+    ; nabl-scope(
+      | [NablNsVariable(), NablNsTypedef()]
+      )
+
+  nabl-get-scope =
+    ?CompoundStatement(_)
+    ; ![NablNsVariable(), NablNsTypedef()]

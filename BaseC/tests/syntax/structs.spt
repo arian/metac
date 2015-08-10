@@ -22,7 +22,7 @@ test one element struct [[
       [Struct(None, [
         StructDeclaration(
           [Int32],
-          [Declarator(None, Identifier("x"))]
+          [Declarator(None, Decl(Identifier("x")))]
         )
       ])],
       _
@@ -39,11 +39,11 @@ test more elements struct [[
       [Struct(None, [
         StructDeclaration(
           [Int32],
-          [Declarator(None, Identifier("x"))]
+          [Declarator(None, Decl(Identifier("x")))]
         ),
         StructDeclaration(
           [Int32],
-          [Declarator(Some(Pointer([], None)), Identifier("y"))]
+          [Declarator(Some(Pointer([], None)), Decl(Identifier("y")))]
         )
       ])],
       []
@@ -71,7 +71,7 @@ test typedef'ed named struct [[
         Typedef(),
         Struct(Some(_), [_])
       ],
-      [Declarator(None(), Identifier("X"))]
+      [Declarator(None(), Decl(Identifier("X")))]
     )
   ])
 
@@ -87,7 +87,7 @@ test custom type declarator [[
       Struct(Some(Identifier("X")), [
         StructDeclaration(
           [Const(), TypedefName(Identifier("x"))],
-          [Declarator(None, Identifier("y"))]
+          [Declarator(None, Decl(Identifier("y")))]
         )
       ])
     ], _)
@@ -105,8 +105,8 @@ test multiple declarators [[
         StructDeclaration(
           [Const(), TypedefName(Identifier("x"))],
           [
-            Declarator(None, Identifier("y")),
-            Declarator(None, Identifier("z"))
+            Declarator(None, Decl(Identifier("y"))),
+            Declarator(None, Decl(Identifier("z")))
           ]
         )
       ])
@@ -125,9 +125,9 @@ test multiple declarators with bit-size [[
         StructDeclaration(
           [Const(), TypedefName(Identifier("x"))],
           [
-            Declarator(None, Identifier("y")),
+            Declarator(None, Decl(Identifier("y"))),
             StructSizedFieldDeclarator(
-              Some(Declarator(None, Identifier("z"))),
+              Some(Declarator(None, Decl(Identifier("z")))),
               Integer("3")
             )
           ]

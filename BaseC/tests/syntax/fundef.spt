@@ -39,7 +39,7 @@ test function with one parameter [[
       None,
       Identifier("x"),
       ParameterList([
-        Parameter([Int32], Declarator(None, Identifier("a")))
+        Parameter([Int32], Declarator(None, Decl(Identifier("a"))))
       ])
     ),
     [],

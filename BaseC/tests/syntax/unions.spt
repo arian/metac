@@ -22,7 +22,7 @@ test one element union [[
       [Union(None, [
         StructDeclaration(
           [Int32],
-          [Declarator(None, Identifier("x"))]
+          [Declarator(None, Decl(Identifier("x")))]
         )
       ])],
       []
@@ -39,11 +39,11 @@ test more elements struct [[
       [Union(None, [
         StructDeclaration(
           [Int32],
-          [Declarator(None, Identifier("x"))]
+          [Declarator(None, Decl(Identifier("x")))]
         ),
         StructDeclaration(
           [Int32],
-          [Declarator(Some(Pointer([], None)), Identifier("y"))]
+          [Declarator(Some(Pointer([], None)), Decl(Identifier("y")))]
         )
       ])],
       []
@@ -71,7 +71,6 @@ test typedef'ed named union [[
         Typedef(),
         Union(Some(_), [_])
       ],
-      [Declarator(None(), Identifier("X"))]
+      [Declarator(None(), Decl(Identifier("X")))]
     )
   ])
-

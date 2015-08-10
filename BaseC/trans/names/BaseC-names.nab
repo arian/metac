@@ -16,7 +16,7 @@ binding rules
 
   Declaration(
     [Typedef(), _],
-    [Declarator(_, Identifier(name))]
+    [Declarator(_, Decl(Identifier(name)))]
   ) :
     defines unique Typedef name
 
@@ -25,7 +25,7 @@ binding rules
 
   // Variables
 
-  Declarator(_, Identifier(name)):
+  Decl(Identifier(name)):
     defines unique Variable name
 
   Var(Identifier(name)):
@@ -39,6 +39,9 @@ binding rules
 
   FunDeclarator(_, Identifier(name), _) :
     defines unique Function name
+
+  FunDef(_, _, _, _):
     scopes Variable, Typedef
 
-
+  CompoundStatement(_):
+    scopes Variable, Typedef

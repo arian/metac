@@ -112,7 +112,7 @@ context-free syntax
 
 
   // direct-declarator
-  DirectDeclarator =
+  DirectDeclarator.Decl =
     Identifier {avoid}
 
   DirectDeclarator.ParensDecl =

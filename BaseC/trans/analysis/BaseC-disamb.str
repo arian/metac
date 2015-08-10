@@ -56,7 +56,7 @@ rules
 
   get-typedef-declaration-name: Declaration(
       [Typedef() | _],
-      [Declarator(_, Identifier(name))]
+      [Declarator(_, Decl(Identifier(name)))]
     ) -> name
 
 rules

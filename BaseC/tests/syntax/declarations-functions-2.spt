@@ -33,11 +33,11 @@ test function with direct decl parameter [[
       [Declarator(
         None,
         FuncDecl(
-          Identifier("fn"),
+          Decl(Identifier("fn")),
           ParameterList([
             Parameter(
               [TypedefName(Identifier("a"))],
-              Declarator(None(), Identifier("b"))
+              Declarator(None(), Decl(Identifier("b")))
             )
           ])
         )
@@ -57,19 +57,19 @@ test function with complex parameters [[
       [Declarator(
         None,
         FuncDecl(
-          Identifier("func_5"),
+          Decl(Identifier("func_5")),
           ParameterList([
             Parameter(
               [Const, Union(Identifier("U3"))],
-              Declarator(None(), Identifier("p_6"))
+              Declarator(None(), Decl(Identifier("p_6")))
             ),
             Parameter(
               [TypedefName(Identifier("int64_t"))],
-              Declarator(None(), Identifier("p_7"))
+              Declarator(None(), Decl(Identifier("p_7")))
             ),
             Parameter(
               [TypedefName(Identifier("int64_t"))],
-              Declarator(None(), Identifier("p_8"))
+              Declarator(None(), Decl(Identifier("p_8")))
             )
           ])
         )

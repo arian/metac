@@ -21,7 +21,7 @@ test compound with an expression statement [[
 test compound with a declaration [[
   {int32 x;}
 ]] run get-stmt-from-program to CompoundStatement([
-  Declaration(_, [Declarator(None(), Identifier("x"))])
+  Declaration(_, [Declarator(None(), Decl(Identifier("x")))])
 ])
 
 test expression statement empty [[
