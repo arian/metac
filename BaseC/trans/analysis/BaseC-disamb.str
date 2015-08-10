@@ -30,6 +30,7 @@ strategies
     ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
     ; try(disamb-expr-or-decl(|<td-names>))
     ; try(disamb-cast(|<td-names>))
+    ; try(disamb-sizeof(|<td-names>))
 
   enter-scope(s) =
     (?CompoundStatement(_))
@@ -66,6 +67,15 @@ rules
     else
       id
     end
+
+  // if specifiers are correct, it selects a, otherwise b
+  disamb-intern-all-valid(|names): (a, b, specifiers) -> x
+    where
+      if <all(is-valid-type(|names))> specifiers then
+        x := a
+      else
+        x := b
+      end
 
 rules
 
@@ -168,32 +178,24 @@ rules
     amb([
       f@Declaration(_, _),
       p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _])
-    ]) -> <internal-disamb-parens-decl-or-func-decl(|names)> (specifiers, f, p)
+    ]) -> <disamb-intern-all-valid(|names)> (p, f, specifiers)
 
 
   disamb-parens-decl-or-func-decl(|names):
     amb([
       p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _]),
       f@Declaration(_, _)
-    ]) -> <internal-disamb-parens-decl-or-func-decl(|names)> (specifiers, f, p)
+    ]) -> <disamb-intern-all-valid(|names)> (p, f, specifiers)
 
 rules
 
   disamb-expr-or-decl(|names):
     amb([expr@ExpressionStatement(_), decl@Declaration(specifiers, _)])
-    -> <disamb-intern-expr-or-decl(|names)> (expr, decl, specifiers)
+    -> <disamb-intern-all-valid(|names)> (decl, expr, specifiers)
 
   disamb-expr-or-decl(|names):
     amb([decl@Declaration(specifiers, _), expr@ExpressionStatement(_)])
-    -> <disamb-intern-expr-or-decl(|names)> (expr, decl, specifiers)
-
-  disamb-intern-expr-or-decl(|names): (expr, decl, specifiers) -> x
-    where
-      if <all(is-valid-type(|names))> specifiers then
-        x := decl
-      else
-        x := expr
-      end
+    -> <disamb-intern-all-valid(|names)> (decl, expr, specifiers)
 
 rules
 
@@ -203,12 +205,16 @@ rules
       x := <disamb-intern-cast(|names)> (a, b)
       <+ x := <disamb-intern-cast(|names)> (b, a)
 
-  disamb-intern-cast(|names): (a, b) -> x
-  where
-    <oncetd(?Cast(_, _) ; ?cast)> a
-    ; Cast(TypeName(types, _), _) := cast
-    ; if <all(is-valid-type(|names))> types then
-        x := a
-      else
-        x := b
-      end
+  disamb-intern-cast(|names):
+    (a, b) -> <disamb-intern-all-valid(|names)> (a, b, types)
+    where
+      <oncetd(?Cast(_, _) ; ?cast)> a
+      ; Cast(TypeName(types, _), _) := cast
+
+rules
+
+  disamb-sizeof(|names):
+    amb([
+      a@Sizeof(TypeName(types, None())),
+      b@SizeofExpr(Paren(_))
+    ]) -> <disamb-intern-all-valid(|names)> (a, b, types)

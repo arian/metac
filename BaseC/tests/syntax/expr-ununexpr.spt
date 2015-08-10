@@ -5,6 +5,7 @@ language Metac
 start symbol Program
 
 setup before [[
+  typedef int32 b;
   void main() {
     return
 ]]
@@ -76,6 +77,29 @@ test negate [[!a]] run get-expr-from-program to
 test negative space [[ ! a ]] parse succeeds
 
 test comma'd ! [[ !(1, 2) ]] parse succeeds
+
+
+test sizeof simple value [[ sizeof 3 ]] run get-expr-from-program to
+  SizeofExpr(Integer("3"))
+
+test sizeof value in parens [[ sizeof (3) ]] run get-expr-from-program to
+  SizeofExpr(Paren(Integer("3")))
+
+test sizeof of type [[ sizeof (int32) ]] run get-expr-from-program to
+  Sizeof(TypeName([Int32], None()))
+
+test sizeof const int32 [[ sizeof (const int32) ]] run get-expr-from-program to
+  Sizeof(TypeName([Const(), Int32()], None()))
+
+test sizeof with abstract decl [[ sizeof (int32 *(int32)) ]] run get-expr-from-program to
+  Sizeof(TypeName([Int32], Some(Declarator(_, _))))
+
+test sizeof identifier [[ sizeof (b); ]] run get-expr-from-program to
+  Sizeof(TypeName([TypedefName(Identifier("b"))], None))
+
+test sizeof identifier [[ sizeof (c); ]] run get-expr-from-program to
+  SizeofExpr(Paren(Identifier("c")))
+
 
 
 test combination of unary operators [[

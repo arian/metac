@@ -159,6 +159,12 @@ context-free syntax
   UnaryExpr.Negate =
     <!<CastExpr>> {right}
 
+  UnaryExpr.SizeofExpr =
+    <sizeof <UnaryExpr>> {right}
+
+  UnaryExpr.Sizeof =
+    <sizeof (<TypeName>)> {right}
+
   UnaryExpr =
     PostFixExpr
 
