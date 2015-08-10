@@ -1,0 +1,11 @@
+module names
+
+language Metac
+
+start symbol Program
+
+test typedef name [[
+  typedef int32 [[x]];
+  [[x]] y;
+]] resolve #2 to #1
+

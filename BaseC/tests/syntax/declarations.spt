@@ -4,19 +4,23 @@ language Metac
 
 start symbol Program
 
-test [[
+test simple integer declaration without declarators [[
   int32;
 ]] run get-decl-from-program to Declaration(
   [Int32],
   []
 )
 
-test [[
+test custom type variable declarator [[
+  typedef int32 a;
   a b;
-]] run get-decl-from-program to Declaration(
-    [TypedefName(Identifier("a"))],
-    [Declarator(None(), Identifier("b"))]
-  )
+]] run strip-annos to Declarations([
+    _,
+    Declaration(
+      [TypedefName(Identifier("a"))],
+      [Declarator(None(), Identifier("b"))]
+    )
+  ])
 
 test just a useless declaration [[
   void a;
@@ -258,15 +262,18 @@ test typedef [[
 )
 
 test a typedefed decl [[
+  typedef int32 a;
   a b, c;
-]] run get-decl-from-program to Declaration(
-  [TypedefName(Identifier("a"))],
-  [
-    Declarator(None, Identifier("b")),
-    Declarator(None, Identifier("c"))
-  ]
-)
-
+]] run strip-annos to Declarations([
+      _,
+      Declaration(
+      [TypedefName(Identifier("a"))],
+      [
+        Declarator(None, Identifier("b")),
+        Declarator(None, Identifier("c"))
+      ]
+    )
+  ])
 
 test custom type including base types [[
   int32_t x = 1;

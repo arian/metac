@@ -8,24 +8,24 @@ imports
 rules
 
   get-decl-from-program:
-    Declarations([decl]) -> decl
+    Declarations([decl]) -> <strip-annos> decl
 
   get-expr-from-program =
-    find-elem(?Return(Some(x))) ; !x
+    find-elem(?Return(Some(x))) ; !x ; strip-annos
 
   get-fundef-from-program:
-    Declarations([fundef]) -> fundef
+    Declarations([fundef]) -> <strip-annos> fundef
 
   get-stmt-from-program:
-    Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> stmt
+    Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
 
   get-init-decl =
     get-decl-from-program
-    ; ?Declaration(_, [InitDeclarator(_, init)]) ; !init
+    ; ?Declaration(_, [InitDeclarator(_, init)]) ; !init ; strip-annos
 
   get-decl-type =
     get-decl-from-program
-    ; ?Declaration([type], _) ; !type
+    ; ?Declaration([type], _) ; !type ; strip-annos
 
 strategies
 

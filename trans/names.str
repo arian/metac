@@ -8,6 +8,7 @@ imports
   lib/runtime/relations/-
   lib/runtime/editor/-
   include/Metac
+  BaseC/trans/names/BaseC-names
 
 
 signature

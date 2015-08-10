@@ -14,10 +14,14 @@ binding rules
 
   Declaration(
     [Typedef(), _],
-    Declarator(_, Identifier(name))
+    [Declarator(_, Identifier(name))]
   ) :
     defines unique Typedef name
 
   FunDeclarator(_, Identifier(name), _) :
     defines unique Function name
     scopes Variable, Typedef
+
+  TypedefName(Identifier(name)):
+    refers to Typedef name
+

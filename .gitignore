@@ -32,3 +32,4 @@ lib-refactoring/*.generated.str
 /include/
 *.aterm
 tests/*.pp*
+tests/*.analysis*
