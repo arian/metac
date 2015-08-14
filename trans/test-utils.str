@@ -3,6 +3,7 @@ module test-utils
 imports
 
   BaseC/trans/analysis/-
+  lib/runtime/types/query
   include/Metac
 
 rules
@@ -35,7 +36,16 @@ rules
     get-decl-from-program
     ; ?Declaration([type], _) ; !type ; strip-annos
 
+  get-expr-type =
+    find-elem(?Return(Some(x)))
+    ; <get-type> x
+
 strategies
+
+  get-type: Some(x) -> <get-type> x
 
   find-elem(s) =
     oncetd(s ; ?x) ; !x
+
+  to-bool(s) =
+    s ; !1 <+ !0

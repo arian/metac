@@ -21,6 +21,7 @@ imports
   pp
   test-utils
   BaseC/trans/analysis/-
+  BaseC/trans/types/-
 
 rules // Analysis
 

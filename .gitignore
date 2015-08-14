@@ -31,5 +31,8 @@ lib-refactoring/*.generated.str
 /builddeps
 /include/
 *.aterm
+BaseC/trans/types/*.generated.str
 tests/*.pp*
 tests/*.analysis*
+tests/*.task
+tests/*.index

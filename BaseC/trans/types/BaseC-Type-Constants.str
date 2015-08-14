@@ -1,0 +1,66 @@
+module BaseC-Type-Constants
+
+imports
+
+  include/Metac
+  BaseC/trans/types/BaseC-Type-Constructors
+  lib/runtime/types/-
+
+rules
+
+  create-type-task(|ctx):
+    Integer(<id>) -> <smallest-int-type ; type-is(|ctx, [])>
+
+  create-type-task(|ctx):
+    Char(_) -> <type-is(|ctx)> UInt8()
+
+  create-type-task(|ctx):
+    True() -> <type-is(|ctx)> UInt8()
+
+  create-type-task(|ctx):
+    False() -> <type-is(|ctx)> UInt8()
+
+  create-type-task(|ctx):
+    String(s) -> <type-is(|ctx)> Array(UInt8())
+
+  in-range(|min, max): strVal -> None()
+    where
+      val:= <try(string-to-int)> strVal;
+      <leq> (val, max);
+      <geq> (val, min)
+
+  string-drop-last(|n) =
+    string-as-chars(reverse ; drop(|n) ; reverse)
+
+  is-int8 = in-range(|-128, 127); !Int8()
+  is-int16 = in-range(|-32768, 32767); !Int16()
+  is-int32 = in-range(|-2147483648, 2147483647); !Int32()
+  is-int64 = !Int64()
+
+  is-unsigned(s) =
+    string-ends-with(|"U")
+    ; string-drop-last(|1)
+    ; s
+
+  is-uint8 = in-range(|0, 255); !UInt8()
+  is-uint16 = in-range(|0, 65535); !UInt16()
+  is-uint32 = in-range(|0, 4294967295); !UInt32()
+  is-uint64 =
+    (
+      string-ends-with(|"LU")
+      <+ string-ends-with(|"LLU")
+      <+ string-ends-with(|"ULL")
+    )
+    ; !UInt64()
+
+  smallest-int-type =
+    is-uint64
+    <+ is-unsigned(
+        is-uint8
+        <+ is-uint16
+        <+ is-uint32
+      )
+    <+ is-int8
+    <+ is-int16
+    <+ is-int32
+    <+ is-int64
