@@ -1,0 +1,21 @@
+module desugar-functions
+
+language Metac
+
+test desugar parameter [[
+  extern unsigned const int g(unsigned volatile int a) {
+    return a;
+  }
+]] run desugar-all to Declarations([
+    FunDefinition(
+      Identifier(_),
+      [Extern()],
+      [Const, UInt32],
+      [FunDefinitionParameter(
+        [Volatile, UInt32],
+        Declarator(_, _),
+        Decl(Identifier(_))
+      )],
+      CompoundStatement(_){_}
+    )
+  ])

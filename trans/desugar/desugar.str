@@ -1,0 +1,14 @@
+module desugar
+
+imports
+
+  BaseC/trans/desugar/BaseC-desugar-declarations
+  BaseC/trans/desugar/BaseC-desugar-functions
+
+rules
+
+  desugar =
+    fail
+
+  desugar-all =
+    bottomup(try(desugar) ; try(flatten-list))

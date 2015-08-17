@@ -20,17 +20,33 @@ imports
   generate
   pp
   test-utils
+  desugar/-
   BaseC/trans/analysis/-
   BaseC/trans/types/-
 
 rules // Analysis
 
-  editor-analyze = analysis-default-editor
+  is-source-ast-test =
+    is-substring(!"BaseC/tests/syntax")
+    <+ is-substring(!"BaseC/tests/trans/pp")
+
+  editor-analyze =
+    ?tuple
+    ; ?(ast, path, project-path)
+    // hack to just get the original AST for syntax tests
+    // as that's what we like to test for the syntax definitions
+    // testing the analyzed AST is what we do somewhere else
+    ; if (<is-source-ast-test> path) then
+        !ast
+      else
+        <analysis-default-editor> tuple
+      end
 
   analysis-single-default-interface =
-    analysis-single-default(id, id, id|<language>)
+    analysis-single-default(desugar-all, id, id|<language>)
+
   analysis-multiple-default-interface =
-    analysis-multiple-default(parse-file <+ !(), disamb, id, id|<language>, <project-path>)
+    analysis-multiple-default(parse-file <+ !(), desugar-all, id, id|<language>, <project-path>)
 
   editor-save = analysis-save-default(|<language>)
 
@@ -72,7 +88,7 @@ rules // Editor services
     with
       ext      := <get-extension> path;
       filename := <guarantee-extension(|$[pp.[ext]])> path;
-      result   := <pp-debug> selected
+      result   := <debug ; pp-debug> selected
 
 rules // Debugging
 

@@ -1,0 +1,42 @@
+module BaseC-desugar-types
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+
+rules
+
+  is-storage-class-specifier =
+    ?Auto() <+ ?Register() <+ ?Static() <+ ?Extern() <+ ?Typedef()
+
+  is-type-specifier =
+    not(is-storage-class-specifier)
+
+  desugar-to-unsigned: Int8()  -> UInt8()
+  desugar-to-unsigned: Int16() -> UInt16()
+  desugar-to-unsigned: Int32() -> UInt32()
+  desugar-to-unsigned: Int64() -> UInt64()
+
+  desugar-unsigned =
+    if fetch(?Unsigned()) then
+      filter(not(?Unsigned())) ; map(try(desugar-to-unsigned))
+    else
+      id
+    end
+
+  desugar-to-sized-ints: Char()  -> Int8()
+  desugar-to-sized-ints: Short() -> Int16()
+  desugar-to-sized-ints: Int()   -> Int32()
+  desugar-to-sized-ints: Long()  -> Int64()
+
+  desugar-legacy-types =
+    map(try(desugar-to-sized-ints))
+    ; try(desugar-unsigned)
+
+  desugar-decl-types =
+    filter(is-type-specifier)
+    ; desugar-legacy-types
+
+  find-decl =
+    oncetd(?Decl(_) ; ?d) ; !d

@@ -1,0 +1,37 @@
+module desugar-declarations
+
+language Metac
+
+test desugar var declaration [[
+  static unsigned int x, y = 2;
+]] run desugar-all to Declarations([
+    VarDeclaration(
+      [Static()],
+      [UInt32()],
+      Declarator(None(), _),
+      Decl(Identifier("x"{_})),
+      None()
+    ),
+    VarDeclaration(
+      [Static()],
+      [UInt32()],
+      Declarator(_, _),
+      Decl(Identifier("y"{_})),
+      Some(Integer("2"){_})
+    )
+  ])
+
+test desugar typedefs [[
+  typedef unsigned const int a, *b(int);
+]] run desugar-all to Declarations([
+    TypedefDeclaration(
+      [Const, UInt32],
+      Declarator(_, _),
+      Decl(Identifier("a"{_}))
+    ),
+    TypedefDeclaration(
+      [Const, UInt32],
+      Declarator(_, _),
+      Decl(Identifier("b"{_}))
+    )
+  ])

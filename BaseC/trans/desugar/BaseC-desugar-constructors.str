@@ -1,0 +1,31 @@
+module BaseC-desugar-constructors
+
+imports
+
+  include/Metac
+
+signature constructors
+
+  VarDeclaration:
+    List(StorageClassSpecifiers) *
+    List(Type) *
+    Declarator *
+    Decl *
+    Some(Initializer) -> VarDeclaration
+
+  TypedefDeclaration:
+    List(Type) *
+    Declarator *
+    Decl -> TypedefDeclaration
+
+  FunDefinition:
+    String *
+    List(StorageClassSpecifiers) *
+    List(Type) *
+    List(Parameter) *
+    CompoundStatement -> FunDef
+
+  FunDefinitionParameter:
+    List(Type) *
+    Declarator *
+    Decl -> FunDefParameter

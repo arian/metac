@@ -8,6 +8,7 @@ imports
   lib/runtime/relations/-
   lib/runtime/editor/-
   include/Metac
+  BaseC/trans/desugar/-
 
 
 signature
@@ -30,57 +31,64 @@ rules
 
 rules
 
+  nabl-scoping-site =
+    ?Declarations(_)
+    ; nabl-scope(
+      | [NablNsFunction(), NablNsVariable(), NablNsTypedef()]
+      )
+
+  nabl-get-scope =
+    ?Declarations(_)
+    ; ![NablNsFunction(), NablNsVariable(), NablNsTypedef()]
+
   nabl-get-name :
-    Declaration(
-      [Typedef(), _]
-    , [Declarator(_, Decl(Identifier(name)))]
+    TypedefDeclaration(
+      type
+    , Declarator(_, _)
+    , Decl(Identifier(name))
     ) -> name
 
   nabl-name-apply(s) =
-    Declaration(
-      [Typedef(), id]
-    , [Declarator(id, Decl(Identifier(s)))]
+    TypedefDeclaration(
+      id
+    , Declarator(id, id)
+    , Decl(Identifier(s))
     )
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Declaration(
-       [Typedef(), _]
-     , [Declarator(_, Decl(Identifier(name)))]
+    ?TypedefDeclaration(
+       type
+     , Declarator(_, _)
+     , Decl(Identifier(name))
      )
     ; origin-track-forced(
-        Declaration(
-          [origin-track-forced(Typedef()|), id]
-        , [ origin-track-forced(
-              Declarator(
-                id
-              , origin-track-forced(
-                  Decl(
-                    origin-track-forced(
-                      Identifier(
-                        nabl-def(
-                          ?c-uri1__
-                        , ?s-uri1__
-                        | lang__
-                        , ctx__
-                        , uniques__
-                        , uri__
-                        , uri__
-                        , NablNsTypedef()
-                        , Unique()
-                        , Current()
-                        , []
-                        , []
-                        )
-                      )
-                    |
-                    )
+        TypedefDeclaration(
+          id
+        , origin-track-forced(Declarator(id, id)|)
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsTypedef()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
                   )
-                |
                 )
+              |
               )
-            |
             )
-          ]
+          |
+          )
         )
       |
       )
@@ -125,40 +133,92 @@ rules
       )
 
   nabl-get-name :
-    Decl(Identifier(name)) -> name
+    VarDeclaration(
+      storage
+    , types
+    , declarator
+    , Decl(Identifier(name))
+    , _
+    ) -> name
 
   nabl-name-apply(s) =
-    Decl(Identifier(s))
+    VarDeclaration(
+      id
+    , id
+    , id
+    , Decl(Identifier(s))
+    , id
+    )
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Decl(Identifier(name))
+    ?VarDeclaration(
+       storage
+     , types
+     , declarator
+     , Decl(Identifier(name))
+     , _
+     )
     ; origin-track-forced(
-        Decl(
-          origin-track-forced(
-            Identifier(
-              nabl-def(
-                ?c-uri1__
-              , ?s-uri1__
-              | lang__
-              , ctx__
-              , uniques__
-              , uri__
-              , uri__
-              , NablNsVariable()
-              , Unique()
-              , Current()
-              , []
-              , []
+        VarDeclaration(
+          id
+        , id
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsVariable()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
               )
             )
           |
           )
+        , id
         )
       |
       )
     ; match(child-uris__|c-uri1__)
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?VarDeclaration(
+       storage
+     , types
+     , declarator
+     , Decl(Identifier(name))
+     , _
+     )
+    ; (where(id)
+       ; VarDeclaration(
+           id
+         , id
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [Prop(Type(), types, [])]
+               )
+             )
+           )
+         , id
+         ))
+    ; fail
 
   nabl-get-name :
     Var(Identifier(name)) -> name
@@ -243,18 +303,39 @@ rules
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
 
+  nabl-get-scope =
+    ?FunDefinition(
+       Identifier(name)
+     , storage
+     , types
+     , parameters
+     , body
+     )
+    ; ![NablNsVariable(), NablNsTypedef()]
+
   nabl-get-name :
-    FunDeclarator(_, Identifier(name), _) -> name
+    FunDefinition(
+      Identifier(name)
+    , storage
+    , types
+    , parameters
+    , body
+    ) -> name
 
   nabl-name-apply(s) =
-    FunDeclarator(id, Identifier(s), id)
+    FunDefinition(Identifier(s), id, id, id, id)
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?FunDeclarator(_, Identifier(name), _)
+    ?FunDefinition(
+       Identifier(name)
+     , storage
+     , types
+     , parameters
+     , body
+     )
     ; origin-track-forced(
-        FunDeclarator(
-          id
-        , origin-track-forced(
+        FunDefinition(
+          origin-track-forced(
             Identifier(
               nabl-def(
                 ?c-uri1__
@@ -267,12 +348,15 @@ rules
               , NablNsFunction()
               , Unique()
               , Current()
-              , []
+              , [NablNsVariable(), NablNsTypedef()]
               , []
               )
             )
           |
           )
+        , id
+        , id
+        , id
         , id
         )
       |
@@ -281,15 +365,65 @@ rules
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
 
-  nabl-scoping-site =
-    ?FunDef(_, _, _, _)
-    ; nabl-scope(
-      | [NablNsVariable(), NablNsTypedef()]
-      )
+  nabl-get-name :
+    FunDefinitionParameter(types, _, Decl(Identifier(name))) -> name
 
-  nabl-get-scope =
-    ?FunDef(_, _, _, _)
-    ; ![NablNsVariable(), NablNsTypedef()]
+  nabl-name-apply(s) =
+    FunDefinitionParameter(id, id, Decl(Identifier(s)))
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?FunDefinitionParameter(types, _, Decl(Identifier(name)))
+    ; origin-track-forced(
+        FunDefinitionParameter(
+          id
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsVariable()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?FunDefinitionParameter(types, _, Decl(Identifier(name)))
+    ; (where(id)
+       ; FunDefinitionParameter(
+           id
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [Prop(Type(), types, [])]
+               )
+             )
+           )
+         ))
+    ; fail
 
   nabl-scoping-site =
     ?CompoundStatement(_)

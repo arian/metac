@@ -1,0 +1,32 @@
+module BaseC-desugar-functions
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/desugar/BaseC-desugar-types
+
+rules
+
+  desugar-parameter:
+    Parameter(ts, decl) -> FunDefinitionParameter(types, decl, <find-decl> decl)
+    where
+      types := <desugar-decl-types> ts
+
+  desugar:
+    FunDef(
+      specifiers,
+      FunDeclarator(_, name, ParameterList(ps)),
+      old-school-declarators,
+      body
+    ) -> FunDefinition(
+      name,
+      storage,
+      type,
+      parameters,
+      body
+    )
+    where
+      type := <desugar-decl-types> specifiers
+      ; storage := <filter(is-storage-class-specifier)> specifiers
+      ; parameters := <map(desugar-parameter)> ps

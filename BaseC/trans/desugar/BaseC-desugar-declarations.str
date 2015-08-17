@@ -1,0 +1,56 @@
+module BaseC-desugar-declarations
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/desugar/BaseC-desugar-types
+
+// variable declarations
+rules
+
+  desugar-var-declarator(|storage, type):
+    decl@Declarator(None(), _) -> VarDeclaration(
+      storage,
+      type,
+      decl,
+      <find-decl> decl,
+      None()
+    )
+
+  desugar-var-declarator(|storage, type):
+    InitDeclarator(decl, init) -> VarDeclaration(
+      storage,
+      type,
+      decl,
+      <find-decl> decl,
+      Some(init)
+    )
+
+  desugar:
+    Declaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      <some(?Typedef())> specifiers
+      ; type := <desugar-decl-types> specifiers
+      ; decls := <map(desugar-typedef-declarator(|type))> declarators
+
+
+// typedefs
+rules
+
+  desugar-typedef-declarator(|type):
+    decl@Declarator(_, _) -> TypedefDeclaration(type, decl, <find-decl> decl)
+
+  desugar:
+    Declaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      <all(not(?Typedef()))> specifiers // no typedef to VarDeclaration
+      ; type := <desugar-decl-types> specifiers
+      ; storage := <filter(is-storage-class-specifier)> specifiers
+      ; decls := <map(desugar-var-declarator(|storage, type))> declarators

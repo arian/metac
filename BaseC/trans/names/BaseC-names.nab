@@ -3,6 +3,7 @@ module BaseC-names
 imports
 
   include/Metac
+  BaseC/trans/desugar/-
 
 namespaces
 
@@ -12,11 +13,16 @@ namespaces
 
 binding rules
 
+  // file
+  Declarations(_):
+    scopes Function, Variable, Typedef
+
   // Typedefs
 
-  Declaration(
-    [Typedef(), _],
-    [Declarator(_, Decl(Identifier(name)))]
+  TypedefDeclaration(
+    type,
+    Declarator(_, _),
+    Decl(Identifier(name))
   ) :
     defines unique Typedef name
 
@@ -25,8 +31,9 @@ binding rules
 
   // Variables
 
-  Decl(Identifier(name)):
+  VarDeclaration(storage, types, declarator, Decl(Identifier(name)), _):
     defines unique Variable name
+    of type types
 
   Var(Identifier(name)):
     refers to Variable name
@@ -37,11 +44,15 @@ binding rules
   FuncDecl(Identifier(name), _):
     defines unique Function name
 
-  FunDeclarator(_, Identifier(name), _) :
+  FunDefinition(Identifier(name), storage, types, parameters, body):
     defines unique Function name
-
-  FunDef(_, _, _, _):
     scopes Variable, Typedef
+
+  FunDefinitionParameter(types, _, Decl(Identifier(name))):
+    defines unique Variable name
+    of type types
 
   CompoundStatement(_):
     scopes Variable, Typedef
+
+

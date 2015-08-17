@@ -26,7 +26,7 @@ start symbol Program
 test function with direct decl parameter [[
   typedef int32 a;
   void fn(a b);
-]] run strip-annos to Declarations([
+]] parse to Declarations([
     _,
     Declaration(
       [Void],
@@ -50,7 +50,7 @@ test function with complex parameters [[
   typedef uint8 uint8_t;
   typedef uint8 int64_t;
   static const uint8_t  func_5(const union U3  p_6, int64_t  p_7, int64_t  p_8);
-]] run strip-annos to Declarations([
+]] parse to Declarations([
     _, _,
     Declaration(
       [Static, Const, TypedefName(Identifier("uint8_t"))],

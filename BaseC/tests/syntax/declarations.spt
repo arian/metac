@@ -6,15 +6,12 @@ start symbol Program
 
 test simple integer declaration without declarators [[
   int32;
-]] run get-decl-from-program to Declaration(
-  [Int32],
-  []
-)
+]] parse to Declarations([Declaration([Int32()], [])])
 
 test custom type variable declarator [[
   typedef int32 a;
   a b;
-]] run strip-annos to Declarations([
+]] parse to Declarations([
     _,
     Declaration(
       [TypedefName(Identifier("a"))],
@@ -264,7 +261,7 @@ test typedef [[
 test a typedefed decl [[
   typedef int32 a;
   a b, c;
-]] run strip-annos to Declarations([
+]] parse to Declarations([
       _,
       Declaration(
       [TypedefName(Identifier("a"))],

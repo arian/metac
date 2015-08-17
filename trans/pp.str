@@ -6,6 +6,7 @@ imports
   lib/runtime/refactoring/-
   include/Metac-parenthesize
   src-gen/pp/-
+  BaseC/trans/pp/BaseC-pp-declarations
 
 signature
   constructors
