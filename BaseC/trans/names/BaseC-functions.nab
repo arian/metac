@@ -1,0 +1,26 @@
+module BaseC-functions
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/-
+  BaseC/trans/types/-
+  BaseC/trans/names/BaseC-variables
+  BaseC/trans/names/BaseC-typedefs
+
+namespaces
+
+  Function
+
+properties
+  modifiers of Variable: VariableModifiers
+
+binding rules
+
+  FuncDecl(Identifier(name), _):
+    defines unique Function name
+
+  FunDefinition(Identifier(name), storage, type, parameters, body):
+    defines unique Function name
+    of type FunType(type)
+    scopes Variable, Typedef

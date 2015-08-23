@@ -1,0 +1,293 @@
+module BaseC-variables
+
+imports
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/properties/-
+  lib/runtime/types/-
+  lib/runtime/relations/-
+  lib/runtime/editor/-
+  include/Metac
+  BaseC/trans/desugar/-
+  BaseC/trans/names/BaseC-functions
+
+
+signature
+  constructors
+    NablNsVariable : Namespace
+
+
+signature
+  constructors
+    NablProp_modifiers : Property
+
+
+rules
+
+  nabl-custom-properties(add-properties) =
+    ![NablProp_modifiers()] ; add-properties
+
+  modifiers-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  modifiers-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  modifiers-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_modifiers())
+
+  modifiers-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  modifiers-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  modifiers-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_modifiers(), ctx__, [])
+
+  modifiers-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_modifiers(), ctx__, dep*)
+
+  modifiers-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_modifiers()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  modifiers-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_modifiers(), ctx__, relation, expected)
+
+  create-modifiers-task(|ctx__) =
+    fail
+
+  get-modifiers(|) =
+    get-property(|NablProp_modifiers())
+
+  store-modifiers(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_modifiers(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-modifiers-task(|ctx__)> term
+    where NablProp_modifiers() := kind
+
+
+rules
+
+  nabl-get-name :
+    VarDeclaration(
+      storage
+    , Type(mods, type)
+    , declarator
+    , Decl(Identifier(name))
+    , _
+    ) -> name
+
+  nabl-name-apply(s) =
+    VarDeclaration(
+      id
+    , Type(id, id)
+    , id
+    , Decl(Identifier(s))
+    , id
+    )
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?VarDeclaration(
+       storage
+     , Type(mods, type)
+     , declarator
+     , Decl(Identifier(name))
+     , _
+     )
+    ; origin-track-forced(
+        VarDeclaration(
+          id
+        , origin-track-forced(Type(id, id)|)
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsVariable()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
+              )
+            )
+          |
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?VarDeclaration(
+       storage
+     , Type(mods, type)
+     , declarator
+     , Decl(Identifier(name))
+     , _
+     )
+    ; (where(id)
+       ; VarDeclaration(
+           id
+         , Type(id, id)
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [ Prop(Type(), type, [])
+                 , Prop(NablProp_modifiers(), Modifiers(mods), [])
+                 ]
+               )
+             )
+           )
+         , id
+         ))
+    ; fail
+
+  nabl-get-name :
+    Var(Identifier(name)) -> name
+
+  nabl-name-apply(s) =
+    Var(Identifier(s))
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?Var(Identifier(name))
+    ; origin-track-forced(
+        Var(
+          origin-track-forced(
+            Identifier(
+              nabl-use(
+              | lang__
+              , ctx__
+              , uniques__
+              , uris__
+              , [ <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsVariable()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                , <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsFunction()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                ]
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+
+  nabl-get-name :
+    FunDefinitionParameter(
+      Type(mods, type)
+    , _
+    , Decl(Identifier(name))
+    ) -> name
+
+  nabl-name-apply(s) =
+    FunDefinitionParameter(
+      Type(id, id)
+    , id
+    , Decl(Identifier(s))
+    )
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?FunDefinitionParameter(
+       Type(mods, type)
+     , _
+     , Decl(Identifier(name))
+     )
+    ; origin-track-forced(
+        FunDefinitionParameter(
+          origin-track-forced(Type(id, id)|)
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsVariable()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?FunDefinitionParameter(
+       Type(mods, type)
+     , _
+     , Decl(Identifier(name))
+     )
+    ; (where(id)
+       ; FunDefinitionParameter(
+           Type(id, id)
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [ Prop(Type(), type, [])
+                 , Prop(NablProp_modifiers(), mods, [])
+                 ]
+               )
+             )
+           )
+         ))
+    ; fail

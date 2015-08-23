@@ -1,0 +1,24 @@
+module BaseC-typedefs
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/-
+
+namespaces
+
+  Typedef
+
+binding rules
+
+  TypedefDeclaration(
+    Type(mod, type),
+    Declarator(_, _),
+    Decl(Identifier(name))
+  ) :
+    defines unique Typedef name of type t
+    where
+      type has type t
+
+  TypedefName(Identifier(name)):
+    refers to Typedef name

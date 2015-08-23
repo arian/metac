@@ -4,16 +4,7 @@ imports
 
   include/Metac
   BaseC/trans/desugar/-
-
-namespaces
-
-  Function
-  Variable
-  Typedef
-  Program
-
-properties
-  modifiers of Variable: VariableModifiers
+  BaseC/trans/names/-
 
 binding rules
 
@@ -25,44 +16,7 @@ binding rules
   //     Typedef,
   //     Function
 
-  // Typedefs
-
-  TypedefDeclaration(
-    Type(mod, type),
-    Declarator(_, _),
-    Decl(Identifier(name))
-  ) :
-    defines unique Typedef name of type t
-    where
-      type has type t
-
-  TypedefName(Identifier(name)):
-    refers to Typedef name
-
-  // Variables
-
-  VarDeclaration(storage, Type(mods, type), declarator, Decl(Identifier(name)), _):
-    defines unique Variable name
-    of type type
-    of modifiers Modifiers(mods)
-
-  Var(Identifier(name)):
-    refers to Variable name
-    otherwise refers to Function name
-
   // Functions
-
-  FuncDecl(Identifier(name), _):
-    defines unique Function name
-
-  FunDefinition(Identifier(name), storage, types, parameters, body):
-    defines unique Function name
-    scopes Variable, Typedef
-
-  FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
-    defines unique Variable name
-    of type type
-    of modifiers mods
 
   CompoundStatement(_):
     scopes Variable, Typedef

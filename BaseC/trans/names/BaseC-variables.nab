@@ -1,0 +1,30 @@
+module BaseC-variables
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/-
+  BaseC/trans/names/BaseC-functions
+
+namespaces
+
+  Variable
+
+properties
+  modifiers of Variable: VariableModifiers
+
+binding rules
+
+  VarDeclaration(storage, Type(mods, type), declarator, Decl(Identifier(name)), _):
+    defines unique Variable name
+    of type type
+    of modifiers Modifiers(mods)
+
+  Var(Identifier(name)):
+    refers to Variable name
+    otherwise refers to Function name
+
+  FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
+    defines unique Variable name
+    of type type
+    of modifiers mods
