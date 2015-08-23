@@ -10,9 +10,9 @@ test desugar parameter [[
     FunDefinition(
       Identifier(_),
       [Extern()],
-      [Const, UInt32],
+      Type([Const], UInt32),
       [FunDefinitionParameter(
-        [Volatile, UInt32],
+        Type([Volatile], UInt32),
         Declarator(_, _),
         Decl(Identifier(_))
       )],

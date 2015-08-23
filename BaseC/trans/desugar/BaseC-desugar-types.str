@@ -13,6 +13,9 @@ rules
   is-type-specifier =
     not(is-storage-class-specifier)
 
+  is-type-qualifier =
+    ?Const() <+ ?Volatile()
+
   desugar-to-unsigned: Int8()  -> UInt8()
   desugar-to-unsigned: Int16() -> UInt16()
   desugar-to-unsigned: Int32() -> UInt32()
@@ -37,6 +40,10 @@ rules
   desugar-decl-types =
     filter(is-type-specifier)
     ; desugar-legacy-types
+    ; ?specifiers
+    ; <filter(is-type-qualifier)> specifiers ; ?qualifiers
+    ; <filter(not(is-type-qualifier))> specifiers ; ?[type | _]
+    ; !Type(qualifiers, type)
 
   find-decl =
     oncetd(?Decl(_) ; ?d) ; !d

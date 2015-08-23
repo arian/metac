@@ -6,15 +6,22 @@ imports
 
 signature constructors
 
+  Type:
+    Modifiers *
+    Name -> Type
+
+  Modifiers:
+    List(Modifier) -> Modifiers
+
   VarDeclaration:
     List(StorageClassSpecifiers) *
-    List(Type) *
+    Type *
     Declarator *
     Decl *
     Some(Initializer) -> VarDeclaration
 
   TypedefDeclaration:
-    List(Type) *
+    Type *
     Declarator *
     Decl -> TypedefDeclaration
 

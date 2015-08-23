@@ -12,6 +12,10 @@ imports
 
 type rules
 
+  Var(Identifier(e)): t
+    where
+      definition of e : t
+
   Add(e1, e2)
   + Subtract(e1, e2)
   + Mult(e1, e2)
