@@ -121,7 +121,7 @@ rules
     ?FunDefinition(
        Identifier(name)
      , storage
-     , type
+     , Type(mods, type)
      , parameters
      , body
      )
@@ -131,19 +131,25 @@ rules
     FunDefinition(
       Identifier(name)
     , storage
-    , type
+    , Type(mods, type)
     , parameters
     , body
     ) -> name
 
   nabl-name-apply(s) =
-    FunDefinition(Identifier(s), id, id, id, id)
+    FunDefinition(
+      Identifier(s)
+    , id
+    , Type(id, id)
+    , id
+    , id
+    )
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
     ?FunDefinition(
        Identifier(name)
      , storage
-     , type
+     , Type(mods, type)
      , parameters
      , body
      )
@@ -169,7 +175,7 @@ rules
           |
           )
         , id
-        , id
+        , origin-track-forced(Type(id, id)|)
         , id
         , id
         )
@@ -183,7 +189,7 @@ rules
     ?FunDefinition(
        Identifier(name)
      , storage
-     , type
+     , Type(mods, type)
      , parameters
      , body
      )
@@ -197,7 +203,7 @@ rules
              )
            )
          , id
-         , id
+         , Type(id, id)
          , id
          , id
          ))

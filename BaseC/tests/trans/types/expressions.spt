@@ -38,3 +38,33 @@ test union pointer field type [[
   struct X *a;
   uint32 b = [[a->x]];
 ]] run get-type to UInt16()
+
+test deref [[
+  void f(int8 *a) {
+    [[*a]];
+  }
+]] run get-type to Int8
+
+test address [[
+  void f(int8 a) {
+    [[&a]];
+  }
+]] run get-type to Pointer(Int8())
+
+test parens [[
+  int8 a;
+  void f() { [[(a)]]; }
+]] run get-type to Int8()
+
+test paren/address/debug [[
+  void f(int8 a) {
+    [[*(&(a))]];
+  }
+]] run get-type to Int8()
+
+test function call [[
+  int8 f(){}
+  void g() {
+    [[f()]];
+  }
+]] run get-type to Int8()

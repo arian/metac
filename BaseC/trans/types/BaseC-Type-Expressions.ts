@@ -9,6 +9,7 @@ imports
   lib/runtime/properties/-
   lib/runtime/relations/-
   BaseC/trans/types/-
+  BaseC/trans/desugar/-
 
 type rules
 
@@ -34,6 +35,18 @@ type rules
 
   PointerField(e, Identifier(name)): t
     where definition of name: t
+
+  Deref(e): type
+    where e: Pointer(type)
+
+  Address(e): Pointer(type)
+    where e: type
+
+  Call(e, _): t
+    where e: FunType(t)
+
+  Paren(e): t
+    where e: t
 
 type functions
 
