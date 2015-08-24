@@ -18,3 +18,4 @@ binding rules
 
   Enumerator(Identifier(name), _):
     defines Enumerator name
+    of type UInt8()

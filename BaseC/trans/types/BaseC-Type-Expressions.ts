@@ -29,6 +29,12 @@ type rules
         else error "Numeric expected" on e2
       and <promote> (aty1, aty2) => ty
 
+  Field(e, Identifier(name)): t
+    where definition of name: t
+
+  PointerField(e, Identifier(name)): t
+    where definition of name: t
+
 type functions
 
  // See section A6.1/A6.5 of "The C programming language"
