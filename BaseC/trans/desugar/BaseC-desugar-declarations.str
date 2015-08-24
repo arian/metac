@@ -30,6 +30,7 @@ rules
   is-type-declarator = ?Typedef()
   is-type-declarator = ?Enum(_, _)
   is-type-declarator = ?Struct(_, _)
+  is-type-declarator = ?Union(_, _)
 
   desugar:
     Declaration(
@@ -57,3 +58,31 @@ rules
       <some(?Typedef())> specifiers
       ; type := <desugar-decl-types> specifiers
       ; decls := <map(desugar-typedef-declarator(|type))> declarators
+
+// structs
+rules
+
+  desugar-struct-declarator(|type):
+    decl@Declarator(_, _) -> StructDeclarator(
+      type,
+      decl,
+      <find-decl> decl,
+      None()
+    )
+
+  desugar-struct-declarator(|type):
+    StructSizedFieldDeclarator(Some(decl), size) -> StructDeclarator(
+      type,
+      decl,
+      <find-decl> decl,
+      Some(size)
+    )
+
+  desugar:
+    StructDeclaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      type := <desugar-decl-types> specifiers
+      ; decls := <map(desugar-struct-declarator(|type))> declarators

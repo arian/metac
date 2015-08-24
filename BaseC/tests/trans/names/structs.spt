@@ -1,0 +1,27 @@
+module structs
+
+language Metac
+
+start symbol Program
+
+test resolve struct type [[
+  struct [[X]] {};
+  struct [[X]] y;
+]] resolve #2 to #1
+
+test resolve union type [[
+  union [[X]] {};
+  union [[X]] y;
+]] resolve #2 to #1
+
+test resolve struct field [[
+  struct X {int32 [[x]];};
+  struct X y;
+  int32 z = y.[[x]];
+]] resolve #2 to #1
+
+test resolve union field [[
+  union X {int32 [[x]];};
+  union X y;
+  int32 z = y.[[x]];
+]] resolve #2 to #1

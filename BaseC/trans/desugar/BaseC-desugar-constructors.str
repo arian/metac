@@ -36,3 +36,9 @@ signature constructors
     List(Type) *
     Declarator *
     Decl -> FunDefParameter
+
+  StructDeclarator:
+    Type *
+    Declerator *
+    Decl *
+    Option -> StructDeclarator
