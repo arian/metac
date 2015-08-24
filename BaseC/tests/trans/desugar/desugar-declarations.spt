@@ -23,15 +23,23 @@ test desugar var declaration [[
 
 test desugar typedefs [[
   typedef unsigned const int a, *b(int);
-]] run desugar-all to Declarations([
+]] run strip-annos to Declarations([
     TypedefDeclaration(
       Type([Const], UInt32),
       Declarator(_, _),
-      Decl(Identifier("a"{_}))
+      Decl(Identifier("a"))
     ),
     TypedefDeclaration(
       Type([Const], UInt32),
       Declarator(_, _),
-      Decl(Identifier("b"{_}))
+      Decl(Identifier("b"))
     )
+  ])
+
+test enum declaration [[
+  enum X {A};
+  struct Y {};
+]] run desugar-all to Declarations([
+    _,
+    _
   ])

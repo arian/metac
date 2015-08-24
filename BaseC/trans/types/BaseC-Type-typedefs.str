@@ -1,0 +1,16 @@
+module BaseC-Type-typedefs
+
+imports
+
+  include/-
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/types/-
+  lib/runtime/properties/-
+  lib/runtime/relations/-
+  BaseC/trans/types/-
+
+rules
+//
+//   create-type-task(|ctx) :
+//     TypedefName(Identifier(name)) -> <type-is(|ctx)> Int32()

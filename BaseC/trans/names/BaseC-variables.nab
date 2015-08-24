@@ -5,6 +5,7 @@ imports
   include/Metac
   BaseC/trans/desugar/-
   BaseC/trans/names/BaseC-functions
+  BaseC/trans/names/BaseC-enums
 
 namespaces
 
@@ -23,6 +24,7 @@ binding rules
   Var(Identifier(name)):
     refers to Variable name
     otherwise refers to Function name
+    otherwise refers to Enumerator name
 
   FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
     defines unique Variable name

@@ -10,6 +10,7 @@ imports
   include/Metac
   BaseC/trans/desugar/-
   BaseC/trans/names/BaseC-functions
+  BaseC/trans/names/BaseC-enums
 
 
 signature
@@ -199,6 +200,16 @@ rules
                      id
                      ; !UseCandidate(
                           NablNsFunction()
+                        , []
+                        , Current()
+                        , True()
+                        , []
+                        )
+                   }>
+                , <{:
+                     id
+                     ; !UseCandidate(
+                          NablNsEnumerator()
                         , []
                         , Current()
                         , True()

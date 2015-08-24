@@ -27,16 +27,20 @@ rules
       Some(init)
     )
 
+  is-type-declarator = ?Typedef()
+  is-type-declarator = ?Enum(_, _)
+  is-type-declarator = ?Struct(_, _)
+
   desugar:
     Declaration(
       specifiers,
       declarators
     ) -> decls
     where
-      <some(?Typedef())> specifiers
+      <all(not(is-type-declarator))> specifiers // no typedef to VarDeclaration
       ; type := <desugar-decl-types> specifiers
-      ; decls := <map(desugar-typedef-declarator(|type))> declarators
-
+      ; storage := <filter(is-storage-class-specifier)> specifiers
+      ; decls := <map(desugar-var-declarator(|storage, type))> declarators
 
 // typedefs
 rules
@@ -50,7 +54,6 @@ rules
       declarators
     ) -> decls
     where
-      <all(not(?Typedef()))> specifiers // no typedef to VarDeclaration
+      <some(?Typedef())> specifiers
       ; type := <desugar-decl-types> specifiers
-      ; storage := <filter(is-storage-class-specifier)> specifiers
-      ; decls := <map(desugar-var-declarator(|storage, type))> declarators
+      ; decls := <map(desugar-typedef-declarator(|type))> declarators

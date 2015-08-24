@@ -16,9 +16,7 @@ binding rules
     Declarator(_, _),
     Decl(Identifier(name))
   ) :
-    defines unique Typedef name of type t
-    where
-      type has type t
+    defines unique Typedef name of type type
 
   TypedefName(Identifier(name)):
     refers to Typedef name
