@@ -13,6 +13,8 @@ signature constructors
   Modifiers:
     List(Modifier) -> Modifiers
 
+  Pointer: Type -> Pointer
+
   VarDeclaration:
     List(StorageClassSpecifiers) *
     Type *

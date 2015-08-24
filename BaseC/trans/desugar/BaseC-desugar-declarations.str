@@ -9,19 +9,19 @@ imports
 // variable declarations
 rules
 
-  desugar-var-declarator(|storage, type):
-    decl@Declarator(None(), _) -> VarDeclaration(
+  desugar-var-declarator(|storage, base-type):
+    decl@Declarator(ptr, d) -> VarDeclaration(
       storage,
-      type,
+      <merge-types> (base-type, ptr, d),
       decl,
       <find-decl> decl,
       None()
     )
 
-  desugar-var-declarator(|storage, type):
-    InitDeclarator(decl, init) -> VarDeclaration(
+  desugar-var-declarator(|storage, base-type):
+    InitDeclarator(decl@Declarator(ptr, d), init) -> VarDeclaration(
       storage,
-      type,
+      <merge-types> (base-type, ptr, d),
       decl,
       <find-decl> decl,
       Some(init)
@@ -46,8 +46,12 @@ rules
 // typedefs
 rules
 
-  desugar-typedef-declarator(|type):
-    decl@Declarator(_, _) -> TypedefDeclaration(type, decl, <find-decl> decl)
+  desugar-typedef-declarator(|base-type):
+    decl@Declarator(ptr, d) -> TypedefDeclaration(
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl
+    )
 
   desugar:
     Declaration(
@@ -62,17 +66,17 @@ rules
 // structs
 rules
 
-  desugar-struct-declarator(|type):
-    decl@Declarator(_, _) -> StructDeclarator(
-      type,
+  desugar-struct-declarator(|base-type):
+    decl@Declarator(ptr, d) -> StructDeclarator(
+      <merge-types> (base-type, ptr, d),
       decl,
       <find-decl> decl,
       None()
     )
 
-  desugar-struct-declarator(|type):
-    StructSizedFieldDeclarator(Some(decl), size) -> StructDeclarator(
-      type,
+  desugar-struct-declarator(|base-type):
+    StructSizedFieldDeclarator(Some(decl@Declarator(ptr, d)), size) -> StructDeclarator(
+      <merge-types> (base-type, ptr, d),
       decl,
       <find-decl> decl,
       Some(size)

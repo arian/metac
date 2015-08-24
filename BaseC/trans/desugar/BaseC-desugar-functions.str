@@ -9,7 +9,11 @@ imports
 rules
 
   desugar-parameter:
-    Parameter(ts, decl) -> FunDefinitionParameter(types, decl, <find-decl> decl)
+    Parameter(ts, decl@Declarator(ptr, d)) -> FunDefinitionParameter(
+      <merge-types> (types, ptr, d),
+      decl,
+      <find-decl> decl
+    )
     where
       types := <desugar-decl-types> ts
 

@@ -19,3 +19,21 @@ test desugar parameter [[
       CompoundStatement(_){_}
     )
   ])
+
+test desugar parameter type with pointer [[
+  int32 g(int32 *x) {
+    return &x;
+  }
+]] run strip-annos to Declarations([
+    FunDefinition(
+      Identifier(_),
+      [],
+      Type([], Int32),
+      [FunDefinitionParameter(
+        Type([], Pointer(Int32)),
+        Declarator(_, _),
+        Decl(_)
+      )],
+      _
+    )
+  ])

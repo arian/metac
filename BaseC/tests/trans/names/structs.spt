@@ -16,12 +16,24 @@ test resolve union type [[
 
 test resolve struct field [[
   struct X {int32 [[x]];};
-  struct X y;
-  int32 z = y.[[x]];
+  struct X a;
+  int32 c = a.[[x]];
+]] resolve #2 to #1
+
+test resolve struct field via pointer [[
+  struct X {int32 [[x]];};
+  struct X *a;
+  int32 c = a->[[x]];
 ]] resolve #2 to #1
 
 test resolve union field [[
   union X {int32 [[x]];};
   union X y;
   int32 z = y.[[x]];
+]] resolve #2 to #1
+
+test resolve union field via pointer [[
+  union X {int32 [[x]];};
+  union X *a;
+  int32 c = a->[[x]];
 ]] resolve #2 to #1

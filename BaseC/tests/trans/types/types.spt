@@ -76,3 +76,25 @@ test typedef type synonym [[
   int32 y = [[x]];
 ]] run get-type to Int32()
 
+test pointer type [[
+  int32 *a;
+  int32 *b = [[a]];
+]] run get-type to Pointer(Int32)
+
+test enum type [[
+  enum X {A};
+  enum X a = A;
+  enum X b = [[a]];
+]] run get-type to Enum(Identifier("X"{_}))
+
+test struct type [[
+  struct X {};
+  struct X a;
+  struct X b = [[a]];
+]] run get-type to Struct(Identifier("X"{_}))
+
+test union type [[
+  union X {};
+  union X a;
+  union X b = [[a]];
+]] run get-type to Union(Identifier("X"{_}))

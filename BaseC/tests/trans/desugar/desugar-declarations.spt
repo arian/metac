@@ -21,8 +21,32 @@ test desugar var declaration [[
     )
   ])
 
+test desugar var pointer declaration [[
+  uint32 *x;
+]] run strip-annos to Declarations([
+    VarDeclaration(
+      [],
+      Type([], Pointer(UInt32)),
+      Declarator(_, _),
+      Decl(Identifier("x")),
+      None()
+    )
+  ])
+
+test desugar var double pointer declaration [[
+  uint32 ** const x;
+]] run strip-annos to Declarations([
+    VarDeclaration(
+      [],
+      Type([Const], Pointer(Pointer(UInt32))),
+      Declarator(_, _),
+      Decl(Identifier("x")),
+      None()
+    )
+  ])
+
 test desugar typedefs [[
-  typedef unsigned const int a, *b(int);
+  typedef unsigned const int a, ***b;
 ]] run strip-annos to Declarations([
     TypedefDeclaration(
       Type([Const], UInt32),
@@ -30,7 +54,7 @@ test desugar typedefs [[
       Decl(Identifier("a"))
     ),
     TypedefDeclaration(
-      Type([Const], UInt32),
+      Type([Const], Pointer(Pointer(Pointer(UInt32)))),
       Declarator(_, _),
       Decl(Identifier("b"))
     )

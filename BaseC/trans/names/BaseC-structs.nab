@@ -3,6 +3,7 @@ module BaseC-structs
 imports
 
   include/Metac
+  BaseC/trans/desugar/-
   BaseC/trans/names/BaseC-variables
 
 namespaces
@@ -35,3 +36,9 @@ binding rules
       where e has type Struct(Identifier(s))
     otherwise refers to Field field in Union s
       where e has type Union(Identifier(s))
+
+  PointerField(e, Identifier(field)):
+    refers to Field field in Struct s
+      where e has type Pointer(Struct(Identifier(s)))
+    otherwise refers to Field field in Union s
+      where e has type Pointer(Union(Identifier(s)))
