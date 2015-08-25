@@ -9,14 +9,8 @@ imports
 binding rules
 
   // file
-  // TODO fix, somehow breaks variable/typedef scoping
-  // Declarations(_):
-  //   scopes
-  //     Variable,
-  //     Typedef,
-  //     Function
-
-  // Functions
+  Declarations(_):
+    scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union
 
   CompoundStatement(_):
-    scopes Variable, Typedef
+    scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union

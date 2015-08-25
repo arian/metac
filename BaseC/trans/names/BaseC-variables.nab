@@ -17,16 +17,12 @@ properties
 binding rules
 
   VarDeclaration(storage, Type(mods, type), declarator, Decl(Identifier(name)), _):
-    defines unique Variable name
+    defines Variable name
     of type type
     of modifiers Modifiers(mods)
 
   Var(Identifier(name)):
-    refers to Variable name
-    otherwise refers to Function name
+    refers to Function name
+    otherwise refers to Parameter name
+    otherwise refers to Variable name
     otherwise refers to Enumerator name
-
-  FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
-    defines unique Variable name
-    of type type
-    of modifiers mods

@@ -16,7 +16,8 @@ imports
 
 signature
   constructors
-    NablNsFunction : Namespace
+    NablNsFunction  : Namespace
+    NablNsParameter : Namespace
 
 
 signature
@@ -125,7 +126,7 @@ rules
      , parameters
      , body
      )
-    ; ![NablNsVariable(), NablNsTypedef()]
+    ; ![NablNsParameter()]
 
   nabl-get-name :
     FunDefinition(
@@ -168,7 +169,7 @@ rules
               , NablNsFunction()
               , Unique()
               , Current()
-              , [NablNsVariable(), NablNsTypedef()]
+              , [NablNsParameter()]
               , []
               )
             )
@@ -206,5 +207,83 @@ rules
          , Type(id, id)
          , id
          , id
+         ))
+    ; fail
+
+  nabl-get-name :
+    FunDefinitionParameter(
+      Type(mods, type)
+    , _
+    , Decl(Identifier(name))
+    ) -> name
+
+  nabl-name-apply(s) =
+    FunDefinitionParameter(
+      Type(id, id)
+    , id
+    , Decl(Identifier(s))
+    )
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?FunDefinitionParameter(
+       Type(mods, type)
+     , _
+     , Decl(Identifier(name))
+     )
+    ; origin-track-forced(
+        FunDefinitionParameter(
+          origin-track-forced(Type(id, id)|)
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsParameter()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?FunDefinitionParameter(
+       Type(mods, type)
+     , _
+     , Decl(Identifier(name))
+     )
+    ; (where(id)
+       ; FunDefinitionParameter(
+           Type(id, id)
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [ Prop(Type(), type, [])
+                 , Prop(NablProp_modifiers(), mods, [])
+                 ]
+               )
+             )
+           )
          ))
     ; fail

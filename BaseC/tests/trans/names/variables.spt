@@ -9,32 +9,12 @@ test variable usage [[
   int32 y = [[x]] + 1;
 ]] resolve #2 to #1
 
-// TODO for some reason, using [[a]] and refers ... to ...
-// parses to amb()
-test parameter reference [[
-  int32 f(int32 a) {
-    return a;
-  }
-]] 0 errors
-
 test double definition of a variable [[
   int32 f() {
     int32 a;
     int32 a;
   }
 ]] /Duplicate/
-
-test double definition of a parameter [[
-  int32 f(int32 a, int32 a) {
-  }
-]] /Duplicate/
-
-// TODO FIXME
-// test double definition of a parameter/declaration [[
-//   int32 f(int32 a) {
-//     int32 a;
-//   }
-// ]] /Duplicate/
 
 test parens decl [[
   int32 (*[[a]]);

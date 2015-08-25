@@ -31,11 +31,49 @@ rules
 rules
 
   nabl-scoping-site =
+    ?Declarations(_)
+    ; nabl-scope(
+      | [ NablNsVariable()
+        , NablNsTypedef()
+        , NablNsFunction()
+        , NablNsEnum()
+        , NablNsEnumerator()
+        , NablNsStruct()
+        , NablNsUnion()
+        ]
+      )
+
+  nabl-get-scope =
+    ?Declarations(_)
+    ; ![ NablNsVariable()
+       , NablNsTypedef()
+       , NablNsFunction()
+       , NablNsEnum()
+       , NablNsEnumerator()
+       , NablNsStruct()
+       , NablNsUnion()
+       ]
+
+  nabl-scoping-site =
     ?CompoundStatement(_)
     ; nabl-scope(
-      | [NablNsVariable(), NablNsTypedef()]
+      | [ NablNsVariable()
+        , NablNsTypedef()
+        , NablNsFunction()
+        , NablNsEnum()
+        , NablNsEnumerator()
+        , NablNsStruct()
+        , NablNsUnion()
+        ]
       )
 
   nabl-get-scope =
     ?CompoundStatement(_)
-    ; ![NablNsVariable(), NablNsTypedef()]
+    ; ![ NablNsVariable()
+       , NablNsTypedef()
+       , NablNsFunction()
+       , NablNsEnum()
+       , NablNsEnumerator()
+       , NablNsStruct()
+       , NablNsUnion()
+       ]

@@ -10,10 +10,10 @@ imports
 
 namespaces
 
-  Function
+  Function Parameter
 
 properties
-  modifiers of Variable: VariableModifiers
+  modifiers of Parameter: ParameterModifiers
 
 binding rules
 
@@ -23,4 +23,9 @@ binding rules
   FunDefinition(Identifier(name), storage, Type(mods, type), parameters, body):
     defines unique Function name
     of type FunType(type)
-    scopes Variable, Typedef
+    scopes Parameter
+
+  FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
+    defines unique Parameter name
+    of type type
+    of modifiers mods
