@@ -1,0 +1,23 @@
+module desugar-expressions
+
+language Metac
+
+start symbol Program
+
+test desugar comma expression [[
+  int32 a = (1, 2, 3);
+]] run strip-annos to Declarations([
+    VarDeclaration(
+      [],
+      Type([],Int32),
+      _,
+      _,
+      Some(Paren(
+        Comma(
+          Integer("1"),
+          [Integer("2")],
+          Integer("3")
+        )
+      ))
+    )
+  ])

@@ -12,6 +12,9 @@ rules
     Integer(<id>) -> <smallest-int-type ; type-is(|ctx, [])>
 
   create-type-task(|ctx):
+    Float(<id>) -> <type-is(|ctx)> Float32()
+
+  create-type-task(|ctx):
     Char(_) -> <type-is(|ctx)> UInt8()
 
   create-type-task(|ctx):

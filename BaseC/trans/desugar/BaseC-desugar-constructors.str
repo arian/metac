@@ -47,3 +47,8 @@ signature constructors
     Declerator *
     Decl *
     Option -> StructDeclarator
+
+  Comma:
+    Expression *
+    List(Expression) *
+    Expression -> Comma

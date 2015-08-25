@@ -1,0 +1,12 @@
+module BaseC-desugar-expressions
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+
+rules
+
+  // desugar so ts can easily get the last expression, which will determin the
+  // type of this comma expression
+  desugar: Comma(expr, exprs) -> Comma(expr, <init> exprs, <last> exprs)

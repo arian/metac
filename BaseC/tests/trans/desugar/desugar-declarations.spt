@@ -4,21 +4,25 @@ language Metac
 
 test desugar var declaration [[
   static unsigned int x, y = 2;
-]] run desugar-all to Declarations([
+  float a;
+  double b;
+]] run strip-annos to Declarations([
     VarDeclaration(
       [Static()],
       Type([], UInt32()),
       Declarator(None(), _),
-      Decl(Identifier("x"{_})),
+      Decl(Identifier("x")),
       None()
     ),
     VarDeclaration(
       [Static()],
       Type([], UInt32()),
       Declarator(_, _),
-      Decl(Identifier("y"{_})),
-      Some(Integer("2"){_})
-    )
+      Decl(Identifier("y")),
+      Some(Integer("2"))
+    ),
+    VarDeclaration(_, Type([], Float32()), _, _, _),
+    VarDeclaration(_, Type([], Float64()), _, _, _)
   ])
 
 test desugar var pointer declaration [[
@@ -62,7 +66,7 @@ test desugar typedefs [[
 
 test enum declaration [[
   enum X {A};
-]] run desugar-all to Declarations([
+]] run strip-annos to Declarations([
     _
   ])
 

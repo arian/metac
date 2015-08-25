@@ -37,3 +37,7 @@ test get type or bool [[
 test get type or bool [[
   uint8 f() { return [[false]]; }
 ]] run get-type to UInt8()
+
+test get type of float [[
+  float f() { return [[1.0]]; }
+]] run get-type to Float()

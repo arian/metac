@@ -13,6 +13,25 @@ imports
 
 type rules
 
+  Comma(init, middle, last): t
+    where last: t
+
+  Assign(v, _, e): et
+    where
+          v: tv
+      and e: et
+      and (et <widens: tv)
+        else error $[Incompatible types: [tv]; [et]] on e
+
+  Conditional(_, true-b, false-b): t
+    where
+          true-b: tt
+      and false-b: ft
+      and (tt <widens: ft
+           or ft <widens: tt)
+        else error $[Incompatible types: [tt]; [ft]] on false-b
+      and <promote> (tt, ft) => t
+
   Var(Identifier(e)): t
     where
       definition of e : t
@@ -22,7 +41,7 @@ type rules
   + Mult(e1, e2)
   + Div(e1, e2) : ty
     where
-      e1: aty1
+          e1: aty1
       and e2: aty2
       and aty1 <is: Numeric()
         else error "Numeric expected" on e1

@@ -2,9 +2,41 @@ module expressions
 
 language Metac
 
+test comma expression type [[
+  float a() { return [[1, 2, 3.0]]; }
+]] run get-type to Float32()
+
+test assign expression [[
+  void a(float b) { [[b = 2.3]]; }
+]] run get-type to Float32()
+
+test assign expression, assigning wrong type [[
+  void a(float b) { b = a; }
+]] 1 error
+
+test conditional [[
+  float a() { return [[1 ? 2 : 3]]; }
+]] run get-type to UInt8()
+
+test conditional, widens lhs [[
+  float a() { return [[1 ? 1 : 2.1]]; }
+]] run get-type to Float32()
+
+test conditional, widens rhs [[
+  float a() { return [[1 ? 1.1 : 2]]; }
+]] run get-type to Float32()
+
 test get type of add expr [[
   int32 f() { return [[2 + 2]]; }
 ]] run get-type to UInt8()
+
+test non numeric error [[
+  int32 f() { return 1 + f; }
+]] /Numeric/
+
+test add float and uint8 [[
+  float f() { return [[2 + 2.0]]; }
+]] run get-type to Float32()
 
 test get type of mult expr [[
   int32 f() { return [[1 / '3']]; }

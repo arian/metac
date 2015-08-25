@@ -33,8 +33,11 @@ rules
   desugar-to-sized-ints: Int()   -> Int32()
   desugar-to-sized-ints: Long()  -> Int64()
 
+  desugar-to-sized-floats: Float() -> Float32()
+  desugar-to-sized-floats: Double() -> Float64()
+
   desugar-legacy-types =
-    map(try(desugar-to-sized-ints))
+    map(try(desugar-to-sized-ints) ; try(desugar-to-sized-floats))
     ; try(desugar-unsigned)
 
   desugar-decl-types =
