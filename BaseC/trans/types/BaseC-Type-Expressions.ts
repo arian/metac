@@ -32,6 +32,21 @@ type rules
         else error $[Incompatible types: [tt]; [ft]] on false-b
       and <promote> (tt, ft) => t
 
+  LogicalOr(_, _)
+  + LogicalAnd(_, _): UInt8()
+
+  InclusiveOr(e1, e2)
+  + ExclusiveOr(e1, e2)
+  + InclusiveAnd(e1, e2): ty
+    where
+          e1: aty1
+      and e2: aty2
+      and aty1 <is: Int()
+        else error "Integer expected" on e1
+      and aty2 <is: Int()
+        else error "Integer expected" on e2
+      and <promote> (aty1, aty2) => ty
+
   Var(Identifier(e)): t
     where
       definition of e : t
