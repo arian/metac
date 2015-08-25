@@ -34,3 +34,7 @@ test multiple vars [[
 test define type modifiers [[
   volatile const int32 [[a]];
 ]] run get-modifiers to Modifiers([Volatile, Const])
+
+test define storage modifiers [[
+  extern static int32 [[a]];
+]] run get-storage to Storage([Extern, Static])

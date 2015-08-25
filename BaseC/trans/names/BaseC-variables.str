@@ -21,12 +21,14 @@ signature
 signature
   constructors
     NablProp_modifiers : Property
+    NablProp_storage   : Property
 
 
 rules
 
   nabl-custom-properties(add-properties) =
-    ![NablProp_modifiers()] ; add-properties
+    ![NablProp_modifiers(), NablProp_storage()]
+    ; add-properties
 
   modifiers-is(|ctx__) =
     nabl-prop-calc(|ctx__, [])
@@ -76,12 +78,60 @@ rules
     term -> <create-modifiers-task(|ctx__)> term
     where NablProp_modifiers() := kind
 
+  storage-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  storage-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  storage-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_storage())
+
+  storage-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  storage-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  storage-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_storage(), ctx__, [])
+
+  storage-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_storage(), ctx__, dep*)
+
+  storage-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_storage()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  storage-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_storage(), ctx__, relation, expected)
+
+  create-storage-task(|ctx__) =
+    fail
+
+  get-storage(|) =
+    get-property(|NablProp_storage())
+
+  store-storage(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_storage(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-storage-task(|ctx__)> term
+    where NablProp_storage() := kind
+
 
 rules
 
   nabl-get-name :
     VarDeclaration(
-      storage
+      store
     , Type(mods, type)
     , declarator
     , Decl(Identifier(name))
@@ -99,7 +149,7 @@ rules
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
     ?VarDeclaration(
-       storage
+       store
      , Type(mods, type)
      , declarator
      , Decl(Identifier(name))
@@ -144,7 +194,7 @@ rules
 
   nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
     ?VarDeclaration(
-       storage
+       store
      , Type(mods, type)
      , declarator
      , Decl(Identifier(name))
@@ -161,6 +211,7 @@ rules
                | ctx__
                , [ Prop(Type(), type, [])
                  , Prop(NablProp_modifiers(), Modifiers(mods), [])
+                 , Prop(NablProp_storage(), Storage(store), [])
                  ]
                )
              )

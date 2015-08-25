@@ -13,6 +13,9 @@ signature constructors
   Modifiers:
     List(Modifier) -> Modifiers
 
+  Storage:
+    List(Store) -> Storage
+
   Pointer: Type -> Pointer
 
   VarDeclaration:
