@@ -47,6 +47,16 @@ type rules
         else error "Integer expected" on e2
       and <promote> (aty1, aty2) => ty
 
+  ShiftLeft(e1, e2)
+  + ShiftRight(e1, e2): t1
+    where e1: t1
+      and e2: t2
+      and t1 <is: Int()
+        else error $[Invalid operands: [t1]] on e1
+      and t2 <is: Int()
+        else error $[Invalid operands: [t2]] on e2
+
+
   Var(Identifier(e)): t
     where
       definition of e : t
@@ -54,15 +64,24 @@ type rules
   Add(e1, e2)
   + Subtract(e1, e2)
   + Mult(e1, e2)
-  + Div(e1, e2) : ty
-    where
-          e1: aty1
+  + Div(e1, e2)
+  + Mod(e1, e2) : ty
+    where e1: aty1
       and e2: aty2
       and aty1 <is: Numeric()
         else error "Numeric expected" on e1
       and aty2 <is: Numeric()
         else error "Numeric expected" on e2
       and <promote> (aty1, aty2) => ty
+
+  Cast(Type(mods, t), _): t
+
+  IncrementPrefix(e)
+  + DecrementPrefix(e): t
+    where
+          e: t
+      and t <is: Numeric()
+        else error "Numeric expected" on e
 
   Field(e, Identifier(name)): t
     where definition of name: t

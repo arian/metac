@@ -21,3 +21,10 @@ test desugar comma expression [[
       ))
     )
   ])
+
+test desugar cast types [[
+  uint64 *a = [[(unsigned long * const *) 1]];
+]] run strip-annos to Cast(
+    Type([Const], Pointer(Pointer(UInt64()))),
+    _
+  )

@@ -40,4 +40,4 @@ test get type or bool [[
 
 test get type of float [[
   float f() { return [[1.0]]; }
-]] run get-type to Float()
+]] run get-type to Float32()

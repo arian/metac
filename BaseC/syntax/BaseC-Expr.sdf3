@@ -109,9 +109,9 @@ context-free syntax
   AExpr.Add =
     <<AExpr> + <AExpr>> {left}
 
-
   AExpr.Subtract =
     <<AExpr> - <AExpr>> {left}
+
 
   // multiplicative-expression
   AExpr.Mult =
@@ -122,6 +122,7 @@ context-free syntax
 
   AExpr.Mod =
     <<AExpr> % <AExpr>> {left}
+
 
   // cast-expression
   AExpr =

@@ -1,0 +1,17 @@
+module expr-bin
+
+language Metac
+
+start symbol Program
+
+test type cast [[
+  void f() { [[(unsigned long *) 1]]; }
+]] run get-type to Pointer(UInt64())
+
+test prefix incr [[
+  void f() { [[++1]]; }
+]] run get-type to Int8()
+
+test prefix decr [[
+  void f() { [[--1]]; }
+]] run get-type to Int8()
