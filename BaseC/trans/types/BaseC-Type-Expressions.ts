@@ -77,26 +77,48 @@ type rules
   Cast(Type(mods, t), _): t
 
   IncrementPrefix(e)
-  + DecrementPrefix(e): t
+  + DecrementPrefix(e)
+  + Increment(e)
+  + Decrement(e): t
     where
           e: t
       and t <is: Numeric()
         else error "Numeric expected" on e
+
+  Address(e): Pointer(type)
+    where e: type
+
+  Deref(e): type
+    where e: Pointer(type)
+
+  Positive(e)
+  + Negative(e): t
+    where e: t
+
+  Complement(e): t
+    where e: t
+      and t <is: Int()
+        else error "Integer type expected" on e
+
+  Negate(e): UInt8()
+
+  SizeofExpr(e): UInt8()
+  Sizeof(e): UInt8()
+
+  ArrayField(e, index): t
+    where e: Array(t)
+      and index: it
+      and it <is: Int()
+        else error "Integer expected as index" on index
+
+  Call(e, _): t
+    where e: FunType(t)
 
   Field(e, Identifier(name)): t
     where definition of name: t
 
   PointerField(e, Identifier(name)): t
     where definition of name: t
-
-  Deref(e): type
-    where e: Pointer(type)
-
-  Address(e): Pointer(type)
-    where e: type
-
-  Call(e, _): t
-    where e: FunType(t)
 
   Paren(e): t
     where e: t

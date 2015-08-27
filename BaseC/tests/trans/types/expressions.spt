@@ -28,30 +28,6 @@ test conditional, widens rhs [[
   float a() { return [[1 ? 1.1 : 2]]; }
 ]] run get-type to Float32()
 
-test struct field type [[
-  struct X {unsigned short x;};
-  struct X a;
-  uint32 b = [[a.x]];
-]] run get-type to UInt16()
-
-test union pointer field type [[
-  struct X {unsigned short x;};
-  struct X *a;
-  uint32 b = [[a->x]];
-]] run get-type to UInt16()
-
-test deref [[
-  void f(int8 *a) {
-    [[*a]];
-  }
-]] run get-type to Int8
-
-test address [[
-  void f(int8 a) {
-    [[&a]];
-  }
-]] run get-type to Pointer(Int8())
-
 test parens [[
   int8 a;
   void f() { [[(a)]]; }
@@ -60,12 +36,5 @@ test parens [[
 test paren/address/debug [[
   void f(int8 a) {
     [[*(&(a))]];
-  }
-]] run get-type to Int8()
-
-test function call [[
-  int8 f(){}
-  void g() {
-    [[f()]];
   }
 ]] run get-type to Int8()

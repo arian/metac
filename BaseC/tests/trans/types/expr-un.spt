@@ -15,3 +15,67 @@ test prefix incr [[
 test prefix decr [[
   void f() { [[--1]]; }
 ]] run get-type to Int8()
+
+test address [[
+  void f(int8 a) {
+    [[&a]];
+  }
+]] run get-type to Pointer(Int8())
+
+test deref [[
+  void f(int8 *a) {
+    [[*a]];
+  }
+]] run get-type to Int8
+
+test postive [[
+  int32 a = [[+1]];
+]] run get-type to Int8()
+
+test negative [[
+  int32 a = [[-(1)]];
+]] run get-type to Int8()
+
+test complement [[
+  int32 a = [[~1]];
+]] run get-type to Int8()
+
+test complement must be on ints [[
+  int32 a = ~1.2;
+]] 1 error
+
+test negate [[
+  int32 a = [[!0]];
+]] run get-type to UInt8()
+
+test sizeof expr [[
+  int32 a = [[sizeof 0]];
+]] run get-type to UInt8()
+
+test sizeof type [[
+  int32 a = [[sizeof (int32)]];
+]] run get-type to UInt8()
+
+test array field [[
+  float a[];
+  void b() { [[(a[0])]]; } // with parens, because of spt
+]] run get-type to Float32()
+
+test function call [[
+  int8 f(){}
+  void g() {
+    [[f()]];
+  }
+]] run get-type to Int8()
+
+test struct field type [[
+  struct X {unsigned short x;};
+  struct X a;
+  uint32 b = [[a.x]];
+]] run get-type to UInt16()
+
+test union pointer field type [[
+  struct X {unsigned short x;};
+  struct X *a;
+  uint32 b = [[a->x]];
+]] run get-type to UInt16()
