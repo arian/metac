@@ -20,6 +20,21 @@ test pointer type [[
   int32 *b = [[a]];
 ]] run get-type to Pointer(Int32)
 
+test array type [[
+  int32 a[];
+  int32 b[] = [[a]];
+]] run get-type to Array(Int32)
+
+test multi dimensional array type [[
+  int32 a[][];
+  int32 b[][] = [[a]];
+]] run get-type to Array(Array(Int32))
+
+test pointer to array type [[
+  int32 *a[];
+  int32 *b[] = [[a]];
+]] run get-type to Pointer(Array(Int32))
+
 test enum type [[
   enum X {A};
   enum X a = [[A]];

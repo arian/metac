@@ -52,7 +52,12 @@ rules
     oncetd(?Decl(_) ; ?d) ; !d
 
   merge-types:
-    (base-type, None(), decl) -> base-type
+    (Type(mods, type), ptr, ArrayDecl(d, _)) -> t
+    where
+      t := <merge-types> (Type(mods, Array(type)), ptr, d)
+
+  merge-types:
+    (base-type, None(), _) -> base-type
 
   merge-types:
     (base-type@Type(mods, type), Some(Pointer(qualifiers, ptr)), decl) -> t

@@ -17,6 +17,7 @@ signature constructors
     List(Store) -> Storage
 
   Pointer: Type -> Pointer
+  Array: Type -> Array
 
   VarDeclaration:
     List(StorageClassSpecifiers) *
