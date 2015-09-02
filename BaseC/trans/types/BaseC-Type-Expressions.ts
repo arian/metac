@@ -56,10 +56,19 @@ type rules
       and t2 <is: Int()
         else error $[Invalid operands: [t2]] on e2
 
+type rules
+
+  TypedefName(Identifier(n)): t
+    where
+      definition of n : t
 
   Var(Identifier(e)): t
     where
-      definition of e : t
+      definition of e : t'
+      and (
+        (t' : t)
+        or (t' => t)
+      )
 
   Add(e1, e2)
   + Subtract(e1, e2)

@@ -11,6 +11,3 @@ imports
   BaseC/trans/types/-
 
 rules
-//
-//   create-type-task(|ctx) :
-//     TypedefName(Identifier(name)) -> <type-is(|ctx)> Int32()

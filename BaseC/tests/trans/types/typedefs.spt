@@ -1,0 +1,25 @@
+module typedefs
+
+language Metac
+
+start symbol Program
+
+test typedef type synonym [[
+  typedef int32 a;
+  a x;
+  int32 y = [[x]];
+]] run get-type to Int32()
+
+test typedef type synonym of another typedef [[
+  typedef int32 a;
+  typedef a b;
+  b x;
+  int32 y = [[x]];
+]] run get-type to Int32()
+
+test typedef pointer of a base type [[
+  typedef int32 *a;
+  int32 x = 1;
+  a y = &x;
+  a z = [[y]];
+]] run get-type to Pointer(Int32())

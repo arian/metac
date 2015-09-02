@@ -2,19 +2,6 @@ module types
 
 language Metac
 
-test typedef type synonym [[
-  typedef int32 a;
-  a x;
-  int32 y = [[x]];
-]] run get-type to Int32()
-
-test typedef type synonym [[
-  typedef int32 a;
-  typedef a b;
-  b x;
-  int32 y = [[x]];
-]] run get-type to Int32()
-
 test pointer type [[
   int32 *a;
   int32 *b = [[a]];
