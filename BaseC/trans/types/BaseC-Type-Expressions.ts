@@ -60,15 +60,13 @@ type rules
 
   TypedefName(Identifier(n)): t
     where
-      definition of n : t
+      definition of n : t'
+      and (t' : t) or (t' => t)
 
   Var(Identifier(e)): t
     where
       definition of e : t'
-      and (
-        (t' : t)
-        or (t' => t)
-      )
+      and (t' : t) or (t' => t)
 
   Add(e1, e2)
   + Subtract(e1, e2)
