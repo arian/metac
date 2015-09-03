@@ -58,6 +58,9 @@ type rules
 
 type rules
 
+  // Pointer(e): Pointer(t)
+  //   where e : t or e => t
+
   TypedefName(Identifier(n)): t
     where
       definition of n : t'
@@ -67,6 +70,8 @@ type rules
     where
       definition of e : t'
       and (t' : t) or (t' => t)
+
+type rules
 
   Add(e1, e2)
   + Subtract(e1, e2)

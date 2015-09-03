@@ -26,15 +26,21 @@ test typedef type synonym of another typedef [[
 ]] run get-type to Int32()
 
 test typedef pointer of a base type [[
-  typedef int32 *a;
+  typedef int32 * a;
   int32 x = 1;
   a y = &x;
   a z = [[y]];
 ]] run get-type to Pointer(Int32())
 
+test typedef pointer of a base type with array [[
+  typedef int32 *** a[];
+  a y;
+  a z = [[y]];
+]] run get-type to Pointer(Pointer(Pointer(Array(Int32()))))
+
 test typedef of another typedef with pointer [[
   typedef int32 a;
-  typedef a * b;
+  typedef a * const b;
   b x;
   int32 y = *[[x]];
 ]] run get-type to Pointer(Int32())

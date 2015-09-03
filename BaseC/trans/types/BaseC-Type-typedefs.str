@@ -9,5 +9,23 @@ imports
   lib/runtime/properties/-
   lib/runtime/relations/-
   BaseC/trans/types/-
+  BaseC/trans/desugar/-
 
 rules
+
+  create-maybe-typedef-task(|ctx):
+    e -> <if <?TypedefName(_) <+ ?Pointer(_)> e then
+           <type-task(|ctx)> e
+          else
+            task-create-fail(|ctx)
+          end
+         >
+
+  create-type-task(|ctx) :
+    Pointer(e) -> <task-create-id(|ctx,[x106])> x106
+    where
+      t252 := <create-maybe-typedef-task(|ctx)> e;
+      t253 := <type-is(|ctx)> e;
+      or42 := <type-is(|ctx)> <task-create-choice(|ctx)> [t252, t253];
+      t := <type-is(|ctx); task-create-id(|ctx, [or42])> <task-create-choice(|ctx)> [t252, t253];
+      x106 := <type-is(|ctx); task-create-id(|ctx, [t])> Pointer(t)
