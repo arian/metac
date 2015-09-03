@@ -9,6 +9,7 @@ imports
   lib/runtime/editor/-
   include/Metac
   BaseC/trans/desugar/-
+  BaseC/trans/types/-
   BaseC/trans/names/BaseC-functions
   BaseC/trans/names/BaseC-enums
 
@@ -212,6 +213,95 @@ rules
                , [ Prop(Type(), type, [])
                  , Prop(NablProp_modifiers(), Modifiers(mods), [])
                  , Prop(NablProp_storage(), Storage(store), [])
+                 ]
+               )
+             )
+           )
+         , id
+         ))
+    ; fail
+
+  nabl-get-name :
+    FuncDeclaration(
+      store
+    , Type(mods, type)
+    , declarator
+    , Decl(Identifier(name))
+    , params
+    ) -> name
+
+  nabl-name-apply(s) =
+    FuncDeclaration(
+      id
+    , Type(id, id)
+    , id
+    , Decl(Identifier(s))
+    , id
+    )
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?FuncDeclaration(
+       store
+     , Type(mods, type)
+     , declarator
+     , Decl(Identifier(name))
+     , params
+     )
+    ; origin-track-forced(
+        FuncDeclaration(
+          id
+        , origin-track-forced(Type(id, id)|)
+        , id
+        , origin-track-forced(
+            Decl(
+              origin-track-forced(
+                Identifier(
+                  nabl-def(
+                    ?c-uri1__
+                  , ?s-uri1__
+                  | lang__
+                  , ctx__
+                  , uniques__
+                  , uri__
+                  , uri__
+                  , NablNsVariable()
+                  , Unique()
+                  , Current()
+                  , []
+                  , []
+                  )
+                )
+              |
+              )
+            )
+          |
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?FuncDeclaration(
+       store
+     , Type(mods, type)
+     , declarator
+     , Decl(Identifier(name))
+     , params
+     )
+    ; (where(id)
+       ; FuncDeclaration(
+           id
+         , Type(id, id)
+         , id
+         , Decl(
+             Identifier(
+               nabl-store-props(
+               | ctx__
+               , [ Prop(Type(), FunType(type), [])
                  ]
                )
              )

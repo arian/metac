@@ -9,19 +9,19 @@ imports
 rules
 
   get-decl-from-program:
-    Declarations([decl]) -> <strip-annos> decl
+    Program(_, [decl]) -> <strip-annos> decl
 
   get-2nd-decl-from-program:
-    Declarations([_, decl]) -> <strip-annos> decl
+    Program(_, [_, decl]) -> <strip-annos> decl
 
   get-expr-from-program =
     find-elem(?Return(Some(x))) ; !x ; strip-annos
 
   get-fundef-from-program:
-    Declarations([fundef]) -> <strip-annos> fundef
+    Program(_, [fundef]) -> <strip-annos> fundef
 
   get-stmt-from-program:
-    Declarations([FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
+    Program(_, [FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
 
   get-init-from-decl:
     Declaration(_, [InitDeclarator(_, init)]) -> <strip-annos> init

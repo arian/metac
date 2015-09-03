@@ -6,7 +6,7 @@ test desugar parameter [[
   extern unsigned const int g(unsigned volatile int a) {
     return a;
   }
-]] run desugar-all to Declarations([
+]] run strip-annos to Program(_, [
     FunDefinition(
       Identifier(_),
       [Extern()],
@@ -16,7 +16,7 @@ test desugar parameter [[
         Declarator(_, _),
         Decl(Identifier(_))
       )],
-      CompoundStatement(_){_}
+      CompoundStatement(_)
     )
   ])
 
@@ -24,7 +24,7 @@ test desugar parameter type with pointer [[
   int32 g(int32 *x) {
     return &x;
   }
-]] run strip-annos to Declarations([
+]] run strip-annos to Program(_, [
     FunDefinition(
       Identifier(_),
       [],

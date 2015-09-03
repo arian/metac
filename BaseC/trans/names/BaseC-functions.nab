@@ -17,9 +17,6 @@ properties
 
 binding rules
 
-  FuncDecl(Identifier(name), _):
-    defines unique Function name
-
   FunDefinition(Identifier(name), storage, Type(mods, type), parameters, body):
     defines unique Function name
     of type FunType(type)

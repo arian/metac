@@ -72,7 +72,7 @@ test paren decl and fn [[
   typedef int32 x;
   x (a), y (x);
   const x z (x), (b);
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     Declaration(
       [TypedefName(Identifier("x"))],
@@ -93,7 +93,7 @@ test paren decl and fn [[
 test function declaration with one typedef'd parameter [[
   typedef int32 B;
   void a(B);
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     Declaration(
       [Void],
@@ -203,7 +203,7 @@ test function with a typedef'ed parameter [[
   typedef int32 a;
   void x(a b, c);
 ]] parse to
-  Declarations([
+  Program(_, [
     _,
     Declaration(
       [Void],
@@ -224,7 +224,7 @@ test function with any type [[
     typedef int32 B;
     void a(d, const *c, const B, B);
 ]] parse to
-  Declarations([
+  Program(_, [
     _,
     Declaration(
       [Void],

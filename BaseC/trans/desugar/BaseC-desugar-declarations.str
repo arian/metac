@@ -5,9 +5,22 @@ imports
   include/Metac
   BaseC/trans/desugar/BaseC-desugar-constructors
   BaseC/trans/desugar/BaseC-desugar-types
+  BaseC/trans/desugar/BaseC-desugar-functions
 
 // variable declarations
 rules
+
+  desugar-var-declarator(|storage, base-type):
+    decl@Declarator(ptr, FuncDecl(d, params)) -> FuncDeclaration(
+      storage,
+      <merge-types> (base-type, ptr, decl),
+      decl,
+      <find-decl> decl,
+      <map(desugar-parameter)> ps
+    )
+    where
+      ParameterList(ps) := params
+      <+ VarArgs(ParameterList(ps)) := params // TODO handle varargs better
 
   desugar-var-declarator(|storage, base-type):
     decl@Declarator(ptr, d) -> VarDeclaration(
@@ -17,6 +30,8 @@ rules
       <find-decl> decl,
       None()
     )
+    where
+      <not(?FuncDecl(_, _))> d
 
   desugar-var-declarator(|storage, base-type):
     InitDeclarator(decl@Declarator(ptr, d), init) -> VarDeclaration(

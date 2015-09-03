@@ -6,7 +6,7 @@ start symbol Program
 
 test union declaration [[
   union x;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Union(Identifier("x"))],
       []
@@ -17,7 +17,7 @@ test one element union [[
   union {
     int32 x;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Union(None, [
         StructDeclaration(
@@ -34,7 +34,7 @@ test more elements struct [[
     int32 x;
     int32 *y;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Union(None, [
         StructDeclaration(
@@ -54,7 +54,7 @@ test named union [[
   union X {
     int32 x;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Union(Some(Identifier("X")), [_])],
       []
@@ -65,7 +65,7 @@ test typedef'ed named union [[
   typedef union Y {
     int32 x;
   } X;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [
         Typedef(),

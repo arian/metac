@@ -1,0 +1,19 @@
+module desugar-declarations
+
+language Metac
+
+test it should define a module [[
+  int32 x;
+]] run strip-annos to Program(_, _)
+
+test it should rename includes [[
+  #include <foo.mc>
+]] run strip-annos to Program(_, [
+    IncludeModule("extern/foo.mc", Include(_))
+  ])
+
+test it should rename local include [[
+  #include "foo.mc"
+]] run strip-annos to Program(_, [
+    IncludeModule("BaseC/tests/trans/desugar/foo.mc", IncludeLocal(_))
+  ])

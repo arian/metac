@@ -2,13 +2,15 @@ module desugar
 
 imports
 
-  BaseC/trans/desugar/BaseC-desugar-declarations
-  BaseC/trans/desugar/BaseC-desugar-functions
+  BaseC/trans/desugar/-
 
 rules
+
+  desugar(|t) =
+    fail
 
   desugar =
     fail
 
-  desugar-all =
-    bottomup(try(desugar) ; try(flatten-list))
+  desugar-all(|t) =
+    bottomup(try(desugar(|t)) ; try(desugar) ; try(flatten-list))

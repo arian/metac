@@ -4,6 +4,7 @@ imports
 
   include/Metac
   BaseC/trans/desugar/-
+  BaseC/trans/types/-
   BaseC/trans/names/BaseC-functions
   BaseC/trans/names/BaseC-enums
 
@@ -23,6 +24,10 @@ binding rules
     of type type
     of modifiers Modifiers(mods)
     of storage Storage(store)
+
+  FuncDeclaration(store, Type(mods, type), declarator, Decl(Identifier(name)), params):
+    defines Variable name
+    of type FunType(type)
 
   Var(Identifier(name)):
     refers to Function name

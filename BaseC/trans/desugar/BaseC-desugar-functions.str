@@ -17,6 +17,11 @@ rules
     where
       types := <desugar-decl-types> ts
 
+  desugar-parameter:
+    AbstractParameter(ts, ptr) -> FunDefinitionParameter(
+      <merge-types> (<desugar-decl-types> ts, ptr, None())
+    )
+
   desugar:
     FunDef(
       specifiers,

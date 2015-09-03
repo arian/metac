@@ -6,7 +6,7 @@ start symbol Program
 
 test struct declaration [[
   struct x;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Struct(Identifier("x"))],
       _
@@ -17,7 +17,7 @@ test one element struct [[
   struct {
     int32 x;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Struct(None, [
         StructDeclaration(
@@ -34,7 +34,7 @@ test more elements struct [[
     int32 x;
     int32 *y;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Struct(None, [
         StructDeclaration(
@@ -54,7 +54,7 @@ test named struct [[
   struct X {
     int32 x;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Struct(Some(Identifier("X")), [_])],
       []
@@ -65,7 +65,7 @@ test typedef'ed named struct [[
   typedef struct Y {
     int32 x;
   } X;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [
         Typedef(),
@@ -81,7 +81,7 @@ test custom type declarator [[
   struct X {
     const x y;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     Declaration([
       Struct(Some(Identifier("X")), [
@@ -98,7 +98,7 @@ test multiple declarators [[
   struct X {
     const x y, z;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     Declaration([
       Struct(Some(Identifier("X")), [
@@ -118,7 +118,7 @@ test multiple declarators with bit-size [[
   struct X {
     const x y, z : 3;
   };
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     Declaration([
       Struct(Some(Identifier("X")), [

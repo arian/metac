@@ -11,5 +11,7 @@ context-free syntax
   Declaration =
     Macro
 
-  Program.Declarations =
-    <<{Declaration "\n"}*>>
+  Module.Module = ""
+
+  Program.Program =
+    <<Module><{Declaration "\n"}*>>

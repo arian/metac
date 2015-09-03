@@ -17,7 +17,7 @@ test typedef [[
 test a typedefed decl [[
   typedef int32 a;
   a b, c;
-]] parse to Declarations([
+]] parse to Program(_, [
       _,
       Declaration(
       [TypedefName(Identifier("a"))],

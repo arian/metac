@@ -6,7 +6,7 @@ start symbol Program
 
 test desugar comma expression [[
   int32 a = (1, 2, 3);
-]] run strip-annos to Declarations([
+]] run strip-annos to Program(_, [
     VarDeclaration(
       [],
       Type([],Int32),

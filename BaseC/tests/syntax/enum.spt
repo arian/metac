@@ -6,7 +6,7 @@ start symbol Program
 
 test enum type [[
   enum X x;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Enum(Identifier("X"))],
       [_]
@@ -19,7 +19,7 @@ test empty enum fails [[
 
 test enum with one item [[
   enum {y} x;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Enum(
         None,
@@ -31,7 +31,7 @@ test enum with one item [[
 
 test enum with a name [[
   enum X {y} x;
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Enum(
         Some(Identifier("X")),
@@ -43,7 +43,7 @@ test enum with a name [[
 
 test enum with more items [[
   enum {x, y, z};
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Enum(
         None,
@@ -59,7 +59,7 @@ test enum with more items [[
 
 test enum with constants [[
   enum {x = 3, y, z = 'a'};
-]] parse to Declarations([
+]] parse to Program(_, [
     Declaration(
       [Enum(
         None,

@@ -14,7 +14,7 @@ imports
 
 signature
   constructors
-    
+    NablNsModule : Namespace
 
 
 signature
@@ -30,21 +30,8 @@ rules
 
 rules
 
-  nabl-scoping-site =
-    ?Declarations(_)
-    ; nabl-scope(
-      | [ NablNsVariable()
-        , NablNsTypedef()
-        , NablNsFunction()
-        , NablNsEnum()
-        , NablNsEnumerator()
-        , NablNsStruct()
-        , NablNsUnion()
-        ]
-      )
-
   nabl-get-scope =
-    ?Declarations(_)
+    ?Program(file, _)
     ; ![ NablNsVariable()
        , NablNsTypedef()
        , NablNsFunction()
@@ -53,6 +40,111 @@ rules
        , NablNsStruct()
        , NablNsUnion()
        ]
+
+  nabl-get-name :
+    Program(file, _) -> file
+
+  nabl-name-apply(s) =
+    Program(s, id)
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?Program(file, _)
+    ; origin-track-forced(
+        Program(
+          nabl-def(
+            ?c-uri1__
+          , ?s-uri1__
+          | lang__
+          , ctx__
+          , uniques__
+          , uri__
+          , uri__
+          , NablNsModule()
+          , Unique()
+          , Current()
+          , [ NablNsVariable()
+            , NablNsTypedef()
+            , NablNsFunction()
+            , NablNsEnum()
+            , NablNsEnumerator()
+            , NablNsStruct()
+            , NablNsUnion()
+            ]
+          , []
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-get-name :
+    IncludeModule(m, _) -> m
+
+  nabl-name-apply(s) =
+    IncludeModule(s, id)
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?IncludeModule(m, _)
+    ; origin-track-forced(
+        IncludeModule(
+          nabl-use(
+          | lang__
+          , ctx__
+          , uniques__
+          , uris__
+          , [ <{:
+                 id
+                 ; !UseCandidate(
+                      NablNsModule()
+                    , []
+                    , Current()
+                    , True()
+                    , []
+                    )
+               }>
+            ]
+          )
+        , id
+        )
+      |
+      )
+
+  nabl-import-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?IncludeModule(m, _)
+    ; origin-track-forced(
+        nabl-import(
+        | lang__
+        , ctx__
+        , uniques__
+        , uris__
+        , [ <{:
+               id
+               ; !Wildcard(
+                    [ Import(lang__, NablNsTypedef())
+                    , Import(lang__, NablNsFunction())
+                    , Import(lang__, NablNsEnum())
+                    , Import(lang__, NablNsEnumerator())
+                    , Import(lang__, NablNsStruct())
+                    , Import(lang__, NablNsUnion())
+                    , Import(lang__, NablNsVariable())
+                    ]
+                  , Context(
+                      NablNsModule()
+                    , m
+                    , []
+                    , Current()
+                    )
+                  , Current()
+                  , []
+                  )
+             }>
+          ]
+        )
+      |
+      )
 
   nabl-scoping-site =
     ?CompoundStatement(_)

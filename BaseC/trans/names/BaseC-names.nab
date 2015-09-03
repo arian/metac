@@ -6,11 +6,18 @@ imports
   BaseC/trans/desugar/-
   BaseC/trans/names/-
 
+namespaces
+  Module
+
 binding rules
 
   // file
-  Declarations(_):
+  Program(file, _):
+    defines Module file
     scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union
+
+  IncludeModule(m, _):
+    imports Typedef, Function, Enum, Enumerator, Struct, Union, Variable from Module m
 
   CompoundStatement(_):
     scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union

@@ -7,4 +7,4 @@ start symbol Program
 test empty program [[
 
 ]] parse to
-  Declarations([])
+  Program(_, [])

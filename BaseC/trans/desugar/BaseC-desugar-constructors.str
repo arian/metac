@@ -6,6 +6,9 @@ imports
 
 signature constructors
 
+  IncludeModule:
+    String * Include -> IncludeModule
+
   Type:
     Modifiers *
     Name -> Type
@@ -26,6 +29,13 @@ signature constructors
     Decl *
     Some(Initializer) -> VarDeclaration
 
+  FuncDeclaration:
+    List(StorageClassSpecifiers) *
+    Type *
+    Declarator *
+    Decl *
+    List(Parameter) -> FuncDeclaration
+
   TypedefDeclaration:
     Type *
     Declarator *
@@ -42,6 +52,10 @@ signature constructors
     List(Type) *
     Declarator *
     Decl -> FunDefParameter
+
+  // for abstract parameters
+  FunDefinitionParameter:
+    List(Type) -> FunDefinitionParameter
 
   StructDeclarator:
     Type *

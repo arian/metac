@@ -8,7 +8,7 @@ test multiply as x is not typedef'ed [[
   void f () {
     x * y;
   }
-]] parse to Declarations([
+]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([ExpressionStatement(_)]))
   ])
 
@@ -17,7 +17,7 @@ test decl as x is typedef'ed [[
   void f () {
     x * y;
   }
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     FunDef(_, _, _, CompoundStatement([Declaration(_, _)]))
   ])
@@ -30,7 +30,7 @@ test pointer cast or mult [[
     (a) * b;
     return (k) *l;
   }
-]] parse to Declarations([
+]] parse to Program(_, [
     _, _,
     FunDef(_, _, _, CompoundStatement([
       ExpressionStatement(Some(Cast(_, _))),
@@ -48,7 +48,7 @@ test cast or call [[
     int32 e = (a)(b);
     return (a)(b);
   }
-]] parse to Declarations([
+]] parse to Program(_, [
     _,
     FunDef(_, _, _, CompoundStatement([
       _,
@@ -64,7 +64,7 @@ test assign or decl [[
     int32 x;
     x = 4;
   }
-]] parse to Declarations([
+]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
       Declaration(_, _),
       ExpressionStatement(_)

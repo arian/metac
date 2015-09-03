@@ -43,10 +43,12 @@ rules // Analysis
       end
 
   analysis-single-default-interface =
-    analysis-single-default(desugar-all, id, id|<language>)
+    ?tuple
+    ; <analysis-single-default(desugar-all(|tuple), id, id|<language>)> tuple
 
   analysis-multiple-default-interface =
-    analysis-multiple-default(parse-file <+ !(), desugar-all, id, id|<language>, <project-path>)
+    ?tuple
+    ; <analysis-multiple-default(parse-file <+ !(), desugar-all(|tuple), id, id|<language>, <project-path>)> tuple
 
   editor-save = analysis-save-default(|<language>)
 

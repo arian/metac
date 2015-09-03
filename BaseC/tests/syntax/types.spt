@@ -75,4 +75,4 @@ test double [[
 
 test signed char [[
   signed char x;
-]] parse to Declarations(_)
+]] parse to Program(_, _)
