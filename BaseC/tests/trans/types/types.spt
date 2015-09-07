@@ -31,7 +31,7 @@ test enum type [[
   enum X {A};
   enum X a = A;
   enum X b = [[a]];
-]] run get-type to Enum(Identifier("X"{_}))
+]] run get-type to UInt8()
 
 test struct type [[
   struct X {};

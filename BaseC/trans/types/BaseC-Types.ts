@@ -8,6 +8,7 @@ imports
   lib/runtime/types/-
   lib/runtime/properties/-
   lib/runtime/relations/-
+  BaseC/trans/desugar/-
   BaseC/trans/types/-
 
 relations
@@ -76,3 +77,4 @@ relations
   UInt64() <widens-prim: Float64()
 
   Float32() <widens-prim: Float64()
+

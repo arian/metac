@@ -3,6 +3,7 @@ module BaseC-Type-Constructors
 signature constructors
 
   Array: TypeKind -> TypeKind
+  Array: TypeKind
 
   Int: TypeKind
   Numeric: TypeKind

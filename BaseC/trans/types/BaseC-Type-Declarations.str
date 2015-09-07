@@ -1,0 +1,57 @@
+module BaseC/trans/types/BaseC-Type-Declarations
+
+
+imports
+
+  include/-
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/types/-
+  lib/runtime/properties/-
+  lib/runtime/relations/-
+  BaseC/trans/desugar/-
+  BaseC/trans/types/-
+
+
+rules
+
+  // Assignments type checking
+
+  task-rewrite :
+    ("strip-array", Array(t)) -> t
+
+  task-rewrite :
+    ("strip-pointer", Pointer(t)) -> t
+
+  nested-type-rewrite(|ctx, t1):
+    t2 -> task
+    where (
+        Array(t1') := t1
+        ; t2' := <new-task(|ctx)> Rewrite("strip-array", t2)
+        ; task := <nested-type-rewrite(|ctx, t1')> t2'
+      ) <+ (
+        Pointer(t1') := t1
+        ; t2' := <new-task(|ctx)> Rewrite("strip-pointer", t2)
+        ; task := <nested-type-rewrite(|ctx, t1')> t2'
+      ) <+ (
+        task := t2
+      )
+
+  get-base-type: Array(t) -> <get-base-type> t
+  get-base-type: Pointer(t) -> <get-base-type> t
+  get-base-type: t -> t
+
+  relation-match-custom(|ctx) :
+    ("<is-assignable:", t1, t2) -> <task-create-id(|ctx, [or72])> t2
+    where
+      // get recursive Array(t) -> t
+      t1' := <get-base-type> t1;
+      // create n rewrite tasks, depending on how many types te type is nested
+      t2' := <nested-type-rewrite(|ctx, t1)> t2;
+      // are they equal?
+      eq60 := <type-match(|ctx, t2')> t1';
+      // are both numeric
+      relmatch105 := <relation-create-match(|ctx)> ("<is:", t1', Numeric());
+      relmatch106 := <relation-create-match(|ctx); task-create-id(|ctx, [relmatch105])> ("<is:", t2', Numeric());
+      // is either of them passing?
+      or72 := <type-is(|ctx)> <task-create-choice(|ctx)> [eq60, relmatch106]
