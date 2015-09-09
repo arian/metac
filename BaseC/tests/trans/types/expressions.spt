@@ -9,8 +9,12 @@ test comma expression type [[
 ]] run get-type to Float32()
 
 test assign expression [[
-  void a(float b) { [[b = 2.3]]; }
+  void a(float32 b) { [[b = 2.3]]; }
 ]] run get-type to Float32()
+
+test assign expression error for wrong array assignment [[
+  void a(float b[], int c) { [[b = c]]; }
+]] 1 error
 
 test assign expression, assigning wrong type [[
   void a(float b) { b = a; }

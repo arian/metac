@@ -1,5 +1,4 @@
-module BaseC/trans/types/BaseC-Type-Declarations
-
+module BaseC/trans/types/BaseC-relation-is-assignable
 
 imports
 
@@ -11,7 +10,6 @@ imports
   lib/runtime/relations/-
   BaseC/trans/desugar/-
   BaseC/trans/types/-
-
 
 rules
 
@@ -44,10 +42,12 @@ rules
   relation-match-custom(|ctx) :
     ("<is-assignable:", t1, t2) -> <task-create-id(|ctx, [or72])> t2
     where
+      // If it's the result of a task, get the actual type first, so t1'' is Int32, Array(UInt8) etc.
+      t1'' := <try(?Result(_) ; task-get-results ; Hd)> t1;
       // get recursive Array(t) -> t
-      t1' := <get-base-type> t1;
+      t1' := <get-base-type> t1'';
       // create n rewrite tasks, depending on how many types te type is nested
-      t2' := <nested-type-rewrite(|ctx, t1)> t2;
+      t2' := <nested-type-rewrite(|ctx, t1'')> t2;
       // are they equal?
       eq60 := <type-match(|ctx, t2')> t1';
       // are both numeric

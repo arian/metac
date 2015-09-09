@@ -20,7 +20,7 @@ type rules
     where
           v: tv
       and e: et
-      and (et <widens: tv)
+      and (et <is-assignable: tv)
         else error $[Incompatible types: [tv]; [et]] on e
 
   Conditional(_, true-b, false-b): t
