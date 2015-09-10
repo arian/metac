@@ -37,3 +37,17 @@ test desugar parameter type with pointer [[
       _
     )
   ])
+
+test desugar function with return pointer [[
+  int8 *g(int *x) {
+    return x;
+  }
+]] run strip-annos to Program(_, [
+    FunDefinition(
+      _,
+      [],
+      Type([], Pointer(Int8)),
+      _,
+      _
+    )
+  ])

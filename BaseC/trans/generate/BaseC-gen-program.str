@@ -1,0 +1,13 @@
+module BaseC-gen-program
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+
+strategies
+
+  generate:
+    Program(file, decls) -> Program(Module(), decls)
+    where
+      <is-string> file

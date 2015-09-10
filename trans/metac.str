@@ -90,7 +90,7 @@ rules // Editor services
     with
       ext      := <get-extension> path;
       filename := <guarantee-extension(|$[pp.[ext]])> path;
-      result   := <debug ; pp-debug> selected
+      result   := <pp-debug> selected
 
 rules // Debugging
 

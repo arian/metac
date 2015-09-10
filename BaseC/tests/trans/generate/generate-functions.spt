@@ -1,0 +1,29 @@
+module generate-declarations
+
+language Metac
+
+start symbol Program
+
+test function [[
+  int32 ** a(int8 **x) {
+    return x;
+  }
+]] build generate-c to "signed int** a(signed char** x) {
+  return x;
+}"
+
+test block initializers  [[
+  static int32 a[] = {1,2,3};
+]] build generate-c to "static signed int a[] = {1, 2, 3};"
+
+test paren decl [[
+  void a(b, c);
+]] build generate-c to "void a(b, c);"
+
+test abstract function declarations [[
+  void a(int32,int32 *,const int32);
+]] build generate-c to "void a(signed int, signed int *, const signed int);"
+
+test function declarations [[
+  void a(int32 b,int32 * c,const int32 d);
+]] build generate-c to "void a(signed int b, signed int *c, const signed int d);"

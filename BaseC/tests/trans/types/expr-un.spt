@@ -42,7 +42,7 @@ test complement [[
 
 test complement must be on ints [[
   int32 a = ~1.2;
-]] 1 error
+]] 2 errors
 
 test negate [[
   int32 a = [[!0]];
@@ -67,6 +67,13 @@ test function call [[
     [[f()]];
   }
 ]] run get-type to Int8()
+
+test function call [[
+  int8 *f(){}
+  void g() {
+    [[f()]];
+  }
+]] run get-type to Pointer(Int8()){_}
 
 test struct field type [[
   struct X {unsigned short x;};

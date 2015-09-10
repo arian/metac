@@ -1,0 +1,27 @@
+module BaseC-gen-functions
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/generate/BaseC-gen-types
+  BaseC/trans/utils/-
+
+strategies
+
+  generate-fn-param: FunDefinitionParameter(type, decl, name) ->
+    Parameter(specifiers, decl)
+    where
+      specifiers := <gen-Type> type
+
+  generate: FunDefinition(name, storage, type@Type(_, t), params, body)
+    -> FunDef(
+      specifiers,
+      FunDeclarator(ptr, name, ParameterList(ps)),
+      [],
+      body
+    )
+    where
+      specifiers := <conc> (storage, <gen-Type> type)
+      ; ptr := <generate-fn-ptr> t
+      ; ps := <map(generate-fn-param)> params

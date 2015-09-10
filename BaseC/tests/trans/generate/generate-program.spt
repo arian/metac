@@ -1,0 +1,8 @@
+module generate-program
+
+language Metac
+
+start symbol Program
+
+test generate empty program [[
+]] build generate-c to ""

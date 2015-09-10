@@ -1,0 +1,20 @@
+module BaseC-generate-c
+
+imports
+
+  include/Metac
+  pp
+  libstratego-lib
+
+strategies
+
+  generate = fail
+
+  generate-pp =
+    pp-debug // try to pretty print
+    <+ debug // or print the AST
+
+  generate-c: (selected, position, ast, path, project-path) -> (file-name, code)
+    where
+      file-name := <guarantee-extension(|"c")> path
+      ; code := <topdown(try(generate) ; try(flatten-list)) ; generate-pp> ast

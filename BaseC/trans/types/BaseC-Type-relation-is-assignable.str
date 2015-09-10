@@ -1,4 +1,4 @@
-module BaseC/trans/types/BaseC-relation-is-assignable
+module BaseC-Type-relation-is-assignable
 
 imports
 
@@ -10,6 +10,7 @@ imports
   lib/runtime/relations/-
   BaseC/trans/desugar/-
   BaseC/trans/types/-
+  BaseC/trans/utils/-
 
 rules
 
@@ -34,10 +35,6 @@ rules
       ) <+ (
         task := t2
       )
-
-  get-base-type: Array(t) -> <get-base-type> t
-  get-base-type: Pointer(t) -> <get-base-type> t
-  get-base-type: t -> t
 
   relation-match-custom(|ctx) :
     ("<is-assignable:", t1, t2) -> <task-create-id(|ctx, [or72])> t2

@@ -1,0 +1,37 @@
+module BaseC-gen-types
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/utils/-
+  src-gen/pp/-
+
+strategies
+
+  gen-type: Int8() -> [Signed(), Char()]
+  gen-type: Int16() -> [Signed(), Short()]
+  gen-type: Int32() -> [Signed(), Int()]
+  gen-type: Int64() -> [Signed(), Long()]
+
+  gen-type: UInt8() -> [Unsigned(), Char()]
+  gen-type: UInt16() -> [Unsigned(), Short()]
+  gen-type: UInt32() -> [Unsigned(), Int()]
+  gen-type: UInt64() -> [Unsigned(), Long()]
+
+  gen-types =
+    gen-type
+    <+ ?e ; ![e]
+
+  gen-Type: Type(mods, type) -> specifiers
+    where
+      types := <get-base-type ; gen-types> type
+      ; specifiers := <concat ; uniq> [mods, types]
+
+  generate: AbstractParameter(specifiers, e) -> AbstractParameter(sps, e)
+    where
+      sps := <map(try(gen-type)) ; uniq> specifiers
+
+  generate: Parameter(specifiers, e) -> Parameter(sps, e)
+    where
+      sps := <map(try(gen-type)) ; uniq> specifiers
