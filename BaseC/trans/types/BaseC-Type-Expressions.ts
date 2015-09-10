@@ -118,7 +118,10 @@ type rules
   Sizeof(e): UInt8()
 
   ArrayField(e, index): t
-    where e: Array(t)
+    where (
+        e: Array(t)
+        or e: Pointer(t)
+      )
       and index: it
       and it <is: Int()
         else error "Integer expected as index" on index

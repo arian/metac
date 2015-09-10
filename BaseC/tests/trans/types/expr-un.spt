@@ -61,6 +61,10 @@ test array field [[
   void b() { [[(a[0])]]; } // with parens, because of spt
 ]] run get-type to Float32()
 
+test array field from a pointer [[
+  void b(int16 *a) { [[(a[0])]]; } // with parens, because of spt
+]] run get-type to Int16()
+
 test function call [[
   int8 f(){}
   void g() {
