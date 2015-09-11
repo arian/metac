@@ -18,10 +18,10 @@ rules
     i@Include(path) -> IncludeModule(resolved, i)
     where
       (_, file, project-path) := t
-      ; resolved := <concat-strings ; path-join(|"")> ["extern/", path, ".mc"]
+      ; resolved := <concat-strings ; path-join(|"") ; guarantee-extension(|"mc")> ["extern/", path]
 
   desugar(|t):
     i@IncludeLocal(path) -> IncludeModule(resolved, i)
     where
       (_, file, _) := t
-      ; resolved := <path-join(|<dirname> file)> path
+      ; resolved := <path-join(|<dirname> file) ; guarantee-extension(|"mc")> path

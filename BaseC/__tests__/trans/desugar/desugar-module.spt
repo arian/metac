@@ -13,7 +13,13 @@ test it should rename includes [[
   ])
 
 test it should rename local include [[
+  #include <stdio.h>
+]] run strip-annos to Program(_, [
+    IncludeModule("extern/stdio.mc", Include(_))
+  ])
+
+test it should rename local include [[
   #include "foo.mc"
 ]] run strip-annos to Program(_, [
-    IncludeModule("BaseC/tests/trans/desugar/foo.mc", IncludeLocal(_))
+    IncludeModule("BaseC/__tests__/trans/desugar/foo.mc", IncludeLocal(_))
   ])
