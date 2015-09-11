@@ -3,6 +3,7 @@ module Metac
 imports
 
   BaseC-Program
+  MetaC-StateMachine
 
 context-free start-symbols
 

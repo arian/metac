@@ -1,0 +1,53 @@
+module MetaC-StateMachine
+
+imports
+
+  Common
+  BaseC-Constants
+  BaseC-Declarations
+  BaseC-Identifiers
+  BaseC-FunDef
+  BaseC-Expr
+  BaseC-Stmt
+
+context-free syntax
+
+  Declaration =
+    StateMachine
+
+
+  StateMachine.StateMachine =
+    [statemachine [Identifier] {
+      init -> [Identifier];
+      [Declaration*]
+      [State+]
+    }
+    ]
+
+  State.State =
+    [state [Identifier] {
+      [Transition*]
+    }
+    ]
+
+
+  Transition.Transition =
+    [on [Event] [Guard] [Effect] -> [Identifier];]
+
+
+  Event.None = ""
+
+  Event.Event =
+    <<Identifier>(<ParameterList>)>
+
+
+  Guard.None = ""
+
+  Guard.Guard =
+    <[<Expr>]>
+
+
+  Effect.None = ""
+
+  Effect.Effect =
+    </ <Statement>>
