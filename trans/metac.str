@@ -27,8 +27,8 @@ imports
 rules // Analysis
 
   is-source-ast-test =
-    is-substring(!"BaseC/tests/syntax")
-    <+ is-substring(!"BaseC/tests/trans/pp")
+    is-substring(!"BaseC/__tests__/syntax")
+    <+ is-substring(!"BaseC/__tests__/trans/pp")
 
   editor-analyze =
     ?tuple

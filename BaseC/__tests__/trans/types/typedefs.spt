@@ -49,5 +49,5 @@ test typedef of another typedef with double pointer [[
   typedef int32 a;
   typedef a ** b;
   b x;
-  int32 y = *[[x]];
+  int32 *y = *[[x]];
 ]] run get-type to Pointer(Pointer(Int32()))
