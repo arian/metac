@@ -13,9 +13,9 @@ test function [[
 }"
 
 test function with array parameter [[
-  int32 a(int16 a[]) {
-    return a[1];
+  float64 a(float32 a[]) {
+    return 2.3;
   }
-]] build generate-c to "signed int a(signed int a[]) {
-  return a[1];
+]] build generate-c to "double a(float a[]) {
+  return 2.3;
 }"
