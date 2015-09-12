@@ -1,9 +1,0 @@
-module generate
-
-imports
-
-  include/Metac
-  BaseC/trans/generate/-
-
-rules
-

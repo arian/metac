@@ -23,7 +23,8 @@ type rules
   BlockInitializer([x | _]): Array(t)
     where x : t
 
-  VarDeclaration(_, Type(_, t), _, _, Some(init)) :-
+  d@VarDeclaration(_, _, _, _, Some(init)) :-
     where init : it
+      and definition of d : t
       and (t <is-assignable: it)
         else error $[Incompatible types when initializing type [t] using type [it]]  on init

@@ -17,28 +17,37 @@ context-free syntax
 
 
   StateMachine.StateMachine =
-    [statemachine [Identifier] {
-      init -> [Identifier];
-      [Declaration*]
+    [
+    statemachine [Identifier] {
+      init: [Identifier];
+      [{Declaration "\n"}*]
+      [Event*]
       [State+]
     }
     ]
 
+  Event.Event =
+    <event: <Identifier>(<ParameterList>);>
+
+
   State.State =
-    [state [Identifier] {
+    [
+    state [Identifier] {
+      [Entry]
       [Transition*]
     }
     ]
 
 
+  Entry.None = ""
+
+  Entry.Entry =
+    [
+    entry [CompoundStatement]
+    ]
+
   Transition.Transition =
-    [on [Event] [Guard] [Effect] -> [Identifier];]
-
-
-  Event.None = ""
-
-  Event.Event =
-    <<Identifier>(<ParameterList>)>
+    [on [Identifier?] [Guard] [Effect] -> [Identifier];]
 
 
   Guard.None = ""

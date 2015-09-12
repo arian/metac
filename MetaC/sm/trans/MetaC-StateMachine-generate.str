@@ -1,0 +1,197 @@
+module MetaC-StateMachine-generate
+
+imports
+
+  include/Metac
+  libstratego-lib
+
+rules
+
+  generate:
+    StateMachine(Identifier(name), Identifier(init), decls, events, states) ->
+    [
+      <gen-sm-struct> (name, decls),
+      <gen-sm-init> (name, init, states),
+      <gen-sm-exec> (name, states, events)
+    ]
+
+  // struct
+
+  gen-sm-struct: (name, decls) ->
+    Declaration(
+      [Typedef(), Struct(None(), struct-declarations)],
+      [Declarator(None(), Decl(Identifier(name)))]
+    )
+    where
+      struct-declarations := <conc> (
+        [
+          StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("state")))]),
+          StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("pstate")))])
+        ],
+        <map(gen-sm-variable)> decls
+      )
+
+  gen-sm-variable:
+    Declaration(type, declarator) -> StructDeclaration(type, declarator)
+
+  // init
+
+  gen-sm-init: (name, init, states) ->
+    FunDef(
+      [Void()],
+      FunDeclarator(
+        None(),
+        Identifier(<conc-strings> (name, "_init")),
+        ParameterList([
+          Parameter(
+            [TypedefName(Identifier(name))],
+            Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
+          )
+        ])
+      ),
+      [],
+      CompoundStatement([
+        <gen-sm-assign-pointer-field> ("sm", "state", Integer(initial)),
+        <gen-sm-assign-pointer-field> ("sm", "pstate", Integer("-1"))
+      ])
+    )
+    where
+      initial := <find-state-index> (init, states)
+
+  gen-sm-assign-pointer-field: (var, prop, val) ->
+    ExpressionStatement(Some(Assign(
+     <gen-sm-pointer-field> (var, prop),
+     Assign(),
+     val
+   )))
+
+  get-state-name: State(Identifier(name), _, _) -> name
+
+  find-state-index: (name, states) -> index
+    where
+      index := <add-indices
+        ; fetch-elem(\(i, state) -> <eq ; !<dec> i> (name, <get-state-name> state) \)
+        ; int-to-string> states
+
+  // exec function
+
+  gen-sm-exec: (name, states, events) ->
+    FunDef(
+      [Void()],
+      FunDeclarator(
+        None(),
+        Identifier(<conc-strings> (name, "_exec")),
+        ParameterList(
+          <conc> (
+            [
+              // state machine instance
+              Parameter(
+                [TypedefName(Identifier(name))],
+                Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
+              ),
+              // which event fired
+              Parameter(
+                [Int()],
+                Declarator(None(), Decl(Identifier("event")))
+              )
+            ],
+            // additional event arguments
+            event-params
+          )
+        )
+      ),
+      [],
+      CompoundStatement([
+        Declaration(
+          [Int()],
+          [InitDeclarator(Declarator(None(), Decl(Identifier("epsilon"))), Integer("1"))]
+        ), // int epsilon = 1;
+        While(Var(Identifier("epsilon")), CompoundStatement([      // while (epsilon) {}
+          // epsilon = 0;
+          ExpressionStatement(
+            Some(Assign(Var(Identifier("epsilon")), Assign(), Integer("0")))
+          ),
+          Switch(
+            // switch (sm->state) {}
+            PointerField(Var(Identifier("st")), Identifier("state")),
+            CompoundStatement(cases)
+          )
+        ]))
+      ])
+    )
+    where
+      numbered-events := <add-indices
+        ; map(\ (i, event) -> (<dec> i, <?Event(Identifier(<id>), _)> event)\)
+        > events
+      ; event-params := <map(?Event(_, ParameterList(<id>))) ; concat> events
+      ; let apply(|i) = <gen-sm-state(|states, numbered-events)> (i, <id>)
+          in cases := <nmap(apply | 0)> states
+        end
+
+  gen-sm-state(|states, events): (i, State(Identifier(name), entry, trans)) ->
+    Case(Integer(<int-to-string> i), CompoundStatement(
+      <concat> [<gen-sm-entry> entry, transitions, [Break()]]
+    ))
+    where
+      transitions := <map(gen-sm-transition(|states, events))> trans
+
+  gen-sm-entry: None() -> <gen-sm-entry> Entry(CompoundStatement([]))
+  gen-sm-entry: Entry(CompoundStatement(stmts)) -> [
+      If(
+        InEqual(<gen-sm-pointer-field> ("sm", "state"), <gen-sm-pointer-field> ("sm", "pstate")),
+        CompoundStatement(<conc> (stmts, [
+          <gen-sm-assign-pointer-field> ("sm", "pstate", <gen-sm-pointer-field> ("sm", "state"))
+        ]))
+      )
+    ]
+
+  gen-sm-pointer-field: (var, field) -> PointerField(Var(Identifier(var)), Identifier(field))
+
+  // epsilon transition
+  gen-sm-transition(|states, events): Transition(None(), guard, effect, Identifier(new-state))
+    -> If(predicate, body)
+    where
+      predicate := <gen-sm-guard> guard
+      ; new-state-index := <find-state-index> (new-state, states)
+      ; body := CompoundStatement(
+          <conc> (
+            <gen-sm-effect> effect,
+            [
+              ExpressionStatement( // epsilon = 1;
+                Some(Assign(Var(Identifier("epsilon")), Assign(), Integer("1")))
+              ),
+              <gen-sm-assign-pointer-field> ("sm", "state", Integer(new-state-index)),
+              Break()
+            ])
+          )
+
+  // event action
+  gen-sm-transition(|states, events):
+    Transition(Some(Identifier(event-name)), guard, effect, Identifier(new-state))
+    -> If(predicate, body)
+    where
+      event-index := <find-event-index> (event-name, events)
+      ; new-state-index := <find-state-index> (new-state, states)
+      ; predicate := LogicalAnd(
+          Equal(Var(Identifier("event")), Integer(<int-to-string> event-index)),
+          <gen-sm-guard> guard
+        )
+      ; body := CompoundStatement(
+          <conc> (
+            <gen-sm-effect> effect,
+            [
+              <gen-sm-assign-pointer-field> ("sm", "state", Integer(new-state-index)),
+              Break()
+            ]
+          )
+        )
+
+  find-event-index: (name, events) -> index
+    where
+      index := <fetch-elem(\ (i, event-name) -> <eq ; !i> (event-name, name) \)> events
+
+  gen-sm-guard: None() -> True()
+  gen-sm-guard: Guard(e) -> e
+
+  gen-sm-effect: None() -> []
+  gen-sm-effect: Effect(stmt) -> [stmt]

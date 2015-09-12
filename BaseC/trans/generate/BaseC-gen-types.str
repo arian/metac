@@ -33,8 +33,8 @@ strategies
 
   generate: AbstractParameter(specifiers, e) -> AbstractParameter(sps, e)
     where
-      sps := <map(try(gen-type)) ; uniq> specifiers
+      sps := <map(try(gen-type)) ; flatten-list ; uniq> specifiers
 
   generate: Parameter(specifiers, e) -> Parameter(sps, e)
     where
-      sps := <map(try(gen-type)) ; uniq> specifiers
+      sps := <map(try(gen-type)) ; flatten-list ; uniq> specifiers

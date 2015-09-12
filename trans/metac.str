@@ -17,7 +17,7 @@ imports
   lib/runtime/editor/-
   names
   check
-  generate
+  generate-c
   pp
   test-utils
   desugar/-

@@ -1,8 +1,10 @@
-module BaseC-generate-c
+module generate-c
 
 imports
 
   include/Metac
+  BaseC/trans/generate/-
+  MetaC/sm/trans/MetaC-StateMachine-generate
   pp
   libstratego-lib
 
@@ -17,4 +19,4 @@ strategies
   generate-c: (selected, position, ast, path, project-path) -> (file-name, code)
     where
       file-name := <guarantee-extension(|"c")> path
-      ; code := <topdown(try(generate) ; try(flatten-list)) ; generate-pp> ast
+      ; code := <bottomup(try(generate) ; try(flatten-list)) ; generate-pp> ast
