@@ -8,9 +8,24 @@ test variable declarations [[
   int32 a,b,c;
 ]] build generate-c to "signed int a; signed int b; signed int c;"
 
-test block initializers  [[
+test block initializers [[
   static int32 a[] = {1,2,3};
 ]] build generate-c to "static signed int a[] = {1, 2, 3};"
+
+test typedef declaration [[
+  typedef uint32 a;
+]] build generate-c to "typedef unsigned int a;"
+
+test typedef declaration of a struct [[
+  typedef struct { int32 x; } a;
+]] build generate-c to "typedef struct { signed int x; } a;"
+
+test typedef declaration of a struct with a size [[
+  typedef struct { int32 x; int32 y : 4; } a;
+]] build generate-c to "typedef struct  {
+    signed int x;
+    signed int y : 4;
+  } a;"
 
 test paren decl [[
   void a(b, c);

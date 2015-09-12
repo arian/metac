@@ -20,7 +20,7 @@ test generate minimal state machine C code [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {
@@ -52,7 +52,7 @@ test generate minimal two states [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {
@@ -98,7 +98,7 @@ test sm with epsilon transition [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {
@@ -156,7 +156,7 @@ test sm with transition with params [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {
@@ -201,7 +201,7 @@ test sm with local variables [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {
@@ -236,7 +236,7 @@ test sm state with an entry [[
     int epsilon = 1;
     while (epsilon) {
       epsilon = 0;
-      switch (st->state) {
+      switch (sm->state) {
         case 0:
           {
             if (sm->state != sm->pstate) {

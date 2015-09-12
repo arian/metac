@@ -113,7 +113,7 @@ rules
           ),
           Switch(
             // switch (sm->state) {}
-            PointerField(Var(Identifier("st")), Identifier("state")),
+            PointerField(Var(Identifier("sm")), Identifier("state")),
             CompoundStatement(cases)
           )
         ]))
