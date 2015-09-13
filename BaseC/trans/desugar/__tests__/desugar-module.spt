@@ -21,5 +21,5 @@ test it should rename local include [[
 test it should rename local include [[
   #include "foo.mc"
 ]] run strip-annos to Program(_, [
-    IncludeModule("BaseC/__tests__/trans/desugar/foo.mc", IncludeLocal(_))
+    IncludeModule("BaseC/trans/desugar/__tests__/foo.mc", IncludeLocal(_))
   ])
