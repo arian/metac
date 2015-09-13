@@ -11,6 +11,7 @@ rules
     StateMachine(Identifier(name), Identifier(init), decls, events, states) ->
     [
       <gen-sm-struct> (name, decls),
+      <gen-sm-transition-func> (name, states),
       <gen-sm-init> (name, init, states),
       <gen-sm-exec> (name, states, events)
     ]
@@ -24,10 +25,7 @@ rules
     )
     where
       struct-declarations := <conc> (
-        [
-          StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("state")))]),
-          StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("pstate")))])
-        ],
+        [StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("state")))])],
         <map(gen-sm-variable)> decls
       )
 
@@ -51,8 +49,13 @@ rules
       ),
       [],
       CompoundStatement([
-        <gen-sm-assign-pointer-field> ("sm", "state", Integer(initial)),
-        <gen-sm-assign-pointer-field> ("sm", "pstate", Integer("-1"))
+        ExpressionStatement(Some(Call(
+          Var(Identifier(<conc-strings> (name, "_transition_to_state"))),
+          [
+            Var(Identifier("sm")),
+            Integer(initial)
+          ]
+        )))
       ])
     )
     where
@@ -64,6 +67,8 @@ rules
      Assign(),
      val
    )))
+
+  gen-sm-pointer-field: (var, field) -> PointerField(Var(Identifier(var)), Identifier(field))
 
   get-state-name: State(Identifier(name), _, _) -> name
 
@@ -104,13 +109,11 @@ rules
       CompoundStatement([
         Declaration(
           [Int()],
-          [InitDeclarator(Declarator(None(), Decl(Identifier("epsilon"))), Integer("1"))]
-        ), // int epsilon = 1;
-        While(Var(Identifier("epsilon")), CompoundStatement([      // while (epsilon) {}
-          // epsilon = 0;
-          ExpressionStatement(
-            Some(Assign(Var(Identifier("epsilon")), Assign(), Integer("0")))
-          ),
+          [InitDeclarator(Declarator(None(), Decl(Identifier("cont"))), Integer("1"))]
+        ), // int cont = 1;
+        While(Var(Identifier("cont")), CompoundStatement([ // while (cont) {}
+          // cont = 0;
+          <gen-sm-assign-var> ("cont", Integer("0")),
           Switch(
             // switch (sm->state) {}
             PointerField(Var(Identifier("sm")), Identifier("state")),
@@ -124,63 +127,55 @@ rules
         ; map(\ (i, event) -> (<dec> i, <?Event(Identifier(<id>), _)> event)\)
         > events
       ; event-params := <map(?Event(_, ParameterList(<id>))) ; concat> events
-      ; let apply(|i) = <gen-sm-state(|states, numbered-events)> (i, <id>)
+      ; let apply(|i) = <gen-sm-state(|name, states, numbered-events)> (i, <id>)
           in cases := <nmap(apply | 0)> states
         end
 
-  gen-sm-state(|states, events): (i, State(Identifier(name), entry, trans)) ->
+  gen-sm-assign-var: (var, val) ->
+    ExpressionStatement(
+      Some(Assign(Var(Identifier(var)), Assign(), val))
+    )
+
+  gen-sm-state(|name, states, events): (i, State(_, entry, trans)) ->
     Case(Integer(<int-to-string> i), CompoundStatement(
-      <concat> [<gen-sm-entry> entry, transitions, [Break()]]
+      <conc> (transitions, [Break()])
     ))
     where
-      transitions := <map(gen-sm-transition(|states, events))> trans
-
-  gen-sm-entry: None() -> <gen-sm-entry> Entry(CompoundStatement([]))
-  gen-sm-entry: Entry(CompoundStatement(stmts)) -> [
-      If(
-        InEqual(<gen-sm-pointer-field> ("sm", "state"), <gen-sm-pointer-field> ("sm", "pstate")),
-        CompoundStatement(<conc> (stmts, [
-          <gen-sm-assign-pointer-field> ("sm", "pstate", <gen-sm-pointer-field> ("sm", "state"))
-        ]))
-      )
-    ]
-
-  gen-sm-pointer-field: (var, field) -> PointerField(Var(Identifier(var)), Identifier(field))
+      transitions := <map(gen-sm-transition(|name, states, events))> trans
 
   // epsilon transition
-  gen-sm-transition(|states, events): Transition(None(), guard, effect, Identifier(new-state))
-    -> If(predicate, body)
+  gen-sm-transition(|name, states, events):
+    Transition(None(), guard, effect, Identifier(new-state))
+    -> <gen-sm-transition-internal> (name, predicate, effect, new-state-index)
     where
       predicate := <gen-sm-guard> guard
       ; new-state-index := <find-state-index> (new-state, states)
-      ; body := CompoundStatement(
-          <conc> (
-            <gen-sm-effect> effect,
-            [
-              ExpressionStatement( // epsilon = 1;
-                Some(Assign(Var(Identifier("epsilon")), Assign(), Integer("1")))
-              ),
-              <gen-sm-assign-pointer-field> ("sm", "state", Integer(new-state-index)),
-              Break()
-            ])
-          )
 
   // event action
-  gen-sm-transition(|states, events):
+  gen-sm-transition(|name, states, events):
     Transition(Some(Identifier(event-name)), guard, effect, Identifier(new-state))
-    -> If(predicate, body)
+    -> <gen-sm-transition-internal> (name, predicate, effect, new-state-index)
     where
       event-index := <find-event-index> (event-name, events)
-      ; new-state-index := <find-state-index> (new-state, states)
       ; predicate := LogicalAnd(
           Equal(Var(Identifier("event")), Integer(<int-to-string> event-index)),
           <gen-sm-guard> guard
         )
-      ; body := CompoundStatement(
+      ; new-state-index := <find-state-index> (new-state, states)
+
+  gen-sm-transition-internal: (name, predicate, effect, new-state-index)
+    -> If(predicate, body)
+    where
+      body := CompoundStatement(
           <conc> (
             <gen-sm-effect> effect,
             [
-              <gen-sm-assign-pointer-field> ("sm", "state", Integer(new-state-index)),
+              <gen-sm-assign-var> ("cont", Integer("1")),
+              <gen-sm-assign-var> ("event", Integer("-1")),
+              ExpressionStatement(Some(Call(
+                Var(Identifier(<conc-strings> (name, "_transition_to_state"))),
+                [Var(Identifier("sm")), Integer(new-state-index)]
+              ))),
               Break()
             ]
           )
@@ -195,3 +190,42 @@ rules
 
   gen-sm-effect: None() -> []
   gen-sm-effect: Effect(stmt) -> [stmt]
+
+  // x_transition_to_state
+  gen-sm-transition-func: (name, states) -> FunDef(
+      [Void()],
+      FunDeclarator(
+        None(),
+        Identifier(<conc-strings> (name, "_transition_to_state")),
+        ParameterList([
+          Parameter(
+            [TypedefName(Identifier(name))],
+            Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
+          ),
+          Parameter([Int()], Declarator(None(), Decl(Identifier("goal"))))
+        ])
+      ),
+      [],
+      CompoundStatement(<concat> [
+        <gen-sm-entries-switch> entries,
+        [<gen-sm-assign-pointer-field> ("sm", "state", Var(Identifier("goal")))]
+      ])
+    )
+    where
+      entries := <add-indices
+        ; filter(\ (i, state) -> (<dec> i, <?State(_, <id>, _) ; ?Entry(_)> state) \)
+        > states
+
+  gen-sm-entries-switch: [] -> []
+  gen-sm-entries-switch: entries -> [
+      Switch(
+        Var(Identifier("goal")),
+        CompoundStatement(<map(gen-sm-entry-case)> entries)
+      )
+    ]
+
+  gen-sm-entry-case: (state-index, Entry(CompoundStatement(stmts))) ->
+    Case(
+      Integer(<int-to-string> state-index),
+      CompoundStatement(<conc> (stmts, [Break()]))
+    )

@@ -8,29 +8,28 @@ test generate minimal state machine C code [[
     state start {}
   }
 ]] build generate-c to "
-  typedef struct {
+  typedef struct  {
     int state;
-    int pstate;
   } X;
-  void X_init(X *sm) {
-    sm->state = 0;
-    sm->pstate = -1;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
+  void X_init (X *sm) {
+    X_transition_to_state(sm, 0);
   }
   void X_exec (X *sm, int event) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
           {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
             break ;
           }
       }
     }
-  }"
+  }
+  "
 
 test generate minimal two states [[
   statemachine X {
@@ -42,35 +41,24 @@ test generate minimal two states [[
 ]] build generate-c to "
   typedef struct {
     int state;
-    int pstate;
   } X;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
   void X_init(X *sm) {
-    sm->state = 1;
-    sm->pstate = -1;
+    X_transition_to_state(sm, 1);
   }
   void X_exec(X *sm, int event) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ; }
+          { break ; }
         case 1:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ; }
+          { break ; }
         case 2:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ; }
+          { break ; }
       }
     }
   }"
@@ -88,48 +76,39 @@ test sm with epsilon transition [[
 ]] build generate-c to "
   typedef struct {
     int state;
-    int pstate;
   } X;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
   void X_init(X *sm) {
-    sm->state = 1;
-    sm->pstate = -1;
+    X_transition_to_state(sm, 1);
   }
   void X_exec (X *sm, int event) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ;
+          { break ;
           }
         case 1:
           {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
             if (1 < 2) {
-              epsilon = 1;
-              sm->state = 0;
+              cont = 1;
+              event = -1;
+              X_transition_to_state(sm, 0);
               break ;
             }
             if (true) {
-              epsilon = 1;
-              sm->state = 2;
+              cont = 1;
+              event = -1;
+              X_transition_to_state(sm, 2);
               break ;
             }
             break ;
           }
         case 2:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ;
-          }
+          { break ; }
       }
     }
   }"
@@ -146,40 +125,34 @@ test sm with transition with params [[
 ]] build generate-c to "
   typedef struct {
     int state;
-    int pstate;
   } X;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
   void X_init(X *sm) {
-    sm->state = 0;
-    sm->pstate = -1;
+    X_transition_to_state(sm, 0);
   }
   void X_exec (X *sm, int event, signed int a, signed int b) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
           {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
             if (event == 0 && 1 > 2) {
               1;
-              sm->state = 1;
+              cont = 1;
+              event = -1;
+              X_transition_to_state(sm, 1);
               break ;
             }
             break ;
           }
         case 1:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ;
-          }
+          { break ; }
       }
     }
   }"
-
 
 test sm with local variables [[
   statemachine X {
@@ -190,29 +163,24 @@ test sm with local variables [[
 ]] build generate-c to "
   typedef struct {
     int state;
-    int pstate;
     signed int x;
   } X;
-  void X_init(X *sm) {
-    sm->state = 0;
-    sm->pstate = -1;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
+  void X_init (X *sm) {
+    X_transition_to_state(sm, 0);
   }
   void X_exec (X *sm, int event) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
-          {
-            if (sm->state != sm->pstate) {
-              sm->pstate = sm->state;
-            }
-            break ;
-          }
+          { break ; }
       }
     }
   }"
-
 
 test sm state with an entry [[
   statemachine X {
@@ -226,26 +194,26 @@ test sm state with an entry [[
 ]] build generate-c to "
   typedef struct {
     int state;
-    int pstate;
   } X;
+  void X_transition_to_state (X *sm, int goal) {
+    switch (goal) {
+      case 0: {
+        1;
+        break;
+      }
+    }
+    sm->state = goal;
+  }
   void X_init(X *sm) {
-    sm->state = 0;
-    sm->pstate = -1;
+    X_transition_to_state(sm, 0);
   }
   void X_exec (X *sm, int event) {
-    int epsilon = 1;
-    while (epsilon) {
-      epsilon = 0;
+    int cont = 1;
+    while (cont) {
+      cont = 0;
       switch (sm->state) {
         case 0:
-          {
-            if (sm->state != sm->pstate) {
-              1;
-              sm->pstate = sm->state;
-            }
-            break ;
-          }
+          { break ; }
       }
     }
   }"
-

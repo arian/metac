@@ -21,8 +21,8 @@ context-free syntax
     statemachine [Identifier] {
       init: [Identifier];
       [{Declaration "\n"}*]
-      [Event*]
-      [State+]
+      [{Event "\n"}*]
+      [{State "\n"}+]
     }
     ]
 
@@ -35,8 +35,7 @@ context-free syntax
     state [Identifier] {
       [Entry]
       [Transition*]
-    }
-    ]
+    }]
 
 
   Entry.None = ""
