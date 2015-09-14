@@ -1,0 +1,27 @@
+module MetaC-StateMachine-desugar
+
+imports
+
+  include/Metac
+  MetaC/sm/trans/MetaC-StateMachine-constructors
+
+rules
+
+  add-index-to-event-def:
+    (index, Event(name, params))
+    -> Event(<dec> index, name, params)
+
+  desugar: list@[l | _] -> <add-indices
+    ; map(add-index-to-event-def)
+    > list
+    where
+      <?Event(_, _)> l
+
+  desugar01: Declaration(
+      [TypedefName(Identifier("statemachine")), TypedefName(Identifier(sm-name))],
+      [Declarator(None(), Decl(Identifier(var-name)))]
+    ) -> StateMachineVariable(
+      Identifier(sm-name),
+      Identifier(var-name)
+    )
+

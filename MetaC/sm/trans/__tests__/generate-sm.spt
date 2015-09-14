@@ -217,3 +217,86 @@ test sm state with an entry [[
       }
     }
   }"
+
+test init statemachine code [[
+  statemachine X {
+    init: start;
+    state start {}
+  }
+  void main () {
+    statemachine X y;
+  }
+]] build generate-c to "
+  typedef struct  {
+    int state;
+  } X;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
+  void X_init (X *sm) {
+    X_transition_to_state(sm, 0);
+  }
+  void X_exec (X *sm, int event) {
+    int cont = 1;
+    while (cont) {
+      cont = 0;
+      switch (sm->state) {
+        case 0:
+          {
+            break ;
+          }
+      }
+    }
+  }
+  void main () {
+    X y;
+    X_init(&y);
+  }
+  "
+
+test statemachine trigger event without params [[
+  statemachine X {
+    init: start;
+    event: foo();
+    state start {
+      on foo -> start;
+    }
+  }
+  void main () {
+    statemachine X y;
+    y<|foo();
+  }
+]] build generate-c to "
+  typedef struct  {
+    int state;
+  } X;
+  void X_transition_to_state (X *sm, int goal) {
+    sm->state = goal;
+  }
+  void X_init (X *sm) {
+    X_transition_to_state(sm, 0);
+  }
+  void X_exec (X *sm, int event) {
+    int cont = 1;
+    while (cont) {
+      cont = 0;
+      switch (sm->state) {
+        case 0:
+          {
+            if (event == 0 && true) {
+              cont = 1;
+              event = -1;
+              X_transition_to_state(sm, 0);
+              break ;
+            }
+            break ;
+          }
+      }
+    }
+  }
+  void main () {
+    X y;
+    X_init(&y);
+    X_exec(&y, 0);
+  }
+  "

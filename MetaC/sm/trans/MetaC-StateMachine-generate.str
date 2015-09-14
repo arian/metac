@@ -2,13 +2,18 @@ module MetaC-StateMachine-generate
 
 imports
 
-  include/Metac
   libstratego-lib
+  lib/runtime/properties/-
+  lib/runtime/types/-
+  include/Metac
+  MetaC/sm/trans/-
 
 rules
 
-  generate:
-    StateMachine(Identifier(name), Identifier(init), decls, events, states) ->
+  generate = generate-sm
+
+  generate-sm:
+    StateMachine(Identifier(name), InitState(Identifier(init)), decls, events, states) ->
     [
       <gen-sm-struct> (name, decls),
       <gen-sm-transition-func> (name, states),
@@ -39,10 +44,10 @@ rules
       [Void()],
       FunDeclarator(
         None(),
-        Identifier(<conc-strings> (name, "_init")),
+        Identifier(<conc-strings> (sa-name, "_init")),
         ParameterList([
           Parameter(
-            [TypedefName(Identifier(name))],
+            [TypedefName(Identifier(sa-name))],
             Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
           )
         ])
@@ -50,7 +55,7 @@ rules
       [],
       CompoundStatement([
         ExpressionStatement(Some(Call(
-          Var(Identifier(<conc-strings> (name, "_transition_to_state"))),
+          Var(Identifier(<conc-strings> (sa-name, "_transition_to_state"))),
           [
             Var(Identifier("sm")),
             Integer(initial)
@@ -60,6 +65,7 @@ rules
     )
     where
       initial := <find-state-index> (init, states)
+      ; sa-name := <strip-annos> name
 
   gen-sm-assign-pointer-field: (var, prop, val) ->
     ExpressionStatement(Some(Assign(
@@ -75,7 +81,7 @@ rules
   find-state-index: (name, states) -> index
     where
       index := <add-indices
-        ; fetch-elem(\(i, state) -> <eq ; !<dec> i> (name, <get-state-name> state) \)
+        ; fetch-elem(\(i, state) -> <strip-annos ; eq ; !<dec> i> (name, <get-state-name> state) \)
         ; int-to-string> states
 
   // exec function
@@ -85,7 +91,7 @@ rules
       [Void()],
       FunDeclarator(
         None(),
-        Identifier(<conc-strings> (name, "_exec")),
+        Identifier(<conc-strings> (sa-name, "_exec")),
         ParameterList(
           <conc> (
             [
@@ -123,11 +129,9 @@ rules
       ])
     )
     where
-      numbered-events := <add-indices
-        ; map(\ (i, event) -> (<dec> i, <?Event(Identifier(<id>), _)> event)\)
-        > events
-      ; event-params := <map(?Event(_, ParameterList(<id>))) ; concat> events
-      ; let apply(|i) = <gen-sm-state(|name, states, numbered-events)> (i, <id>)
+      sa-name := <strip-annos> name
+      ; event-params := <map(?Event(_, _, ParameterList(<id>))) ; concat> events
+      ; let apply(|i) = <gen-sm-state(|name, states, events)> (i, <id>)
           in cases := <nmap(apply | 0)> states
         end
 
@@ -156,7 +160,7 @@ rules
     Transition(Some(Identifier(event-name)), guard, effect, Identifier(new-state))
     -> <gen-sm-transition-internal> (name, predicate, effect, new-state-index)
     where
-      event-index := <find-event-index> (event-name, events)
+      event-index := <get-property(|NablProp_event-index())> event-name
       ; predicate := LogicalAnd(
           Equal(Var(Identifier("event")), Integer(<int-to-string> event-index)),
           <gen-sm-guard> guard
@@ -166,24 +170,21 @@ rules
   gen-sm-transition-internal: (name, predicate, effect, new-state-index)
     -> If(predicate, body)
     where
-      body := CompoundStatement(
+      sa-name := <strip-annos> name
+      ; body := CompoundStatement(
           <conc> (
             <gen-sm-effect> effect,
             [
               <gen-sm-assign-var> ("cont", Integer("1")),
               <gen-sm-assign-var> ("event", Integer("-1")),
               ExpressionStatement(Some(Call(
-                Var(Identifier(<conc-strings> (name, "_transition_to_state"))),
+                Var(Identifier(<conc-strings> (sa-name, "_transition_to_state"))),
                 [Var(Identifier("sm")), Integer(new-state-index)]
               ))),
               Break()
             ]
           )
         )
-
-  find-event-index: (name, events) -> index
-    where
-      index := <fetch-elem(\ (i, event-name) -> <eq ; !i> (event-name, name) \)> events
 
   gen-sm-guard: None() -> True()
   gen-sm-guard: Guard(e) -> e
@@ -196,7 +197,7 @@ rules
       [Void()],
       FunDeclarator(
         None(),
-        Identifier(<conc-strings> (name, "_transition_to_state")),
+        Identifier(<conc-strings> (sa-name, "_transition_to_state")),
         ParameterList([
           Parameter(
             [TypedefName(Identifier(name))],
@@ -212,7 +213,8 @@ rules
       ])
     )
     where
-      entries := <add-indices
+      sa-name := <strip-annos> name
+      ; entries := <add-indices
         ; filter(\ (i, state) -> (<dec> i, <?State(_, <id>, _) ; ?Entry(_)> state) \)
         > states
 
@@ -229,3 +231,31 @@ rules
       Integer(<int-to-string> state-index),
       CompoundStatement(<conc> (stmts, [Break()]))
     )
+
+
+  // call site
+
+  generate: StateMachineVariable(name, var)
+    -> [
+      Declaration(
+        [TypedefName(name)],
+        [Declarator(None(), Decl(var))]
+      ),
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier(<conc-strings> (sa-name, "_init"))),
+          [Address(Var(var))]
+        )
+      ))
+    ]
+    where
+      sa-name := <strip-annos ; ?Identifier(<id>)> name
+
+  generate: StateMachineTriggerEvent(e, event@Identifier(name), params)
+    -> Call(
+      Var(Identifier(<conc-strings> (sa-name, "_exec"))),
+      [Address(e), Integer(<int-to-string> index)]
+    )
+    where
+      index := <get-property(|NablProp_event-index())> name
+      ; sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e

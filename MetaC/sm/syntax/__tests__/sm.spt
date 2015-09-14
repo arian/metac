@@ -13,7 +13,7 @@ test parse empty sm [[
 ]] parse to Program(_, [
     StateMachine(
       Identifier("Name"),
-      Identifier("start"),
+      InitState(Identifier("start")),
       [], [],
       [State(Identifier("start"), None(), [])]
     )

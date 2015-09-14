@@ -12,11 +12,18 @@ strategies
 
   generate = fail
 
+  generate(|t) = fail
+
   generate-pp =
     pp-debug // try to pretty print
     <+ debug // or print the AST
 
-  generate-c: (selected, position, ast, path, project-path) -> (file-name, code)
+  generate-c: t@(selected, position, ast, path, project-path) -> (file-name, code)
     where
       file-name := <guarantee-extension(|"c")> path
-      ; code := <bottomup(try(generate) ; try(flatten-list)) ; generate-pp> ast
+      ; code := <bottomup(
+          try(generate(|t))
+          ; try(generate)
+          ; try(flatten-list)
+        )
+        ; generate-pp> ast

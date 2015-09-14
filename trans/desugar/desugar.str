@@ -3,8 +3,12 @@ module desugar
 imports
 
   BaseC/trans/desugar/-
+  MetaC/sm/trans/MetaC-StateMachine-desugar
 
 rules
+
+  desugar01 =
+    fail
 
   desugar(|t) =
     fail
@@ -13,4 +17,9 @@ rules
     fail
 
   desugar-all(|t) =
-    bottomup(try(desugar(|t)) ; try(desugar) ; try(flatten-list))
+    bottomup(
+      try(desugar01)
+      ; try(desugar(|t))
+      ; try(desugar)
+      ; try(flatten-list)
+   )

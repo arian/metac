@@ -19,12 +19,17 @@ context-free syntax
   StateMachine.StateMachine =
     [
     statemachine [Identifier] {
-      init: [Identifier];
+      [InitState]
       [{Declaration "\n"}*]
       [{Event "\n"}*]
       [{State "\n"}+]
     }
     ]
+
+
+  InitState.InitState =
+    [init: [Identifier];]
+
 
   Event.Event =
     <event: <Identifier>(<ParameterList>);>
@@ -59,3 +64,7 @@ context-free syntax
 
   Effect.Effect =
     </ <Statement>>
+
+
+  PostFixExpr.StateMachineTriggerEvent =
+    [[PostFixExpr] <| [Identifier]([{AExpr ", "}*])]

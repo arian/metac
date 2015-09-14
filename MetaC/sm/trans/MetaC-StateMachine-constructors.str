@@ -1,0 +1,13 @@
+module MetaC-StateMachine-constructors
+
+imports
+
+  include/Metac
+
+signature constructors
+
+  StateMachineVariable: Identifier * Identifier -> StateMachineVariable
+
+  StateMachine: Identifier -> StateMachine
+
+  Event: Index * Identifier * List(Parameter) -> Event

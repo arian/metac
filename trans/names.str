@@ -9,6 +9,7 @@ imports
   lib/runtime/editor/-
   include/Metac
   BaseC/trans/names/BaseC-names
+  MetaC/sm/trans/MetaC-StateMachine-names
 
 
 signature
