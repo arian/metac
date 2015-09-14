@@ -1,4 +1,4 @@
-module MetaC/sm/trans/generate
+module MetaC/sm/trans/generate-c
 
 imports
 

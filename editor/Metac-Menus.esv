@@ -33,3 +33,4 @@ menus
   menu: "Generation"                   (openeditor) (realtime)
 
     action: "Generate C"             = generate-c
+    action: "Generate DOT"           = generate-dot

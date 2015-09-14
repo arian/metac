@@ -1,0 +1,25 @@
+module generate-dot
+
+imports
+
+  include/Metac
+
+rules
+
+  can-generate-dot: sm@StateMachine(_, _, _, _, _) -> sm
+
+  generate-dot: StateMachine(Identifier(name), InitState(Identifier(star-state)), decls, events, states)
+    ->
+    <concat-strings ; debug> [
+      "digraph ", <strip-annos> name, " {
+        rankdir=LR;
+        size=\"8,5\"
+        node [shape = doublecircle]; ", terminal-states, "
+        node [shape = cirle]; ", non-terminal-states, "
+        ", transitions, "
+      }"
+    ]
+    where
+      terminal-states := ""
+      ; non-terminal-states := ""
+      ; transitions := ""
