@@ -160,7 +160,7 @@ rules
     Transition(Some(Identifier(event-name)), guard, effect, Identifier(new-state))
     -> <gen-sm-transition-internal> (name, predicate, effect, new-state-index)
     where
-      event-index := <get-property(|NablProp_event-index())> event-name
+      event-index := <get-event-index> event-name
       ; predicate := LogicalAnd(
           Equal(Var(Identifier("event")), Integer(<int-to-string> event-index)),
           <gen-sm-guard> guard
@@ -257,5 +257,5 @@ rules
       [Address(e), Integer(<int-to-string> index)]
     )
     where
-      index := <get-property(|NablProp_event-index())> name
+      index := <get-event-index> name
       ; sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
