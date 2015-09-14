@@ -1,4 +1,4 @@
-module MetaC-StateMachine-generate
+module MetaC/sm/trans/generate
 
 imports
 

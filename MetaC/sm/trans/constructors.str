@@ -1,4 +1,4 @@
-module MetaC-StateMachine-constructors
+module MetaC/sm/trans/constructors
 
 imports
 

@@ -1,8 +1,8 @@
-module MetaC-StateMachine-names-custom
+module MetaC/sm/trans/names-custom
 
 imports
   include/Metac
-  MetaC/sm/trans/MetaC-StateMachine-names
+  MetaC/sm/trans/names
 
 rules
 

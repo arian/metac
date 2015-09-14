@@ -1,4 +1,4 @@
-module MetaC-StateMachine
+module MetaC/sm/syntax/sm
 
 imports
 

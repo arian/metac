@@ -1,9 +1,9 @@
-module MetaC-StateMachine-desugar
+module MetaC/sm/trans/desugar
 
 imports
 
   include/Metac
-  MetaC/sm/trans/MetaC-StateMachine-constructors
+  MetaC/sm/trans/constructors
 
 rules
 

@@ -1,10 +1,10 @@
-module MetaC-StateMachine-names
+module MetaC/sm/trans/names
 
 imports
 
   include/Metac
   BaseC/trans/names/-
-  MetaC/sm/trans/MetaC-StateMachine-constructors
+  MetaC/sm/trans/constructors
 
 namespaces
 

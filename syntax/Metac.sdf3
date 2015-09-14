@@ -3,9 +3,8 @@ module Metac
 imports
 
   BaseC-Program
-  MetaC-StateMachine
+  MetaC/sm/syntax/sm
 
 context-free start-symbols
 
   Program
-

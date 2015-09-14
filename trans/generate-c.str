@@ -4,7 +4,7 @@ imports
 
   include/Metac
   BaseC/trans/generate/-
-  MetaC/sm/trans/MetaC-StateMachine-generate
+  MetaC/sm/trans/generate
   pp
   libstratego-lib
 

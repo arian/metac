@@ -1,4 +1,4 @@
-module MetaC-StateMachine-names
+module MetaC/sm/trans/names
 
 imports
   lib/runtime/nabl/-
@@ -9,7 +9,7 @@ imports
   lib/runtime/editor/-
   include/Metac
   BaseC/trans/names/-
-  MetaC/sm/trans/MetaC-StateMachine-constructors
+  MetaC/sm/trans/constructors
 
 
 signature

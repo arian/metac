@@ -3,7 +3,7 @@ module desugar
 imports
 
   BaseC/trans/desugar/-
-  MetaC/sm/trans/MetaC-StateMachine-desugar
+  MetaC/sm/trans/desugar
 
 rules
 

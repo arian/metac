@@ -1,10 +1,10 @@
-module names
+module trans/names
 
 imports
 
   include/Metac
   BaseC/trans/names/BaseC-names
-  MetaC/sm/trans/MetaC-StateMachine-names
+  MetaC/sm/trans/names
 
 namespaces
 
