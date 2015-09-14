@@ -11,10 +11,11 @@ namespaces
 
 binding rules
 
-  // file
-  Program(file, _):
-    defines Module file
-    scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union
+  // file: the scopes of a file is defined in the -custom file, so language
+  // extensions can add their own namespaces to the file's scope
+  // Program(file, _):
+  //   defines Module file
+  //   scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union
 
   IncludeModule(m, _):
     imports Typedef, Function, Enum, Enumerator, Struct, Union, Variable from Module m

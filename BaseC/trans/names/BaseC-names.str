@@ -30,56 +30,6 @@ rules
 
 rules
 
-  nabl-get-scope =
-    ?Program(file, _)
-    ; ![ NablNsVariable()
-       , NablNsTypedef()
-       , NablNsFunction()
-       , NablNsEnum()
-       , NablNsEnumerator()
-       , NablNsStruct()
-       , NablNsUnion()
-       ]
-
-  nabl-get-name :
-    Program(file, _) -> file
-
-  nabl-name-apply(s) =
-    Program(s, id)
-
-  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Program(file, _)
-    ; origin-track-forced(
-        Program(
-          nabl-def(
-            ?c-uri1__
-          , ?s-uri1__
-          | lang__
-          , ctx__
-          , uniques__
-          , uri__
-          , uri__
-          , NablNsModule()
-          , Unique()
-          , Current()
-          , [ NablNsVariable()
-            , NablNsTypedef()
-            , NablNsFunction()
-            , NablNsEnum()
-            , NablNsEnumerator()
-            , NablNsStruct()
-            , NablNsUnion()
-            ]
-          , []
-          )
-        , id
-        )
-      |
-      )
-    ; match(child-uris__|c-uri1__)
-    ; match(sibl-uris__|s-uri1__)
-    ; match(implicits__|[])
-
   nabl-get-name :
     IncludeModule(m, _) -> m
 

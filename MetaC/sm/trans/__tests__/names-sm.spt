@@ -56,3 +56,25 @@ test global variable [[
     }
   }
 ]] resolve #2 to #1
+
+test statemachine instantiation [[
+  statemachine [[X]] {
+    init: start;
+    state start {}
+  }
+  void main () {
+    statemachine [[X]] y;
+  }
+]] resolve #2 to #1
+
+test statemachine event trigger [[
+  statemachine X {
+    init: start;
+    event: [[foo]]();
+    state start {}
+  }
+  void main () {
+    statemachine X y;
+    y<|[[foo]]();
+  }
+]] resolve #2 to #1
