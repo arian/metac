@@ -5,21 +5,25 @@ imports
   libstratego-lib
   lib/runtime/properties/-
   lib/runtime/types/-
+  lib/runtime/nabl/-
   include/Metac
   MetaC/sm/trans/-
+  BaseC/trans/desugar/-
 
 rules
 
   generate = generate-sm
 
   generate-sm:
-    StateMachine(Identifier(name), InitState(Identifier(init)), decls, events, states) ->
+    sm@StateMachine(Identifier(name), InitState(Identifier(init)), decls, events, states) ->
     [
       <gen-sm-struct> (name, decls),
-      <gen-sm-transition-func> (name, states),
-      <gen-sm-init> (name, init, states),
-      <gen-sm-exec> (name, states, events)
+      <gen-sm-transition-func> (name, states'),
+      <gen-sm-init> (name, init, states', decls),
+      <gen-sm-exec> (name, states', events)
     ]
+    where
+      states' := <gen-sm-local-vars> (states, sm)
 
   // struct
 
@@ -35,11 +39,14 @@ rules
       )
 
   gen-sm-variable:
+    Declaration(type, [InitDeclarator(declarator, _)]) -> StructDeclaration(type, [declarator])
+
+  gen-sm-variable:
     Declaration(type, declarator) -> StructDeclaration(type, declarator)
 
   // init
 
-  gen-sm-init: (name, init, states) ->
+  gen-sm-init: (name, init, states, decls) ->
     FunDef(
       [Void()],
       FunDeclarator(
@@ -53,7 +60,7 @@ rules
         ])
       ),
       [],
-      CompoundStatement([
+      CompoundStatement(<conc> ([
         ExpressionStatement(Some(Call(
           Var(Identifier(<conc-strings> (sa-name, "_transition_to_state"))),
           [
@@ -61,11 +68,17 @@ rules
             Integer(initial)
           ]
         )))
-      ])
+      ], var-inits))
     )
     where
       initial := <find-state-index> (init, states)
       ; sa-name := <strip-annos> name
+      ; var-inits := <filter(gen-sm-var-init)> decls
+
+  gen-sm-var-init: Declaration(type, [InitDeclarator(decl, val)])
+    -> <gen-sm-assign-pointer-field> ("sm", name, val)
+    where
+      name := <find-decl ; ?Decl(Identifier(<id>))> decl
 
   gen-sm-assign-pointer-field: (var, prop, val) ->
     ExpressionStatement(Some(Assign(
@@ -232,6 +245,17 @@ rules
       CompoundStatement(<conc> (stmts, [Break()]))
     )
 
+  gen-sm-local-vars: (ast, sm) -> <bottomup(try(gen-sm-local-var(|sm)))> ast
+
+  gen-sm-local-var(|sm): var@Var(Identifier(name)) -> res
+    where
+      parent-uri := <nabl-uri ; nabl-uri-parent> name
+      ; sm-uri := <nabl-get-name ; nabl-uri> sm
+      ; if <nabl-uri-eq> (parent-uri, sm-uri) then
+          res := <gen-sm-pointer-field> ("sm", name)
+        else
+          res := var
+        end
 
   // call site
 
@@ -259,3 +283,6 @@ rules
     where
       index := <get-event-index> name
       ; sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
+
+
+  generate: StateMachineField(e, name) -> PointerField(e, name)

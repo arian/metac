@@ -496,3 +496,56 @@ rules
 
   task-rewrite :
     ("match0", StateMachine(s)) -> s
+
+  nabl-get-name :
+    StateMachineField(e, Identifier(var)) -> var
+
+  nabl-name-apply(s) =
+    StateMachineField(id, Identifier(s))
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?StateMachineField(e, Identifier(var))
+    ; origin-track-forced(
+        StateMachineField(
+          id
+        , origin-track-forced(
+            Identifier(
+              nabl-use(
+              | lang__
+              , ctx__
+              , uniques__
+              , uris__
+              , [ <{s, p__:
+                     {p__:
+                       p__ := <new-task-fixdeps(|ctx__, [])> Id(
+                                                               <get-or-create-property-task(|ctx__, Type())> e
+                                                             )
+                       ; {prev__:
+                           ?prev__
+                           ; s := <new-task-fixdeps(|ctx__, [prev__])> Rewrite("match0", p__)
+                         }
+                     }
+                     ; !UseCandidate(
+                          NablNsVariable()
+                        , []
+                        , Context(
+                            NablNsStateMachine()
+                          , s
+                          , []
+                          , Current()
+                          )
+                        , True()
+                        , []
+                        )
+                   }>
+                ]
+              )
+            )
+          |
+          )
+        )
+      |
+      )
+
+  task-rewrite :
+    ("match0", StateMachine(s)) -> s

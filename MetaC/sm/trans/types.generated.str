@@ -1,0 +1,34 @@
+module MetaC/sm/trans/types.generated
+
+imports
+  
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/types/-
+  lib/runtime/properties/-
+  lib/runtime/relations/-
+
+imports
+
+  include/-
+  
+signature constructors
+  
+  
+  
+rules // functions 
+  
+
+rules // relations
+  
+
+rules // rules
+  
+  create-type-task(|ctx) :
+    StateMachineField(e, Identifier(name)) -> <task-create-id(|ctx,[t])> t
+    where 
+      t := <type-lookup(|ctx)> name
+  
+
+rules // projections
+  

@@ -44,3 +44,7 @@ binding rules
   StateMachineTriggerEvent(e, Identifier(event), params):
     refers to Event event in StateMachine s
       where e has type StateMachine(s)
+
+  StateMachineField(e, Identifier(var)):
+    refers to Variable var in StateMachine s
+      where e has type StateMachine(s)

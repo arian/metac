@@ -68,3 +68,7 @@ context-free syntax
 
   PostFixExpr.StateMachineTriggerEvent =
     [[PostFixExpr] <| [Identifier]([{AExpr ", "}*])]
+
+
+  PostFixExpr.StateMachineField =
+    [[PostFixExpr] |> [Identifier]]

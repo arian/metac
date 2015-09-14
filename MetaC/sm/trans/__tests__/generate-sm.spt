@@ -300,3 +300,56 @@ test statemachine trigger event without params [[
     X_exec(&y, 0);
   }
   "
+
+test statemachine with local vars [[
+  int32 a = 1;
+  statemachine X {
+    init: start;
+    int32 b = 0;
+    event: foo();
+    state start {
+      entry {
+        b += a;
+      }
+      on foo [b > a] -> start;
+    }
+  }
+]] build generate-c to "
+  signed int a = 1;
+  typedef struct  {
+    int state;
+    signed int b;
+  } X;
+  void X_transition_to_state (X *sm, int goal) {
+    switch (goal) {
+      case 0:
+        {
+          sm->b += a;
+          break ;
+        }
+    }
+    sm->state = goal;
+  }
+  void X_init (X *sm) {
+    X_transition_to_state(sm, 0);
+    sm->b = 0;
+  }
+  void X_exec (X *sm, int event) {
+    int cont = 1;
+    while (cont) {
+      cont = 0;
+      switch (sm->state) {
+        case 0:
+          {
+            if (event == 0 && sm->b > a) {
+              cont = 1;
+              event = -1;
+              X_transition_to_state(sm, 0);
+              break ;
+            }
+            break ;
+          }
+      }
+    }
+  }
+  "

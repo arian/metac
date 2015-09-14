@@ -133,3 +133,36 @@ test state with entry action [[
       []
     )
   ])])
+
+test state machine construction [[
+  statemachine X {
+    init: start;
+    int32 a = 1;
+    event: foo();
+    state start {}
+  }
+  void main() {
+    statemachine X x;
+    x<|foo();
+    int32 a = x|>a;
+  }
+]] parse to Program(_, [
+    StateMachine(_, _, _, _, _),
+    FunDef(
+      _,
+      FunDeclarator(None, Identifier("main"), _),
+      [],
+      CompoundStatement([
+        Declaration(_, _),
+        ExpressionStatement(Some(
+          StateMachineTriggerEvent(Var(Identifier("x")),Identifier("foo"),[])
+        )),
+        Declaration(
+          [Int32],
+          [InitDeclarator(Declarator(None,Decl(Identifier("a"))),
+            StateMachineField(Var(Identifier("x")), Identifier("a"))
+          )]
+        )
+      ])
+    )
+  ])

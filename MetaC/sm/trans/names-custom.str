@@ -1,6 +1,7 @@
 module MetaC/sm/trans/names-custom
 
 imports
+
   include/Metac
   MetaC/sm/trans/names
 
