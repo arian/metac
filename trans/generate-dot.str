@@ -16,7 +16,6 @@ strategies
       file-name := <guarantee-extension(|"gv")> path
       ; dot := <
         collect-all(can-generate-dot)
-        ; debug
         ; map(generate-dot)
         // for now, just create one graph
         ; Hd> ast

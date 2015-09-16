@@ -4,6 +4,8 @@ imports
 
   include/Metac
   trans/lib/string
+  src-gen/pp/MetaC/sm/syntax/sm-pp
+  libstratego-gpp
 
 rules
 
@@ -11,7 +13,7 @@ rules
 
   generate-dot: StateMachine(Identifier(name), InitState(Identifier(initial-state)), decls, events, states)
     ->
-    <concat-strings ; debug> [
+    <concat-strings> [
       "digraph ", <strip-annos> name, " {
         rankdir=LR;
         size=\"8,5\"
@@ -31,7 +33,8 @@ rules
         filter(sm-is-non-terminal-state)
         ; map(sm-get-state-name)
         ; join-strings> states
-      ; transitions := <gen-dot-sm-transitions
+      ; transitions := <
+        gen-dot-sm-transitions
         ; map(\t -> <conc-strings> (t, ";\n")\)
         ; concat-strings> states
 
@@ -47,8 +50,22 @@ rules
       ; map(\ (state, targets)
             -> <map(\ t -> (state, t) \)> targets \)
       ; concat
-      ; map(\ (s, e) -> <concat-strings> [s, " -> ", e] \)> states
+      ; map(\ (s, (end, event, guard))
+            -> <concat-strings> [s,
+                " -> ",
+                end,
+                " [label=\"",
+                event, " ",
+                guard,
+                "\"]"
+              ] \)> states
 
-  sm-get-transition-target: Transition(_, _, _, Identifier(name)) -> <strip-annos> name
+  sm-get-transition-target: Transition(event, guard, _, Identifier(name)) ->
+    (
+      <strip-annos> name,
+      <gen-dot-sm-event> event,
+      <prettyprint-Guard ; box2text-string(|120) ; escape> guard
+    )
 
-  gen-dot-sm-transition: [start, end] -> <concat-strings ; debug> [start, " -> ", end]
+  gen-dot-sm-event: Some(Identifier(name)) -> <strip-annos> name
+  gen-dot-sm-event: None() -> "<<e>>"
