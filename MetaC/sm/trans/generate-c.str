@@ -60,7 +60,7 @@ rules
         ])
       ),
       [],
-      CompoundStatement(<conc> ([
+      CompoundStatement(<conc> (var-inits, [
         ExpressionStatement(Some(Call(
           Var(Identifier(<conc-strings> (sa-name, "_transition_to_state"))),
           [
@@ -68,7 +68,7 @@ rules
             Integer(initial)
           ]
         )))
-      ], var-inits))
+      ]))
     )
     where
       initial := <find-state-index> (init, states)
@@ -199,7 +199,7 @@ rules
           )
         )
 
-  gen-sm-guard: None() -> True()
+  gen-sm-guard: None() -> Integer("1")
   gen-sm-guard: Guard(e) -> e
 
   gen-sm-effect: None() -> []
@@ -285,4 +285,4 @@ rules
       ; sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
 
 
-  generate: StateMachineField(e, name) -> PointerField(e, name)
+  generate: StateMachineField(e, name) -> Field(e, name)

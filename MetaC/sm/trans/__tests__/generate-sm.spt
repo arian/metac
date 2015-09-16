@@ -99,7 +99,7 @@ test sm with epsilon transition [[
               X_transition_to_state(sm, 0);
               break ;
             }
-            if (true) {
+            if (1) {
               cont = 1;
               event = -1;
               X_transition_to_state(sm, 2);
@@ -283,7 +283,7 @@ test statemachine trigger event without params [[
       switch (sm->state) {
         case 0:
           {
-            if (event == 0 && true) {
+            if (event == 0 && 1) {
               cont = 1;
               event = -1;
               X_transition_to_state(sm, 0);
@@ -331,8 +331,8 @@ test statemachine with local vars [[
     sm->state = goal;
   }
   void X_init (X *sm) {
-    X_transition_to_state(sm, 0);
     sm->b = 0;
+    X_transition_to_state(sm, 0);
   }
   void X_exec (X *sm, int event) {
     int cont = 1;
