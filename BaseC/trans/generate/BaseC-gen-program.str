@@ -11,3 +11,6 @@ strategies
     Program(file, decls) -> Program(Module(), decls)
     where
       <is-string> file
+
+  generate:
+    IncludeModule(_, include) -> include
