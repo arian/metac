@@ -5,7 +5,7 @@ imports
   include/Metac
   lib/runtime/editor/-
   BaseC/trans/desugar/BaseC-desugar-constructors
-  trans/path-join
+  trans/lib/path-join
 
 rules
 

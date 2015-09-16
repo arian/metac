@@ -24,6 +24,7 @@ imports
   desugar/-
   BaseC/trans/analysis/-
   BaseC/trans/types/-
+  trans/lib/-
 
 rules // Analysis
 

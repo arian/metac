@@ -3,23 +3,52 @@ module generate-dot
 imports
 
   include/Metac
+  trans/lib/string
 
 rules
 
   can-generate-dot: sm@StateMachine(_, _, _, _, _) -> sm
 
-  generate-dot: StateMachine(Identifier(name), InitState(Identifier(star-state)), decls, events, states)
+  generate-dot: StateMachine(Identifier(name), InitState(Identifier(initial-state)), decls, events, states)
     ->
     <concat-strings ; debug> [
       "digraph ", <strip-annos> name, " {
         rankdir=LR;
         size=\"8,5\"
-        node [shape = doublecircle]; ", terminal-states, "
-        node [shape = cirle]; ", non-terminal-states, "
+        node [shape = doublecircle]; ", terminal-states, ";
+        node [shape = circle]; ", non-terminal-states, ";
+        node [shape = point];
+        __StateMachineInitialPoint -> ", <strip-annos> initial-state, ";
         ", transitions, "
       }"
     ]
     where
-      terminal-states := ""
-      ; non-terminal-states := ""
-      ; transitions := ""
+      terminal-states := <
+        filter(sm-is-terminal-state)
+        ; map(sm-get-state-name)
+        ; join-strings> states
+      ; non-terminal-states := <
+        filter(sm-is-non-terminal-state)
+        ; map(sm-get-state-name)
+        ; join-strings> states
+      ; transitions := <gen-dot-sm-transitions
+        ; map(\t -> <conc-strings> (t, ";\n")\)
+        ; concat-strings> states
+
+  sm-is-terminal-state = ?State(_, _, [])
+
+  sm-is-non-terminal-state = not(sm-is-terminal-state)
+
+  sm-get-state-name: State(Identifier(name), _, _) -> <strip-annos> name
+
+  gen-dot-sm-transitions: states ->
+    <map(\ state@State(_, _, trans)
+            -> (<sm-get-state-name> state, <map(sm-get-transition-target)> trans)\)
+      ; map(\ (state, targets)
+            -> <map(\ t -> (state, t) \)> targets \)
+      ; concat
+      ; map(\ (s, e) -> <concat-strings> [s, " -> ", e] \)> states
+
+  sm-get-transition-target: Transition(_, _, _, Identifier(name)) -> <strip-annos> name
+
+  gen-dot-sm-transition: [start, end] -> <concat-strings ; debug> [start, " -> ", end]

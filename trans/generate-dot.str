@@ -17,5 +17,6 @@ strategies
       ; dot := <
         collect-all(can-generate-dot)
         ; debug
-        ; map(debug ; generate-dot)
+        ; map(generate-dot)
+        // for now, just create one graph
         ; Hd> ast
