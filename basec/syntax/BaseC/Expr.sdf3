@@ -175,8 +175,10 @@ context-free syntax
   PostFixExpr.ArrayField =
     <<PostFixExpr>[<Expr>]>
 
-  PostFixExpr.Call =
+  FunctionCallExpr.Call =
     <<PostFixExpr>(<{AExpr ", "}*>)>
+
+  PostFixExpr = FunctionCallExpr
 
   PostFixExpr.Field =
     <<PostFixExpr>.<Identifier>>
@@ -211,7 +213,7 @@ context-free priorities
       PostFixExpr.Increment
       PostFixExpr.Decrement
       PostFixExpr.ArrayField
-      PostFixExpr.Call
+      FunctionCallExpr.Call
       PostFixExpr.Field
       PostFixExpr.PointerField
   } >

@@ -1,0 +1,46 @@
+module MetaC/err/syntax/err
+
+imports
+
+  BaseC-Constants
+  BaseC-Declarations
+  BaseC-Expr
+  BaseC-Identifiers
+  BaseC-Stmt
+
+context-free syntax
+
+  TypeSpecifier.ErrMaybeError =
+    [MaybeError<[TypeName]>]
+
+  TypeSpecifier.ErrMaybeError =
+    [MaybeError<[TypeName],[TypeName]>]
+
+
+  Constant.ErrNone =
+    [None()]
+
+  Constant.ErrNone =
+    [None([Expr])]
+
+
+  ErrBlockItem =
+    BlockItem
+
+  ErrBlockItem.UnpackDeclaration =
+    [[TypeName] [Identifier] <| [FunctionCallExpr];]
+
+
+  ErrAttemptCompoundStatement.ErrAttemptCompoundStatement =
+    <
+    {
+      <{ErrBlockItem "\n"}*>
+    }
+    >
+
+
+  Statement.ErrAttemptStatement =
+    [
+    attempt [ErrAttemptCompoundStatement]
+    fail [CompoundStatement]
+    ]
