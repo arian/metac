@@ -1,0 +1,58 @@
+module MetaC/dataflow/syntax/dataflow
+
+imports
+
+  BaseC-Identifiers
+  BaseC-Stmt
+  BaseC-Expr
+  BaseC-Declarations
+//
+// lexical syntax
+//
+//   Keyword = "isr"
+//   Keyword = "task"
+//   Keyword = "returns"
+
+context-free syntax
+
+  Declaration =
+    DataflowISR
+
+   Declaration =
+     DataflowTask
+
+
+  DataflowISR.DataflowISR =
+    [isr [Identifier] [DataflowOutputs] [CompoundStatement]]
+
+
+  DataflowTask.DataflowTask =
+    [task [Identifier]([{DataflowInput ","}*]) [DataflowOutputs] [CompoundStatement]]
+
+
+  DataflowChannelName.DataflowChannelName =
+    [[Identifier].[Identifier]]
+
+  DataflowChannelName.DataflowChannelSelfName =
+    [.[Identifier]]
+
+  DataflowInput.DataflowInput =
+    DataflowChannelName
+
+  DataflowInput.DataflowRenamedInput =
+    [[DataflowInput] => [DataflowChannelName]]
+
+  DataflowInput.DataflowDelayedInput =
+    [[AExpr] -> [DataflowInput] => [DataflowChannelName]]
+
+  DataflowInput.DataflowMergedInput =
+    [[DataflowInput] | [DataflowInput] => [DataflowChannelName]]
+
+
+  DataflowOutputs.DataflowOutputs =
+    [=> ([{DataflowOutput ","}*])]
+
+
+  DataflowOutput.DataflowOutput =
+    [[TypeName] [Identifier]]
+

@@ -4,6 +4,7 @@ imports
 
   BaseC-Program
   MetaC/sm/syntax/sm
+  MetaC/dataflow/syntax/dataflow
 
 context-free start-symbols
 
