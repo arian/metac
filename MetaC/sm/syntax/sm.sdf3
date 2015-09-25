@@ -12,6 +12,7 @@ imports
 
 context-free syntax
 
+
   Declaration =
     StateMachine
 
@@ -20,19 +21,21 @@ context-free syntax
     [
     statemachine [Identifier] {
       [InitState]
-      [{Declaration "\n"}*]
-      [{Event "\n"}*]
+      [{EventOrDeclaration "\n"}*]
       [{State "\n"}+]
     }
     ]
 
 
   InitState.InitState =
-    [init: [Identifier];]
+    [init [Identifier];]
 
 
-  Event.Event =
-    <event: <Identifier>(<ParameterList>);>
+  EventOrDeclaration.Event =
+    <event <Identifier>(<ParameterList>);> {prefer}
+
+  EventOrDeclaration =
+    Declaration
 
 
   State.State =

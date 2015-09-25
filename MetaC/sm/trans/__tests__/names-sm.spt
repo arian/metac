@@ -6,7 +6,7 @@ start symbol Program
 
 test initial state refers to one of the states [[
   statemachine X {
-    init: [[start]];
+    init [[start]];
     state [[start]] {
     }
   }
@@ -14,7 +14,7 @@ test initial state refers to one of the states [[
 
 test transition [[
   statemachine X {
-    init: start;
+    init start;
     state start {
       on -> [[end]];
     }
@@ -25,8 +25,8 @@ test transition [[
 
 test event name [[
   statemachine X {
-    init: start;
-    event: [[foo]]();
+    init start;
+    event [[foo]]();
     state start {
       on [[foo]] -> start;
     }
@@ -35,7 +35,7 @@ test event name [[
 
 test local variable [[
   statemachine X {
-    init: start;
+    init start;
     int32 [[a]];
     state start {
       entry {
@@ -48,7 +48,7 @@ test local variable [[
 test global variable [[
   int32 [[a]];
   statemachine X {
-    init: start;
+    init start;
     state start {
       entry {
         [[a]];
@@ -59,7 +59,7 @@ test global variable [[
 
 test statemachine instantiation [[
   statemachine [[X]] {
-    init: start;
+    init start;
     state start {}
   }
   void main () {
@@ -69,8 +69,8 @@ test statemachine instantiation [[
 
 test statemachine event trigger [[
   statemachine X {
-    init: start;
-    event: [[foo]]();
+    init start;
+    event [[foo]]();
     state start {}
   }
   void main () {

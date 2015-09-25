@@ -17,9 +17,9 @@ rules
     fail
 
   desugar-all(|t) =
-    bottomup(
-      try(desugar01)
-      ; try(desugar(|t))
+    bottomup(try(desugar01))
+    ; bottomup(
+      try(desugar(|t))
       ; try(desugar)
       ; try(flatten-list)
    )

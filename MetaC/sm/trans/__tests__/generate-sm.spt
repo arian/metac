@@ -4,7 +4,7 @@ language Metac
 
 test generate minimal state machine C code [[
   statemachine X {
-    init: start;
+    init start;
     state start {}
   }
 ]] build generate-c to "
@@ -33,7 +33,7 @@ test generate minimal state machine C code [[
 
 test generate minimal two states [[
   statemachine X {
-    init: middle;
+    init middle;
     state start {}
     state middle {}
     state end {}
@@ -65,7 +65,7 @@ test generate minimal two states [[
 
 test sm with epsilon transition [[
   statemachine X {
-    init: middle;
+    init middle;
     state start {}
     state middle {
       on [1 < 2] -> start;
@@ -115,8 +115,8 @@ test sm with epsilon transition [[
 
 test sm with transition with params [[
   statemachine X {
-    init: start;
-    event: foo(int32 a, int32 b);
+    init start;
+    event foo(int32 a, int32 b);
     state start {
       on foo [1 > 2] / 1; -> end;
     }
@@ -156,7 +156,7 @@ test sm with transition with params [[
 
 test sm with local variables [[
   statemachine X {
-    init: start;
+    init start;
     int32 x;
     state start {}
   }
@@ -184,7 +184,7 @@ test sm with local variables [[
 
 test sm state with an entry [[
   statemachine X {
-    init: start;
+    init start;
     state start {
       entry {
         1;
@@ -220,7 +220,7 @@ test sm state with an entry [[
 
 test init statemachine code [[
   statemachine X {
-    init: start;
+    init start;
     state start {}
   }
   void main () {
@@ -256,8 +256,8 @@ test init statemachine code [[
 
 test statemachine trigger event without params [[
   statemachine X {
-    init: start;
-    event: foo();
+    init start;
+    event foo();
     state start {
       on foo -> start;
     }
@@ -304,9 +304,9 @@ test statemachine trigger event without params [[
 test statemachine with local vars [[
   int32 a = 1;
   statemachine X {
-    init: start;
+    init start;
     int32 b = 0;
-    event: foo();
+    event foo();
     state start {
       entry {
         b += a;

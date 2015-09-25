@@ -6,6 +6,13 @@ imports
 
 signature constructors
 
+  StateMachine:
+    Identifier *
+    InitState *
+    List *
+    List *
+    List -> StateMachine
+
   StateMachineVariable: Identifier * Identifier -> StateMachineVariable
 
   StateMachine: Identifier -> StateMachine
