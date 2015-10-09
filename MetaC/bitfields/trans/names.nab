@@ -5,6 +5,7 @@ imports
   include/Metac
   BaseC/trans/names/BaseC-typedefs
   MetaC/bitfields/trans/trans
+  MetaC/bitfields/trans/desugar
   MetaC/bitfields/trans/names-custom
 
 namespaces
@@ -14,15 +15,17 @@ namespaces
 properties
 
   bitfield-size of Bitfield: BitfieldSize
+  bitfield-range of Bitfield: BitfieldRange
 
 binding rules
 
-  Bitfields(Identifier(name), _):
+  Bitfields(Identifier(name), _, size):
     defines Typedef name
-    of type Bitfields(name)
+    of type Bitfields(name, size)
     scopes Bitfield
 
-  Bitfield(Identifier(name), Integer(size)):
+  Bitfield(Identifier(name), size, range):
     defines Bitfield name
+    of bitfield-range range
     of bitfield-size size
     of type UInt32()

@@ -10,4 +10,4 @@ rules
 
   field-lookup = register-field-lookup(|"match-bitfields", NablNsTypedef(), NablNsBitfield())
 
-  task-rewrite: ("match-bitfields", Bitfields(s)) -> s
+  task-rewrite: ("match-bitfields", Bitfields(name, _)) -> name

@@ -4,7 +4,8 @@ imports
 
   MetaC/bitfields/trans/names
   MetaC/bitfields/trans/desugar
+  MetaC/bitfields/trans/generate-c
 
 signature constructors
 
-  Bitfields: Name -> Bitfields
+  Bitfields: Name * Size -> Bitfields

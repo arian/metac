@@ -1,0 +1,5 @@
+module trans/lib/bitmask
+
+rules
+
+  external bitmask(|)

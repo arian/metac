@@ -1,0 +1,76 @@
+module MetaC/bitfieds/trans/generate-c
+
+imports
+
+  include/Metac
+  lib/runtime/types/-
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  MetaC/bitfields/trans/trans
+  MetaC/bitfields/trans/names
+  MetaC/bitfields/trans/desugar
+  MetaC/bitfields/trans/util
+  trans/lib/bitmask
+
+rules
+
+  // the bitfields declaration is only compiler information, won't be in the
+  // C output
+  generate: Bitfields(_, _, _) -> []
+
+
+  // translate instantiations of the bitfields variables
+  generate: VarDeclaration(
+      storage,
+      Type(mods, td@TypedefName(Identifier(name))),
+      decl,
+      declarator,
+      None()
+    ) -> Declaration(
+      <conc> (storage, type),
+      [InitDeclarator(decl, Integer("0"))]
+    )
+    where
+      type := <get-type ; ?Bitfields(_, <id>) ; bitfields-int-size ; gen-smallest-int-type> td
+
+  gen-smallest-int-type: 8  -> [Unsigned(), Char()]
+  gen-smallest-int-type: 16 -> [Unsigned(), Short()]
+  gen-smallest-int-type: 32 -> [Unsigned(), Int()]
+  gen-smallest-int-type: 64 -> [Unsigned(), Long(), Int()]
+
+
+  // assignments using bitfields
+  generate01:
+    Assign(
+      Field(lvalue, Identifier(field)),
+      Assign(),
+      value
+    ) ->
+    Assign(
+      lvalue,
+      Assign(),
+      InclusiveOr(
+        InclusiveAnd(
+          InclusiveAnd(
+            lvalue,
+            Complement(Paren(ShiftLeft(field-mask, Integer(<int-to-string> shift))))
+          ),
+          full-mask
+        ),
+        ShiftLeft(InclusiveAnd(value, field-mask), Integer(<int-to-string> shift))
+      )
+    )
+    where
+      type := <get-type ; ?Bitfields(_, size)> lvalue
+      ; BitfieldRange(shift, _) := <get-bitfield-range> field
+      ; field-mask := Hexadecimal(<get-bitfield-size ; bitmask> field)
+      ; full-mask := Hexadecimal(<!size ; bitfields-int-size ; bitmask> lvalue)
+
+  generate:
+    Field(lvalue, Identifier(field)) -> InclusiveAnd(
+      ShiftRight(lvalue, Integer(<int-to-string> shift)),
+      field-mask
+    )
+    where
+      type := <get-type ; ?Bitfields(_, size)> lvalue
+      ; BitfieldRange(shift, _) := <get-bitfield-range> field
+      ; field-mask := Hexadecimal(<get-bitfield-size ; bitmask> field)

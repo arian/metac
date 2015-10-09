@@ -10,6 +10,7 @@ imports
   include/Metac
   BaseC/trans/names/BaseC-typedefs
   MetaC/bitfields/trans/trans
+  MetaC/bitfields/trans/desugar
   MetaC/bitfields/trans/names-custom
 
 
@@ -20,13 +21,15 @@ signature
 
 signature
   constructors
-    NablProp_bitfield-size : Property
+    NablProp_bitfield-size  : Property
+    NablProp_bitfield-range : Property
 
 
 rules
 
   nabl-custom-properties(add-properties) =
-    ![NablProp_bitfield-size()] ; add-properties
+    ![NablProp_bitfield-size(), NablProp_bitfield-range()]
+    ; add-properties
 
   bitfield-size-is(|ctx__) =
     nabl-prop-calc(|ctx__, [])
@@ -76,21 +79,69 @@ rules
     term -> <create-bitfield-size-task(|ctx__)> term
     where NablProp_bitfield-size() := kind
 
+  bitfield-range-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  bitfield-range-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  bitfield-range-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_bitfield-range())
+
+  bitfield-range-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  bitfield-range-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  bitfield-range-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_bitfield-range(), ctx__, [])
+
+  bitfield-range-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_bitfield-range(), ctx__, dep*)
+
+  bitfield-range-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_bitfield-range()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  bitfield-range-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_bitfield-range(), ctx__, relation, expected)
+
+  create-bitfield-range-task(|ctx__) =
+    fail
+
+  get-bitfield-range(|) =
+    get-property(|NablProp_bitfield-range())
+
+  store-bitfield-range(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_bitfield-range(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-bitfield-range-task(|ctx__)> term
+    where NablProp_bitfield-range() := kind
+
 
 rules
 
   nabl-get-scope =
-    ?Bitfields(Identifier(name), _)
+    ?Bitfields(Identifier(name), _, size)
     ; ![NablNsBitfield()]
 
   nabl-get-name :
-    Bitfields(Identifier(name), _) -> name
+    Bitfields(Identifier(name), _, size) -> name
 
   nabl-name-apply(s) =
-    Bitfields(Identifier(s), id)
+    Bitfields(Identifier(s), id, id)
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Bitfields(Identifier(name), _)
+    ?Bitfields(Identifier(name), _, size)
     ; origin-track-forced(
         Bitfields(
           origin-track-forced(
@@ -113,6 +164,7 @@ rules
           |
           )
         , id
+        , id
         )
       |
       )
@@ -121,28 +173,33 @@ rules
     ; match(implicits__|[])
 
   nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
-    ?Bitfields(Identifier(name), _)
+    ?Bitfields(Identifier(name), _, size)
     ; (where(id)
        ; Bitfields(
            Identifier(
              nabl-store-props(
              | ctx__
-             , [ Prop(Type(), Bitfields(name), [])
+             , [ Prop(
+                   Type()
+                 , Bitfields(name, size)
+                 , []
+                 )
                ]
              )
            )
+         , id
          , id
          ))
     ; fail
 
   nabl-get-name :
-    Bitfield(Identifier(name), Integer(size)) -> name
+    Bitfield(Identifier(name), size, range) -> name
 
   nabl-name-apply(s) =
-    Bitfield(Identifier(s), Integer(id))
+    Bitfield(Identifier(s), id, id)
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Bitfield(Identifier(name), Integer(size))
+    ?Bitfield(Identifier(name), size, range)
     ; origin-track-forced(
         Bitfield(
           origin-track-forced(
@@ -164,7 +221,8 @@ rules
             )
           |
           )
-        , origin-track-forced(Integer(id)|)
+        , id
+        , id
         )
       |
       )
@@ -173,17 +231,19 @@ rules
     ; match(implicits__|[])
 
   nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
-    ?Bitfield(Identifier(name), Integer(size))
+    ?Bitfield(Identifier(name), size, range)
     ; (where(id)
        ; Bitfield(
            Identifier(
              nabl-store-props(
              | ctx__
-             , [ Prop(NablProp_bitfield-size(), size, [])
+             , [ Prop(NablProp_bitfield-range(), range, [])
+               , Prop(NablProp_bitfield-size(), size, [])
                , Prop(Type(), UInt32(), [])
                ]
              )
            )
-         , Integer(id)
+         , id
+         , id
          ))
     ; fail

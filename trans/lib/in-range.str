@@ -1,0 +1,8 @@
+module trans/lib/in-range
+
+strategies
+
+  in-range(|min, max): val -> None()
+    where
+      <leq> (val, max)
+      ; <geq> (val, min)
