@@ -1,0 +1,25 @@
+module MetaC/bitfields/syntax/bitfields
+
+imports
+
+  Common
+  BaseC-Constants
+  BaseC-Declarations
+  BaseC-Identifiers
+
+context-free syntax
+
+  Declaration =
+    Bitfields
+
+
+  Bitfields.Bitfields =
+    [
+    bitfields [Identifier] {
+      [{Bitfield "\n"}*]
+    };
+    ]
+
+
+  Bitfield.Bitfield =
+    [[Identifier]: [Integer];]

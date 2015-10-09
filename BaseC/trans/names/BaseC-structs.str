@@ -10,6 +10,7 @@ imports
   include/Metac
   BaseC/trans/desugar/-
   BaseC/trans/names/BaseC-variables
+  BaseC/trans/names/BaseC-structs-custom
 
 
 signature
@@ -279,85 +280,6 @@ rules
          , id
          ))
     ; fail
-
-  nabl-get-name :
-    Field(e, Identifier(field)) -> field
-
-  nabl-name-apply(s) =
-    Field(id, Identifier(s))
-
-  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
-    ?Field(e, Identifier(field))
-    ; origin-track-forced(
-        Field(
-          id
-        , origin-track-forced(
-            Identifier(
-              nabl-use(
-              | lang__
-              , ctx__
-              , uniques__
-              , uris__
-              , [ <{s, p__:
-                     {p__:
-                       p__ := <new-task-fixdeps(|ctx__, [])> Id(
-                                                               <get-or-create-property-task(|ctx__, Type())> e
-                                                             )
-                       ; {prev__:
-                           ?prev__
-                           ; s := <new-task-fixdeps(|ctx__, [prev__])> Rewrite("match0", p__)
-                         }
-                     }
-                     ; !UseCandidate(
-                          NablNsField()
-                        , []
-                        , Context(
-                            NablNsStruct()
-                          , s
-                          , []
-                          , Current()
-                          )
-                        , True()
-                        , []
-                        )
-                   }>
-                , <{s, p__:
-                     {p__:
-                       p__ := <new-task-fixdeps(|ctx__, [])> Id(
-                                                               <get-or-create-property-task(|ctx__, Type())> e
-                                                             )
-                       ; {prev__:
-                           ?prev__
-                           ; s := <new-task-fixdeps(|ctx__, [prev__])> Rewrite("match1", p__)
-                         }
-                     }
-                     ; !UseCandidate(
-                          NablNsField()
-                        , []
-                        , Context(
-                            NablNsUnion()
-                          , s
-                          , []
-                          , Current()
-                          )
-                        , True()
-                        , []
-                        )
-                   }>
-                ]
-              )
-            )
-          |
-          )
-        )
-      |
-      )
-
-  task-rewrite :
-    ("match0", Struct(Identifier(s))) -> s
-
-  task-rewrite :
-    ("match1", Union(Identifier(s))) -> s
 
   nabl-get-name :
     PointerField(e, Identifier(field)) -> field

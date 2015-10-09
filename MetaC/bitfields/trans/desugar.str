@@ -1,0 +1,7 @@
+module MetaC/bitfields/trans/desugar
+
+imports
+
+  include/Metac
+
+rules

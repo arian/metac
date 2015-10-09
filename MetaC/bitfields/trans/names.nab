@@ -1,0 +1,28 @@
+module MetaC/bitfields/trans/names
+
+imports
+
+  include/Metac
+  BaseC/trans/names/BaseC-typedefs
+  MetaC/bitfields/trans/trans
+  MetaC/bitfields/trans/names-custom
+
+namespaces
+
+  Bitfield
+
+properties
+
+  bitfield-size of Bitfield: BitfieldSize
+
+binding rules
+
+  Bitfields(Identifier(name), _):
+    defines Typedef name
+    of type Bitfields(name)
+    scopes Bitfield
+
+  Bitfield(Identifier(name), Integer(size)):
+    defines Bitfield name
+    of bitfield-size size
+    of type UInt32()

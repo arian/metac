@@ -1,0 +1,10 @@
+module MetaC/bitfields/trans/trans
+
+imports
+
+  MetaC/bitfields/trans/names
+  MetaC/bitfields/trans/desugar
+
+signature constructors
+
+  Bitfields: Name -> Bitfields

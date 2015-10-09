@@ -1,0 +1,23 @@
+module names
+
+language Metac
+
+start symbol Program
+
+test declaration of a bitfield should refer to the specification [[
+  bitfields [[X]] {};
+  [[X]] a;
+]] resolve #2 to #1
+
+test usage of bitfield type [[
+  bitfields X {};
+  X [[a]];
+]] run get-type to TypedefName(Identifier(_)){_}
+
+test usage of bitfield type [[
+  bitfields X {[[x]]: 1;};
+  void main() {
+    X a;
+    a.[[x]];
+  }
+]] resolve #2 to #1

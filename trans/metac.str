@@ -25,6 +25,7 @@ imports
   BaseC/trans/analysis/-
   BaseC/trans/types/-
   trans/lib/-
+  MetaC/bitfields/trans/trans
 
 rules // Analysis
 
@@ -46,11 +47,11 @@ rules // Analysis
 
   analysis-single-default-interface =
     ?tuple
-    ; <analysis-single-default(desugar-all(|tuple), id, id|<language>)> tuple
+    ; <analysis-single-default(desugar-all(|tuple), post-trans-all(|tuple), id|<language>)> tuple
 
   analysis-multiple-default-interface =
     ?tuple
-    ; <analysis-multiple-default(parse-file <+ !(), desugar-all(|tuple), id, id|<language>, <project-path>)> tuple
+    ; <analysis-multiple-default(parse-file <+ !(), desugar-all(|tuple), post-trans-all(|tuple), id|<language>, <project-path>)> tuple
 
   editor-save = analysis-save-default(|<language>)
 
