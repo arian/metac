@@ -4,6 +4,7 @@ imports
 
   include/Metac
   MetaC/sm/trans/names
+  MetaC/sm/trans/constructors
 
 rules
 
