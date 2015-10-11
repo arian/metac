@@ -36,7 +36,19 @@ test bitfield variable declaration, with 32, so int type [[
 ]] build generate-c to "
   void main() { unsigned int a = 0; }"
 
-test setting some bit [[
+test set most right bit [[
+  bitfields X { a : 7; b : 1; };
+  void main() {
+    X a;
+    a.b = 1;
+  }
+]] build generate-c to "
+  void main () {
+    unsigned char a = 0;
+    a = (a & ~(0x1 << 0) & 0xFF) | ((1 & 0x1) << 0);
+  }"
+
+test setting some bits [[
   bitfields X { a : 3; b : 5; };
   void main() {
     X a;
@@ -45,7 +57,7 @@ test setting some bit [[
 ]] build generate-c to "
   void main () {
     unsigned char a = 0;
-    a = a & ~(0x7 << 5) & 0xFF | (4 & 0x7) << 5;
+    a = (a & ~(0x7 << 5) & 0xFF) | ((4 & 0x7) << 5);
   }"
 
 test getting some bit [[

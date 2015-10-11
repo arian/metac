@@ -49,14 +49,18 @@ rules
       lvalue,
       Assign(),
       InclusiveOr(
-        InclusiveAnd(
+        Paren(
           InclusiveAnd(
-            lvalue,
-            Complement(Paren(ShiftLeft(field-mask, Integer(<int-to-string> shift))))
-          ),
-          full-mask
+            InclusiveAnd(
+              lvalue,
+              Complement(Paren(ShiftLeft(field-mask, Integer(<int-to-string> shift))))
+            ),
+            full-mask
+          )
         ),
-        ShiftLeft(InclusiveAnd(value, field-mask), Integer(<int-to-string> shift))
+        Paren(
+          ShiftLeft(InclusiveAnd(value, field-mask), Integer(<int-to-string> shift))
+        )
       )
     )
     where
