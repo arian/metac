@@ -36,6 +36,21 @@ test bitfield variable declaration, with 32, so int type [[
 ]] build generate-c to "
   void main() { unsigned int a = 0; }"
 
+test bitfield variable with initializer [[
+  bitfields X { a : 16; b : 16; };
+  void main() { X a = 15U; }
+]] build generate-c to "
+  void main() { unsigned char a = 15U; }"
+
+test bitfield variable with initializer, pointer to another variable [[
+  bitfields X { a : 16; b : 16; };
+  void main() { uint32 a = 31; X *b = &a; }
+]] build generate-c to "
+  void main() {
+    unsigned int a = 31;
+    unsigned int *b = &a;
+  }"
+
 test set most right bit [[
   bitfields X { a : 7; b : 1; };
   void main() {
@@ -71,3 +86,4 @@ test getting some bit [[
     unsigned char a = 0;
     (a >> 7 & 0x1) + (a >> 0 & 0x1F);
   }"
+

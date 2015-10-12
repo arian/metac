@@ -19,24 +19,40 @@ rules
 
 
   // translate instantiations of the bitfields variables
-  generate: VarDeclaration(
+  generate01: VarDeclaration(
       storage,
-      Type(mods, td@TypedefName(Identifier(name))),
+      Type(mods, t),
       decl,
       declarator,
-      None()
-    ) -> Declaration(
-      <conc> (storage, type),
-      [InitDeclarator(decl, Integer("0"))]
+      init
+    ) -> VarDeclaration(
+      storage,
+      Type(mods, type),
+      decl,
+      declarator,
+      Some(initializer)
     )
     where
-      type := <get-type ; ?Bitfields(_, <id>) ; bitfields-int-size ; gen-smallest-int-type> td
+      bitfields-type := <gen-get-bitfields-type> t
+      ; (initializer, type) := <gen-bitfields> (init, bitfields-type)
 
-  gen-smallest-int-type: 8  -> [Unsigned(), Char()]
-  gen-smallest-int-type: 16 -> [Unsigned(), Short()]
-  gen-smallest-int-type: 32 -> [Unsigned(), Int()]
-  gen-smallest-int-type: 64 -> [Unsigned(), Long(), Int()]
+  gen-bitfields: (None(), t) -> (
+      Integer("0"),
+      <?Bitfields(_, <id>)
+        ; bitfields-int-size
+        ; gen-smallest-int-type> t
+    )
 
+  gen-bitfields: (Some(i), _) -> (i, <get-type> i)
+
+  gen-smallest-int-type: 8  -> UInt8()
+  gen-smallest-int-type: 16 -> UInt16()
+  gen-smallest-int-type: 32 -> UInt32()
+  gen-smallest-int-type: 64 -> UInt64()
+
+  gen-get-bitfields-type-internal: t@TypedefName(_) -> <get-type ; gen-get-bitfields-type> t
+  gen-get-bitfields-type-internal: b@Bitfields(_, _) -> b
+  gen-get-bitfields-type = oncetd(gen-get-bitfields-type-internal ; ?x) ; !x
 
   // assignments using bitfields
   generate01:
@@ -69,6 +85,7 @@ rules
       ; field-mask := Hexadecimal(<get-bitfield-size ; bitmask> field)
       ; full-mask := Hexadecimal(<!size ; bitfields-int-size ; bitmask> lvalue)
 
+  // field lookups
   generate:
     Field(lvalue, Identifier(field)) -> InclusiveAnd(
       ShiftRight(lvalue, Integer(<int-to-string> shift)),

@@ -7,7 +7,7 @@ bitfields A {
   c: 2;
 };
 
-int main() {
+void test_local_bitfields_variable() {
   A a;
 
   // set the 2 LSB to 1
@@ -28,7 +28,19 @@ int main() {
   assert(a.b == 1);
   assert(a.c == 3);
 
-  puts("all successful\n");
+  puts("local bitfields variable successful\n");
+}
 
+void test_pointer_bitfields() {
+  uint32 a_;
+  A *a = &a_;
+  (*a).a = 1;
+  assert((*a).a == 1);
+  puts("pointer bitfields variable successful\n");
+}
+
+int main() {
+  test_local_bitfields_variable();
+  test_pointer_bitfields();
   return 0;
 }
