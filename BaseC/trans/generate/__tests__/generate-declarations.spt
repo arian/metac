@@ -16,6 +16,14 @@ test typedef declaration [[
   typedef uint32 a;
 ]] build generate-c to "typedef unsigned int a;"
 
+test typedef declaration [[
+  typedef uint32 a;
+  typedef a *b;
+]] build generate-c to "
+  typedef unsigned int a;
+  typedef a *b;
+"
+
 test typedef declaration of a struct [[
   typedef struct { int32 x; } a;
 ]] build generate-c to "typedef struct { signed int x; } a;"

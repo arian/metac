@@ -16,39 +16,49 @@ rules
 
   // Assignments type checking
 
-  task-rewrite :
-    ("strip-array", Array(t)) -> t
+  get-typedef-base-type: t@TypedefName(_) -> <get-type; get-typedef-base-type> t
+  get-typedef-base-type: Array(t) -> <get-typedef-base-type> t
+  get-typedef-base-type: Pointer(t) -> <get-typedef-base-type> t
+  get-typedef-base-type: t -> t
 
-  task-rewrite :
-    ("strip-pointer", Pointer(t)) -> t
+  create-base-type-task(|ctx) = task-create-rewrite(|ctx, "base-type")
+  task-rewrite: ("base-type", t) -> <get-typedef-base-type> t
 
-  nested-type-rewrite(|ctx, t1):
-    t2 -> task
-    where (
-        Array(t1') := t1
-        ; t2' := <new-task(|ctx)> Rewrite("strip-array", t2)
-        ; task := <nested-type-rewrite(|ctx, t1')> t2'
-      ) <+ (
-        Pointer(t1') := t1
-        ; t2' := <new-task(|ctx)> Rewrite("strip-pointer", t2)
-        ; task := <nested-type-rewrite(|ctx, t1')> t2'
-      ) <+ (
-        task := t2
-      )
+  create-resolve-typedef-task(|ctx) = task-create-rewrite(|ctx, "resolve-typedef")
+  task-rewrite: ("resolve-typedef", t) -> <topdown(try(?TypedefName(_) ; get-type))> t
 
-  relation-match-custom(|ctx) :
-    ("<is-assignable:", t1, t2) -> <task-create-id(|ctx, [or72])> t2
+  create-rewrite-type-structure-task(|ctx) = task-create-rewrite(|ctx, "type-structure")
+  task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t
+
+  is-type-structure: t@Pointer(_) -> t
+  is-type-structure: t@Array(_) -> t
+
+  relation-match-custom(|ctx):
+    ("<is-assignable:", t1, t2) -> and1
     where
-      // If it's the result of a task, get the actual type first, so t1'' is Int32, Array(UInt8) etc.
-      t1'' := <try(?Result(_) ; task-get-results ; Hd)> t1;
-      // get recursive Array(t) -> t
-      t1' := <get-base-type> t1'';
-      // create n rewrite tasks, depending on how many types te type is nested
-      t2' := <nested-type-rewrite(|ctx, t1'')> t2;
+      // base types, like Int8
+      t1-base := <create-base-type-task(|ctx)> t1;
+      t2-base := <create-base-type-task(|ctx)> t2;
+
+      // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
+      // becomse Array(Pointer(UInt32))
+      t1-resolved := <create-resolve-typedef-task(|ctx)> t1;
+      t2-resolved := <create-resolve-typedef-task(|ctx)> t2;
+
+      // transform the leaf of the structure into Int(), so irregardless of
+      // the base type, we can compare the same structure
+      t1-structure := <create-rewrite-type-structure-task(|ctx)> t1-resolved;
+      t2-structure := <create-rewrite-type-structure-task(|ctx)> t2-resolved;
+
       // are they equal?
-      eq60 := <type-match(|ctx, t2')> t1';
+      eq-base := <type-match(|ctx, t2-base)> t1-base;
+      eq-structure := <type-match(|ctx, t2-structure)> t1-structure;
+
       // are both numeric
-      relmatch105 := <relation-create-match(|ctx)> ("<is:", t1', Numeric());
-      relmatch106 := <relation-create-match(|ctx); task-create-id(|ctx, [relmatch105])> ("<is:", t2', Numeric());
-      // is either of them passing?
-      or72 := <type-is(|ctx)> <task-create-choice(|ctx)> [eq60, relmatch106]
+      t1-numeric := <relation-create-match(|ctx)> ("<is:", t1-base, Numeric());
+      t2-numeric := <relation-create-match(|ctx); task-create-id(|ctx, [t1-numeric])> ("<is:", t2-base, Numeric());
+
+      // is either numeric or the same
+      or72 := <type-is(|ctx)> <task-create-choice(|ctx)> [eq-base, t2-numeric];
+      // and have the same structure
+      and1 := <task-create-id(|ctx, [eq-structure, or72])> t2
