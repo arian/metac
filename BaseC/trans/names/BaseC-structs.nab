@@ -5,6 +5,7 @@ imports
   include/Metac
   BaseC/trans/desugar/-
   BaseC/trans/names/BaseC-variables
+  BaseC/trans/names/BaseC-structs-custom
 
 namespaces
 
@@ -31,11 +32,12 @@ binding rules
       of type type
       of modifiers mods
 
-  Field(e, Identifier(field)):
-    refers to Field field in Struct s
-      where e has type Struct(Identifier(s))
-    otherwise refers to Field field in Union s
-      where e has type Union(Identifier(s))
+  // Handled in BaseC-structs-custom
+  // Field(e, Identifier(field)):
+  //   refers to Field field in Struct s
+  //     where e has type Struct(Identifier(s))
+  //   otherwise refers to Field field in Union s
+  //     where e has type Union(Identifier(s))
 
   PointerField(e, Identifier(field)):
     refers to Field field in Struct s

@@ -38,8 +38,12 @@ lexical restrictions
 
 context-free syntax
 
-  Constant.Integer =
+  Integer.Integer =
     <<CONS>>
+
+
+  Constant =
+    Integer
 
   Constant.Binary =
     <<CONSBIN>>

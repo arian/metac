@@ -10,6 +10,8 @@ imports
 
 strategies
 
+  generate01 = fail
+
   generate = fail
 
   generate(|t) = fail
@@ -21,9 +23,8 @@ strategies
   generate-c: t@(selected, position, ast, path, project-path) -> (file-name, code)
     where
       file-name := <guarantee-extension(|"c")> path
-      ; code := <bottomup(
-          try(generate(|t))
-          ; try(generate)
-          ; try(flatten-list)
-        )
+      ; code := <
+          bottomup(try(generate01)     ; try(flatten-list))
+          ; bottomup(try(generate(|t)) ; try(flatten-list))
+          ; bottomup(try(generate)     ; try(flatten-list))
         ; generate-pp> ast

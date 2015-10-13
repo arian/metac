@@ -4,6 +4,7 @@ imports
 
   BaseC-Program
   MetaC/sm/syntax/sm
+  MetaC/bitfields/syntax/bitfields
 
 context-free start-symbols
 

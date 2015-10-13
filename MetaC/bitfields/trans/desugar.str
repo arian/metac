@@ -1,0 +1,33 @@
+module MetaC/bitfields/trans/desugar
+
+imports
+
+  include/Metac
+
+signature constructors
+
+  Bitfield: Identifier * Integer * Range -> Bitfield
+
+  Bitfields: Identifier * List * int -> Bitfields
+
+  BitfieldRange: Integer * Integer -> BitfieldRange
+
+rules
+
+  desugar-bitfield-size-to-number: Bitfield(_, Integer(num)) -> <string-to-int> num
+
+  desugar-bitfield-size-to-range:
+    list -> <foldr(![0], \ (i, l) -> <conc> ([<add> (<Hd> l, i)], l) \)> list
+
+  desugar: Bitfields(name, fields) -> Bitfields(name, ranged-fields, <Hd> bitpos)
+    where
+      bits := <map(desugar-bitfield-size-to-number)> fields
+      ; bitpos := <desugar-bitfield-size-to-range> bits
+      ; ranges := <zip> (<init> bitpos, <Tl> bitpos)
+      ; zip-ranged-fields := <zip> (bits, <zip> (ranges, fields))
+      ; ranged-fields := <map(\ (size, ((a, b), Bitfield(name, i))) ->
+        Bitfield(
+          name,
+          size,
+          BitfieldRange(b, a)
+        ) \)> zip-ranged-fields
