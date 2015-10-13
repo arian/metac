@@ -14,10 +14,19 @@ test usage of bitfield type [[
   X [[a]];
 ]] run get-type to TypedefName(Identifier(_)){_}
 
-test usage of bitfield type [[
+test usage of bitfield field [[
   bitfields X {[[x]]: 1;};
   void main() {
     X a;
     a.[[x]];
+  }
+]] resolve #2 to #1
+
+test usage of bitfield as pointer [[
+  bitfields X {[[x]]: 1;};
+  void main() {
+    uint32 b = 0;
+    X *a = &b;
+    (*a).[[x]];
   }
 ]] resolve #2 to #1
