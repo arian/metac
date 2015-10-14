@@ -10,12 +10,19 @@ imports
   BaseC-Expr
   BaseC-Stmt
 
+lexical syntax
+
+  Keyword = "statemachine"
+
 context-free syntax
 
 
   Declaration =
     StateMachine
 
+
+  Declaration =
+    StateMachineVariable
 
   StateMachine.StateMachine =
     [
@@ -67,6 +74,10 @@ context-free syntax
 
   Effect.Effect =
     </ <Statement>>
+
+
+  StateMachineVariable.StateMachineVariable =
+    [statemachine [Identifier] [Identifier];]
 
 
   PostFixExpr.StateMachineTriggerEvent =

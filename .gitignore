@@ -32,8 +32,8 @@ lib-refactoring/*.generated.str
 /include/
 *.aterm
 BaseC/trans/types/*.generated.str
-__tests__/*.pp*
-__tests__/*.analysis*
-__tests__/*.task
-__tests__/*.index
+**/__tests__/*.pp*
+**/__tests__/*.analysis*
+**/__tests__/*.task
+**/__tests__/*.index
 **/__tests__/*.c

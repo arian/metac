@@ -24,12 +24,3 @@ rules
   add-index-to-event-def:
     (index, Event(name, params))
     -> Event(<dec> index, name, params)
-
-  desugar01: Declaration(
-      [TypedefName(Identifier("statemachine")), TypedefName(Identifier(sm-name))],
-      [Declarator(None(), Decl(Identifier(var-name)))]
-    ) -> StateMachineVariable(
-      Identifier(sm-name),
-      Identifier(var-name)
-    )
-
