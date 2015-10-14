@@ -37,3 +37,4 @@ BaseC/trans/types/*.generated.str
 **/__tests__/*.task
 **/__tests__/*.index
 **/__tests__/*.c
+/MetaC/sm/__tests__/*.gv*
