@@ -9,10 +9,10 @@ test generate minimal state machine C code [[
   }
 ]] build generate-c to "
   typedef struct  {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
@@ -21,7 +21,7 @@ test generate minimal state machine C code [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           {
             break ;
@@ -40,10 +40,10 @@ test generate minimal two states [[
   }
 ]] build generate-c to "
   typedef struct {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init(X *sm) {
     X_transition_to_state(sm, 1);
@@ -52,7 +52,7 @@ test generate minimal two states [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           { break ; }
         case 1:
@@ -75,10 +75,10 @@ test sm with epsilon transition [[
   }
 ]] build generate-c to "
   typedef struct {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init(X *sm) {
     X_transition_to_state(sm, 1);
@@ -87,7 +87,7 @@ test sm with epsilon transition [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           { break ;
           }
@@ -124,10 +124,10 @@ test sm with transition with params [[
   }
 ]] build generate-c to "
   typedef struct {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init(X *sm) {
     X_transition_to_state(sm, 0);
@@ -136,7 +136,7 @@ test sm with transition with params [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           {
             if (event == 0 && 1 > 2) {
@@ -162,11 +162,11 @@ test sm with local variables [[
   }
 ]] build generate-c to "
   typedef struct {
-    int state;
+    int __sm_state__;
     signed int x;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
@@ -175,7 +175,7 @@ test sm with local variables [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           { break ; }
       }
@@ -193,7 +193,7 @@ test sm state with an entry [[
   }
 ]] build generate-c to "
   typedef struct {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
     switch (goal) {
@@ -202,7 +202,7 @@ test sm state with an entry [[
         break;
       }
     }
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init(X *sm) {
     X_transition_to_state(sm, 0);
@@ -211,7 +211,7 @@ test sm state with an entry [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           { break ; }
       }
@@ -228,10 +228,10 @@ test init statemachine code [[
   }
 ]] build generate-c to "
   typedef struct  {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
@@ -240,7 +240,7 @@ test init statemachine code [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           {
             break ;
@@ -268,10 +268,10 @@ test statemachine trigger event without params [[
   }
 ]] build generate-c to "
   typedef struct  {
-    int state;
+    int __sm_state__;
   } X;
   void X_transition_to_state (X *sm, int goal) {
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
@@ -280,7 +280,7 @@ test statemachine trigger event without params [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           {
             if (event == 0 && 1) {
@@ -317,7 +317,7 @@ test statemachine with local vars [[
 ]] build generate-c to "
   signed int a = 1;
   typedef struct  {
-    int state;
+    int __sm_state__;
     signed int b;
   } X;
   void X_transition_to_state (X *sm, int goal) {
@@ -328,7 +328,7 @@ test statemachine with local vars [[
           break ;
         }
     }
-    sm->state = goal;
+    sm->__sm_state__ = goal;
   }
   void X_init (X *sm) {
     sm->b = 0;
@@ -338,7 +338,7 @@ test statemachine with local vars [[
     int cont = 1;
     while (cont) {
       cont = 0;
-      switch (sm->state) {
+      switch (sm->__sm_state__) {
         case 0:
           {
             if (event == 0 && sm->b > a) {

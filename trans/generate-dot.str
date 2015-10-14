@@ -3,7 +3,6 @@ module generate-dot
 imports
 
   include/Metac
-  MetaC/sm/trans/generate-dot
 
 strategies
 

@@ -34,9 +34,11 @@ rules
     )
     where
       struct-declarations := <conc> (
-        [StructDeclaration([Int()], [Declarator(None(), Decl(Identifier("state")))])],
+        [StructDeclaration([Int()], [Declarator(None(), Decl(Identifier(<gen-sm-state-property>)))])],
         <map(gen-sm-variable)> decls
       )
+
+  gen-sm-state-property = !"__sm_state__"
 
   gen-sm-variable:
     Declaration(type, [InitDeclarator(declarator, _)]) -> StructDeclaration(type, [declarator])
@@ -135,7 +137,7 @@ rules
           <gen-sm-assign-var> ("cont", Integer("0")),
           Switch(
             // switch (sm->state) {}
-            PointerField(Var(Identifier("sm")), Identifier("state")),
+            PointerField(Var(Identifier("sm")), Identifier(<gen-sm-state-property>)),
             CompoundStatement(cases)
           )
         ]))
@@ -222,7 +224,7 @@ rules
       [],
       CompoundStatement(<concat> [
         <gen-sm-entries-switch> entries,
-        [<gen-sm-assign-pointer-field> ("sm", "state", Var(Identifier("goal")))]
+        [<gen-sm-assign-pointer-field> ("sm", <gen-sm-state-property>, Var(Identifier("goal")))]
       ])
     )
     where
