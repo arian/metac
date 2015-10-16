@@ -115,9 +115,9 @@ is a list with all types of field lookups, so the `nabl-use-site` rule for
 
 #### Recursive Type Relations
 
-Types can be composed out of multiple other types. For example you could have
-a `List` of `Int`s. In the case of C, an example would be a pointer type of
-some interger: `Pointer(Int32())`.
+Types can be derived from one or multiple other types. For example you could
+have a `List` of `Int`s. In the case of C, an example would be a pointer type
+of some interger: `Pointer(Int32())`.
 
 For assignment expressions, you would like to know if you could assign the
 right hand side to the left hand side expression.
@@ -149,4 +149,17 @@ relations
   Int16() <is: Numeric()
 ```
 
+Besides derived types, C also has type definitions, which alias some type to
+a simpler name.
+
+##### Solution
+
+The solution is to create a stratego
+[`relation-match-custom`](https://github.com/arian/metac/blob/master/BaseC/trans/types/BaseC-Type-relation-is-assignable.str#L38-L66)
+rule.
+
+#### Modular typedefs
+
+Bitfield variables are declared as `BitfieldName x;`. This has the same syntax
+as a variable with a typedef.
 
