@@ -158,8 +158,40 @@ The solution is to create a stratego
 [`relation-match-custom`](https://github.com/arian/metac/blob/master/BaseC/trans/types/BaseC-Type-relation-is-assignable.str#L38-L66)
 rule.
 
-#### Modular typedefs
+#### typedefs
+
+Typedefs in C provide an alias to some other type.
+
+For example:
+
+```c
+typedef int a;
+```
+
+Typedefs can be used in other typedefs
+
+```c
+typedef a * b;
+```
+
+When using this type, for example when assigning some value to a declaration
+with type `b`, we need to check if they are equal/compatible.
+
+Currently this is done by assigning the [type to the typedef](https://github.com/arian/metac/blob/master/BaseC/trans/names/BaseC-typedefs.nab#L14-L19)
+
+When using this type in a relation, it is rewritten to a form where all typedefs
+are resolved.
+
+For example some variable might have type `TypedefName("b")`, which is
+rewritten to `Pointer(Int32())`.
+
+This is done recursively here in the
+[`resolve-typedef`](https://github.com/arian/metac/blob/master/BaseC/trans/types/BaseC-Type-relation-is-assignable.str#L28-L30)
+rewrite task
+
+##### Modular typedefs
 
 Bitfield variables are declared as `BitfieldName x;`. This has the same syntax
 as a variable with a typedef.
+
 
