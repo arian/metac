@@ -3,9 +3,8 @@ module editor/Metac-Outliner
 imports
 
   include/Metac
-  lib/runtime/editor/outline-library
-  lib/runtime/editor/origins
-  editor/Metac-Outliner.generated
+  runtime/editor/outline-library
+  runtime/editor/origins
 
 rules
 

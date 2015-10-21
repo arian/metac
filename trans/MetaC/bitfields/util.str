@@ -1,0 +1,12 @@
+module MetaC/bitfields/util
+
+imports
+
+  lib/in-range
+
+strategies
+
+  bitfields-int-size = in-range(|0, 8) ; !8
+  bitfields-int-size = in-range(|9, 16) ; !16
+  bitfields-int-size = in-range(|17, 32) ; !32
+  bitfields-int-size = in-range(|33, 64) ; !64

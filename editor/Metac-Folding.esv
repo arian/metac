@@ -1,7 +1,5 @@
 module Metac-Folding
 
-imports Metac-Folding.generated
-
 folding
 
   // This file can be used for custom folding rules.

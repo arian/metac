@@ -1,0 +1,18 @@
+module BaseC-gen-expressions
+
+imports
+
+  include/Metac
+  BaseC/desugar/BaseC-desugar-constructors
+  BaseC/generate/BaseC-gen-types
+  BaseC/utils/-
+
+strategies
+
+  generate: Comma(expr, middle, last) -> Comma(expr, <conc> (middle, [last]))
+
+  generate: Cast(type@Type(_, t), expr) ->
+    Cast(TypeName(specifiers, ptr), expr)
+    where
+      specifiers := <gen-Type> type
+      ; ptr := <generate-fn-ptr> t

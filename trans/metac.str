@@ -7,14 +7,14 @@ imports
   libstratego-aterm
   include/Metac
   editor/Metac-Outliner
-  lib/editor-common.generated
-  lib/runtime/index/-
-  lib/runtime/nabl/-
-  lib/runtime/properties/-
-  lib/runtime/types/-
-  lib/runtime/task/-
-  lib/runtime/analysis/-
-  lib/runtime/editor/-
+  editor-common.generated
+  runtime/index/-
+  runtime/nabl/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/task/-
+  runtime/analysis/-
+  runtime/editor/-
   names
   check
   generate-c
@@ -22,39 +22,40 @@ imports
   pp
   test-utils
   desugar/-
-  BaseC/trans/analysis/-
-  BaseC/trans/types/-
-  trans/lib/-
-  MetaC/sm/trans/trans
-  MetaC/bitfields/trans/trans
+  BaseC/analysis/-
+  BaseC/types/-
+  MetaC/sm/trans
+  MetaC/bitfields/trans
 
 rules // Analysis
 
   is-source-ast-test =
     is-substring(!"BaseC/syntax/__tests__/")
-    <+ is-substring(!"BaseC/trans/pp/__tests__/")
+    <+ is-substring(!"BaseC/pp/__tests__/")
 
-  editor-analyze =
-    ?tuple
-    ; ?(ast, path, project-path)
-    // hack to just get the original AST for syntax tests
-    // as that's what we like to test for the syntax definitions
-    // testing the analyzed AST is what we do somewhere else
-    ; if (<is-source-ast-test> path) then
-        !ast
-      else
-        <analysis-default-editor> tuple
-      end
+//  editor-analyze =
+//    ?tuple
+//    ; ?(ast, path, project-path)
+//    // hack to just get the original AST for syntax tests
+//    // as that's what we like to test for the syntax definitions
+//    // testing the analyzed AST is what we do somewhere else
+//    ; if (<is-source-ast-test> path) then
+//        !ast
+//      else
+//        <analysis-default-editor> tuple
+//      end
 
-  analysis-single-default-interface =
-    ?tuple
-    ; <analysis-single-default(desugar-all(|tuple), post-trans-all(|tuple), id|<language>)> tuple
+  editor-analyze = ?input; analyze-all(desugar-all(|input), id, id|<language>)
 
-  analysis-multiple-default-interface =
-    ?tuple
-    ; <analysis-multiple-default(parse-file <+ !(), desugar-all(|tuple), post-trans-all(|tuple), id|<language>, <project-path>)> tuple
-
-  editor-save = analysis-save-default(|<language>)
+//  analysis-single-default-interface =
+//    ?tuple
+//    ; <analysis-single-default(desugar-all(|tuple), post-trans-all(|tuple), id|<language>)> tuple
+//
+//  analysis-multiple-default-interface =
+//    ?tuple
+//    ; <analysis-multiple-default(parse-file <+ !(), desugar-all(|tuple), post-trans-all(|tuple), id|<language>, <project-path>)> tuple
+//
+//  editor-save = analysis-save-default(|<language>)
 
 rules // Editor services
 

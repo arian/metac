@@ -1,9 +1,9 @@
-module trans/names
+module names
 
 imports
 
   include/Metac
-  BaseC/trans/names/BaseC-names
+  BaseC/names/BaseC-names
 
 namespaces
 

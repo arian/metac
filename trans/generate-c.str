@@ -3,7 +3,7 @@ module generate-c
 imports
 
   include/Metac
-  BaseC/trans/generate/-
+  BaseC/generate/-
   pp
   libstratego-lib
 

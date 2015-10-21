@@ -1,4 +1,4 @@
-module trans/post-trans
+module post-trans
 
 strategies
 

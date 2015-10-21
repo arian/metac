@@ -1,14 +1,14 @@
-module trans/names
+module names
 
 imports
-  lib/runtime/nabl/-
-  lib/runtime/task/-
-  lib/runtime/properties/-
-  lib/runtime/types/-
-  lib/runtime/relations/-
-  lib/runtime/editor/-
+  runtime/nabl/-
+  runtime/task/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/relations/-
+  runtime/editor/-
   include/Metac
-  BaseC/trans/names/BaseC-names
+  BaseC/names/BaseC-names
 
 
 signature

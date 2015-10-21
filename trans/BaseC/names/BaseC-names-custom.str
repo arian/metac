@@ -1,0 +1,59 @@
+module BaseC-names-custom
+
+imports
+
+  runtime/nabl/-
+  runtime/task/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/relations/-
+  runtime/editor/-
+  include/Metac
+  BaseC/names/-
+
+rules
+
+  get-program-scope-nabl-namespace = fail
+
+  nabl-get-scope =
+    ?Program(file, decls)
+    ; !<concat ; uniq> [
+        [
+          NablNsVariable(), NablNsTypedef(), NablNsFunction(), NablNsEnum(),
+          NablNsEnumerator(), NablNsStruct(), NablNsUnion()
+       ],
+       <filter(get-program-scope-nabl-namespace)> decls
+     ]
+
+  nabl-get-name :
+    Program(file, _) -> file
+
+  nabl-name-apply(s) =
+    Program(s, id)
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?Program(file, _)
+    ; ?p
+    ; origin-track-forced(
+        Program(
+          nabl-def(
+            ?c-uri1__
+          , ?s-uri1__
+          | lang__
+          , ctx__
+          , uniques__
+          , uri__
+          , uri__
+          , NablNsModule()
+          , Unique()
+          , Current()
+          , <nabl-get-scope> p
+          , []
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])

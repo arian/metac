@@ -1,4 +1,4 @@
-module trans/lib/in-range
+module lib/in-range
 
 strategies
 

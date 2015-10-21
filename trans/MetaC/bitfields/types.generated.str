@@ -1,0 +1,26 @@
+module MetaC/bitfields/types.generated
+
+imports
+  
+  runtime/nabl/-
+  runtime/task/-
+  runtime/types/-
+  runtime/properties/-
+  runtime/relations/-
+
+
+signature constructors
+  
+  
+  
+rules // functions 
+  
+
+rules // relations
+  
+
+rules // rules
+  
+
+rules // projections
+  

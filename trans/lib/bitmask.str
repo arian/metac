@@ -1,4 +1,4 @@
-module trans/lib/bitmask
+module bitmask
 
 rules
 

@@ -2,8 +2,8 @@ module test-utils
 
 imports
 
-  BaseC/trans/analysis/-
-  lib/runtime/types/query
+  BaseC/analysis/-
+  runtime/types/query
   include/Metac
 
 rules

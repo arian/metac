@@ -1,4 +1,4 @@
-module trans/lib/path-join
+module lib/path-join
 
 rules
 
