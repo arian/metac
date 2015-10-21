@@ -4,7 +4,7 @@ imports
 
   BaseC/names/-
   MetaC/bitfields/trans
-  MetaC/bitfields/names
+  names/MetaC/bitfields/names
 
 rules
 

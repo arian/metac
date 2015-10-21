@@ -4,7 +4,9 @@ imports
 
   include/Metac
   BaseC/desugar/-
-  BaseC/names/-
+  BaseC-functions
+  BaseC-structs
+  BaseC-variables
 
 namespaces
   Module

@@ -3,7 +3,6 @@ module MetaC/bitfields/names
 imports
 
   include/Metac
-  BaseC/names/BaseC-typedefs
   MetaC/bitfields/trans
   MetaC/bitfields/desugar
   MetaC/bitfields/names-custom

@@ -15,7 +15,7 @@ imports
   runtime/task/-
   runtime/analysis/-
   runtime/editor/-
-  names
+  names/names
   check
   generate-c
   generate-dot

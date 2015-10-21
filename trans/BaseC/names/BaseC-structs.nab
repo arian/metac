@@ -4,7 +4,7 @@ imports
 
   include/Metac
   BaseC/desugar/-
-  BaseC/names/BaseC-variables
+  BaseC-variables
   BaseC/names/BaseC-structs-custom
 
 namespaces

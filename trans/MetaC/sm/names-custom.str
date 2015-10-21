@@ -3,7 +3,7 @@ module MetaC/sm/names-custom
 imports
 
   include/Metac
-  MetaC/sm/names
+  names/MetaC/sm/names
   MetaC/sm/constructors
 
 rules

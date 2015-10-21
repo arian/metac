@@ -9,8 +9,8 @@ imports
   runtime/editor/-
   include/Metac
   BaseC/desugar/-
-  BaseC/names/BaseC-variables
-  BaseC/names/BaseC-structs
+  names/BaseC-variables
+  names/BaseC-structs
 
 rules
 

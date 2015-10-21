@@ -3,7 +3,7 @@ module names
 imports
 
   include/Metac
-  BaseC/names/BaseC-names
+  BaseC-names
 
 namespaces
 

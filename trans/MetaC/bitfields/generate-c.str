@@ -6,7 +6,7 @@ imports
   runtime/types/-
   BaseC/desugar/BaseC-desugar-constructors
   MetaC/bitfields/trans
-  MetaC/bitfields/names
+  names/MetaC/bitfields/names
   MetaC/bitfields/desugar
   MetaC/bitfields/util
   lib/bitmask

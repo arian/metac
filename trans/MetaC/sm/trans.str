@@ -6,5 +6,5 @@ imports
   MetaC/sm/generate-c
   MetaC/sm/generate-dot
   MetaC/sm/names-custom
-  MetaC/sm/names
+  names/MetaC/sm/names
   MetaC/sm/types.generated

@@ -9,7 +9,11 @@ imports
   runtime/relations/-
   runtime/editor/-
   include/Metac
-  BaseC/names/-
+  names/BaseC-names
+  names/BaseC-enums
+  names/BaseC-functions
+  names/BaseC-structs
+  names/BaseC-variables
 
 rules
 

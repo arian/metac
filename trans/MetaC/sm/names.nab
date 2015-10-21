@@ -3,7 +3,6 @@ module MetaC/sm/names
 imports
 
   include/Metac
-  BaseC/names/-
   MetaC/sm/constructors
 
 namespaces

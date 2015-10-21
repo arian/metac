@@ -5,8 +5,8 @@ imports
   include/Metac
   BaseC/desugar/-
   BaseC/types/-
-  BaseC/names/BaseC-functions
-  BaseC/names/BaseC-enums
+  BaseC-functions
+  BaseC-enums
 
 namespaces
 
