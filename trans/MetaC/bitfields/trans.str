@@ -6,7 +6,7 @@ imports
   MetaC/bitfields/desugar
   MetaC/bitfields/generate-c
   MetaC/bitfields/types
-  MetaC/bitfields/types.generated
+  types/MetaC/bitfields/types
 
 signature constructors
 

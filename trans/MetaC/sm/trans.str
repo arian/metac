@@ -7,4 +7,4 @@ imports
   MetaC/sm/generate-dot
   MetaC/sm/names-custom
   names/MetaC/sm/names
-  MetaC/sm/types.generated
+  types/MetaC/sm/types

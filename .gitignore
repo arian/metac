@@ -8,7 +8,7 @@
 /target
 /trans/*.pp.generated.str
 /lib/*.generated.*
-
 /.classpath
 /.project
 /.settings
+**/__tests__/*.aterm
