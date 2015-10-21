@@ -4,7 +4,7 @@ imports
 
   include/Metac
   runtime/types/-
-  BaseC/desugar/BaseC-desugar-constructors
+  BaseC/desugar/constructors
   MetaC/bitfields/trans
   names/MetaC/bitfields/names
   MetaC/bitfields/desugar

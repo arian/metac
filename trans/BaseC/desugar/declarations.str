@@ -1,0 +1,107 @@
+module BaseC/desugar/declarations
+
+imports
+
+  include/Metac
+  BaseC/desugar/constructors
+  BaseC/desugar/types
+  BaseC/desugar/functions
+
+// variable declarations
+rules
+
+  desugar-var-declarator(|storage, base-type):
+    decl@Declarator(ptr, FuncDecl(d, params)) -> FuncDeclaration(
+      storage,
+      <merge-types> (base-type, ptr, decl),
+      decl,
+      <find-decl> decl,
+      <map(desugar-parameter)> ps
+    )
+    where
+      ParameterList(ps) := params
+      <+ VarArgs(ParameterList(ps)) := params // TODO handle varargs better
+
+  desugar-var-declarator(|storage, base-type):
+    decl@Declarator(ptr, d) -> VarDeclaration(
+      storage,
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl,
+      None()
+    )
+    where
+      <not(?FuncDecl(_, _))> d
+
+  desugar-var-declarator(|storage, base-type):
+    InitDeclarator(decl@Declarator(ptr, d), init) -> VarDeclaration(
+      storage,
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl,
+      Some(init)
+    )
+
+  is-type-declarator = ?Typedef()
+  is-type-declarator = ?Enum(_, _)
+  is-type-declarator = ?Struct(_, _)
+  is-type-declarator = ?Union(_, _)
+
+  desugar:
+    Declaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      <all(not(is-type-declarator))> specifiers // no typedef to VarDeclaration
+      ; type := <desugar-decl-types> specifiers
+      ; storage := <filter(is-storage-class-specifier)> specifiers
+      ; decls := <map(desugar-var-declarator(|storage, type))> declarators
+
+// typedefs
+rules
+
+  desugar-typedef-declarator(|base-type):
+    decl@Declarator(ptr, d) -> TypedefDeclaration(
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl
+    )
+
+  desugar:
+    Declaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      <some(?Typedef())> specifiers
+      ; type := <desugar-decl-types> specifiers
+      ; decls := <map(desugar-typedef-declarator(|type))> declarators
+
+// structs
+rules
+
+  desugar-struct-declarator(|base-type):
+    decl@Declarator(ptr, d) -> StructDeclarator(
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl,
+      None()
+    )
+
+  desugar-struct-declarator(|base-type):
+    StructSizedFieldDeclarator(Some(decl@Declarator(ptr, d)), size) -> StructDeclarator(
+      <merge-types> (base-type, ptr, d),
+      decl,
+      <find-decl> decl,
+      Some(size)
+    )
+
+  desugar:
+    StructDeclaration(
+      specifiers,
+      declarators
+    ) -> decls
+    where
+      type := <desugar-decl-types> specifiers
+      ; decls := <map(desugar-struct-declarator(|type))> declarators

@@ -1,0 +1,180 @@
+module BaseC/Declarations
+
+imports
+
+  BaseC/Common
+  BaseC/Constants
+  BaseC/Expr
+  BaseC/Identifiers
+  BaseC/Types
+  BaseC/StructOrUnion
+  BaseC/Enums
+
+context-free syntax
+
+  // storage-class-specifiers
+  StorageClassSpecifierKeyword.Auto =
+    <auto>
+
+  StorageClassSpecifierKeyword.Register =
+    <register>
+
+  StorageClassSpecifierKeyword.Static =
+    <static>
+
+  StorageClassSpecifierKeyword.Extern =
+    <extern>
+
+  StorageClassSpecifierKeyword.Typedef =
+    <typedef>
+
+  StorageClass =
+    StorageClassSpecifierKeyword
+
+  // type-qualifier
+
+  TypeQualifierKeyword.Const =
+    <const>
+
+  TypeQualifierKeyword.Volatile =
+    <volatile>
+
+  Qualifier =
+    TypeQualifierKeyword
+
+
+context-free restrictions
+
+  StorageClassSpecifierKeyword -/- [a-zA-Z0-9\_]
+
+  TypeQualifierKeyword -/- [a-zA-Z0-9\_]
+
+
+context-free syntax
+
+  // type-specifier
+  TypeSpecifier =
+    PureType
+
+  TypeSpecifier =
+    StructOrUnionSpecifier
+
+  TypeSpecifier =
+    EnumSpecifier
+
+  TypeSpecifier =
+    TypeDefName {avoid}
+
+
+  // declaration-specifiers
+  DeclarationSpecifier =
+    StorageClass
+
+  DeclarationSpecifier =
+    Qualifier
+
+  DeclarationSpecifier =
+    TypeSpecifier
+
+  // typedef-name
+  TypeDefName.TypedefName = Identifier
+
+
+  // declaration
+  Declaration.Declaration =
+    <<DeclarationSpecifier+> <{InitDeclarator ", "}*>;>
+
+
+  // init-declarator
+  InitDeclarator =
+    Declarator
+
+  InitDeclarator.InitDeclarator =
+    <<Declarator> = <Initializer>>
+
+
+  // specifier-qualifier-list
+  SpecifierQualifier =
+    TypeSpecifier
+
+  SpecifierQualifier =
+    Qualifier
+
+
+  // pointer
+  Pointer.Pointer =
+    <*<Qualifier*><Pointer?>>
+
+
+  // declarator
+  Declarator.Declarator =
+    <<Pointer?><DirectDeclarator>>
+
+
+  // direct-declarator
+  DirectDeclarator.Decl =
+    Identifier {avoid}
+
+  DirectDeclarator.ParensDecl =
+    <(<Declarator>)>
+
+  DirectDeclarator.ArrayDecl =
+    <<DirectDeclarator>[<Constant?>]>
+
+  DirectDeclarator.FuncDecl =
+    <<DirectDeclarator>(<ParameterTypeList>)>
+
+  DirectDeclarator.FuncDeclIDs =
+    <<DirectDeclarator>(<{Identifier ", "}*>)>
+
+  // parameter-type-list
+  ParameterTypeList =
+    ParameterList
+
+  ParameterTypeList.VarArgs =
+    <<ParameterList>, ...>
+
+  // parameter-list
+  ParameterList.ParameterList = <<{ParameterDeclaration ", "}*>>
+
+
+  // parameter-declaration
+  ParameterDeclaration.Parameter =
+    <<DeclarationSpecifier+> <Declarator>>
+
+  ParameterDeclaration.AbstractParameter =
+    <<DeclarationSpecifier+><AbstractDeclarator?>>
+
+
+  // initializer
+  Initializer =
+    AExpr
+
+  Initializer.BlockInitializer =
+    <{<{Initializer ", "}*>}>
+
+
+  // type-name
+  TypeName.TypeName =
+    <<SpecifierQualifier*><AbstractDeclarator?>>
+
+
+  // abstract-declarator
+  AbstractDeclarator =
+    Pointer
+
+  AbstractDeclarator.Declarator =
+    <<Pointer?><DirectAbstractDeclarator>>
+
+
+  // direct-abstract-declarator
+  DirectAbstractDeclarator.ParensDecl =
+    <(<AbstractDeclarator>)>
+
+  DirectAbstractDeclarator.ArrayDecl =
+    <<DirectAbstractDeclarator?>[<Constant?>]>
+
+  DirectAbstractDeclarator.FuncDecl =
+    <<DirectAbstractDeclarator?>(<ParameterTypeList?>)>
+
+

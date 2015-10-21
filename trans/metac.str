@@ -22,7 +22,7 @@ imports
   pp
   test-utils
   desugar/-
-  BaseC/analysis/-
+  BaseC/analysis/disamb
   BaseC/types/-
   MetaC/sm/trans
   MetaC/bitfields/trans
@@ -45,7 +45,10 @@ rules // Analysis
 //        <analysis-default-editor> tuple
 //      end
 
-  editor-analyze = ?input; analyze-all(desugar-all(|input), id, id|<language>)
+  pre-analysis:
+    File(file, Program(_, decls), num) -> File(file, Program(file, decls), num)
+
+  editor-analyze = ?input; map(pre-analysis) ; analyze-all(desugar-all, id, id|<language>)
 
 //  analysis-single-default-interface =
 //    ?tuple

@@ -1,0 +1,27 @@
+module BaseC/Enums
+
+imports
+
+  BaseC/Identifiers
+  BaseC/Constants
+
+context-free syntax
+
+  EnumSpecifier.Enum =
+    <enum <Identifier>>
+
+  EnumSpecifier
+    = EnumDeclarator
+
+
+  EnumDeclaration.Enumerator =
+    <<Identifier><EnumInit?>>
+
+  EnumInit.EnumInit =
+    <= <Constant>>
+
+  EnumDeclarator.Enum =
+    <
+    enum <Identifier?> {
+      <{EnumDeclaration ","}+>
+    }>

@@ -2,10 +2,10 @@ module MetaC/bitfields/syntax/bitfields
 
 imports
 
-  Common
-  BaseC-Constants
-  BaseC-Declarations
-  BaseC-Identifiers
+  BaseC/Common
+  BaseC/Constants
+  BaseC/Declarations
+  BaseC/Identifiers
 
 context-free syntax
 

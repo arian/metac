@@ -1,0 +1,16 @@
+module BaseC/util/types
+
+imports
+
+  include/Metac
+  BaseC/desugar/-
+  runtime/types/-
+
+rules
+
+  get-base-type: Array(t) -> <get-base-type> t
+  get-base-type: Pointer(t) -> <get-base-type> t
+  get-base-type: t -> t
+
+  generate-fn-ptr: Pointer(t) -> Some(Pointer([], <generate-fn-ptr> t))
+  generate-fn-ptr: _ -> None()

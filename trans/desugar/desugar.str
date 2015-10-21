@@ -9,16 +9,17 @@ rules
   desugar01 =
     fail
 
-  desugar(|t) =
+  desugar(|file) =
     fail
 
   desugar =
     fail
 
-  desugar-all(|t) =
-    bottomup(try(desugar01))
+  desugar-all =
+    ?Program(f, _)
+    ; bottomup(try(desugar01))
     ; bottomup(
-      try(desugar(|t))
+      try(desugar(|f))
       ; try(desugar)
       ; try(flatten-list)
    )

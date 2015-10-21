@@ -1,0 +1,28 @@
+module BaseC/FunDef
+
+imports
+
+  BaseC/Identifiers
+  BaseC/Declarations
+  BaseC/Stmt
+
+context-free syntax
+
+  Declaration = FunDef
+
+  FunName =
+    Identifier
+
+  FunName.ParenName =
+    <(<Identifier>)>
+
+
+  FunDeclarator.FunDeclarator =
+    <<Pointer?> <FunName> (<ParameterList>)>
+
+
+  FunDef.FunDef =
+    <
+
+    <DeclarationSpecifier*><FunDeclarator><Declaration*> <CompoundStatement>
+    >

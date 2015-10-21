@@ -2,7 +2,7 @@ module Metac
 
 imports
 
-  BaseC-Program
+  BaseC/Program
   MetaC/sm/syntax/sm
   MetaC/bitfields/syntax/bitfields
 

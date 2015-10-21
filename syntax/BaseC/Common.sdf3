@@ -1,7 +1,7 @@
-module Common
+module BaseC/Common
 
 imports
-  BaseC-Keywords
+  BaseC/Keywords
 
 lexical syntax
 

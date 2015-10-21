@@ -1,0 +1,41 @@
+module BaseC/desugar/functions
+
+imports
+
+  include/Metac
+  BaseC/desugar/constructors
+  BaseC/desugar/types
+
+rules
+
+  desugar-parameter:
+    Parameter(ts, decl@Declarator(ptr, d)) -> FunDefinitionParameter(
+      <merge-types> (types, ptr, d),
+      decl,
+      <find-decl> decl
+    )
+    where
+      types := <desugar-decl-types> ts
+
+  desugar-parameter:
+    AbstractParameter(ts, ptr) -> FunDefinitionParameter(
+      <merge-types> (<desugar-decl-types> ts, ptr, None())
+    )
+
+  desugar:
+    FunDef(
+      specifiers,
+      decl@FunDeclarator(ptr, name, ParameterList(ps)),
+      old-school-declarators,
+      body
+    ) -> FunDefinition(
+      name,
+      storage,
+      <merge-types> (base-type, ptr, decl),
+      parameters,
+      body
+    )
+    where
+      base-type := <desugar-decl-types> specifiers
+      ; storage := <filter(is-storage-class-specifier)> specifiers
+      ; parameters := <map(desugar-parameter)> ps
