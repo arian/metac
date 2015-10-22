@@ -1,0 +1,22 @@
+module BaseC/Program
+
+imports
+
+  BaseC/Declarations
+  BaseC/FunDef
+  BaseC/Macros
+
+context-free syntax
+
+  Declaration =
+    Macro
+
+  Module.Module = ""
+
+  Program.Program =
+    <<Module><{Declaration "\n"}*>>
+
+context-free start-symbols
+
+  Program
+    

@@ -1,0 +1,5 @@
+module metac_bitfield
+
+imports
+
+  MetaC-bitfield/trans

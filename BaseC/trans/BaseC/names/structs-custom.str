@@ -1,0 +1,67 @@
+module BaseC/names/structs-custom
+
+imports
+  runtime/nabl/-
+  runtime/task/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/relations/-
+  runtime/editor/-
+  signatures/BaseC/-
+  BaseC/desugar/-
+  names/BaseC/names/variables
+  names/BaseC/names/structs
+
+rules
+
+  nabl-get-name :
+    Field(e, Identifier(field)) -> field
+
+  nabl-name-apply(s) =
+    Field(id, Identifier(s))
+
+  nabl-use-site(|lang__, ctx, uniques__, uris__, states__) =
+    ?expr@Field(e, Identifier(field))
+    ; candidates := <collect-all-field-lookups ; map(field-lookup-to-candiatate(|ctx, e))> []
+    ; <origin-track-forced(
+        Field(id, origin-track-forced(
+          Identifier(nabl-use(|lang__, ctx, uniques__, uris__, candidates))
+        ))
+      )> expr
+
+  field-lookup-to-candiatate(|ctx, e): (rewrite-name, scope-namespace, field-namespace) ->
+    <{s, p:
+      {p:
+        p := <new-task-fixdeps(|ctx, [])> Id(<get-or-create-property-task(|ctx, Type())> e)
+        ; {prev:
+            ?prev
+            ; s := <new-task-fixdeps(|ctx, [prev])> Rewrite(rewrite-name, p)
+          }
+      }
+      ; !UseCandidate(
+          field-namespace, [],
+          Context(scope-namespace, s, [], Current()),
+          True(), []
+        )
+    }>
+
+  // call field-lookup with the list of collected field-lookups until
+  // all field-lookups are in the accumulator list
+  collect-all-field-lookups: acc -> new-acc
+    where
+      if field := <field-lookup> acc then
+        new-acc := <collect-all-field-lookups> <conc> (acc, [field])
+      else
+        new-acc := acc
+      end
+
+  register-field-lookup(|name, s, f): names -> (name, s, f)
+    where
+      <not(fetch-elem(?(name, _, _)))> names
+
+  // register struct and unions
+  field-lookup = register-field-lookup(|"rewrite-struct-name", NablNsStruct(), NablNsField())
+  task-rewrite: ("rewrite-struct-name", Struct(Identifier(s))) -> s
+
+  field-lookup = register-field-lookup(|"rewrite-union-name", NablNsUnion(), NablNsField())
+  task-rewrite: ("rewrite-union-name", Union(Identifier(s))) -> s

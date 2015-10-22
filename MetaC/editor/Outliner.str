@@ -1,0 +1,11 @@
+module editor/Outliner
+
+imports
+
+  runtime/editor/outline-library
+  runtime/editor/origins
+
+rules
+
+  to-outline-label = fail
+

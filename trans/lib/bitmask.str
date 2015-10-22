@@ -1,5 +1,0 @@
-module bitmask
-
-rules
-
-  external bitmask(|)

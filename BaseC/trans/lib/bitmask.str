@@ -1,0 +1,5 @@
+module lib/bitmask
+
+rules
+
+  external bitmask(|)

@@ -1,0 +1,13 @@
+module MetaC-bitfield/names-custom
+
+imports
+
+  BaseC/names/-
+  MetaC-bitfield/trans
+  names/MetaC-bitfield/names
+
+rules
+
+  field-lookup = register-field-lookup(|"match-bitfields", NablNsTypedef(), NablNsBitfield())
+
+  task-rewrite: ("match-bitfields", Bitfields(name, _)) -> name

@@ -1,0 +1,13 @@
+module MetaC-bitfield/trans
+
+imports
+
+  names/MetaC-bitfield/names
+  MetaC-bitfield/desugar
+  MetaC-bitfield/generate-c
+  MetaC-bitfield/types
+  types/MetaC-bitfield/types
+
+signature constructors
+
+  Bitfields: Name * Size -> Bitfields

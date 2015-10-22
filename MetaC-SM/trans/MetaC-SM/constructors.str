@@ -1,0 +1,16 @@
+module MetaC-SM/constructors
+
+signature constructors
+
+  StateMachine:
+    Identifier *
+    InitState *
+    List *
+    List *
+    List -> StateMachine
+
+  StateMachineVariable: Identifier * Identifier -> StateMachineVariable
+
+  StateMachine: Identifier -> StateMachine
+
+  Event: Index * Identifier * List(Parameter) -> Event

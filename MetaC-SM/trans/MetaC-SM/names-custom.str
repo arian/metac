@@ -1,0 +1,11 @@
+module MetaC-SM/names-custom
+
+imports
+
+  names/MetaC-SM/names
+  MetaC-SM/constructors
+
+rules
+
+  get-program-scope-nabl-namespace:
+    StateMachine(_, _, _, _, _) -> NablNsStateMachine()

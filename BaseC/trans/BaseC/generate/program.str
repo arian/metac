@@ -1,0 +1,16 @@
+module BaseC/generate/program
+
+imports
+
+  signatures/BaseC/-
+  BaseC/desugar/constructors
+
+strategies
+
+  generate:
+    Program(file, decls) -> Program(Module(), decls)
+    where
+      <is-string> file
+
+  generate:
+    IncludeModule(_, include) -> include

@@ -1,8 +1,0 @@
-module Metac-Syntax
-
-language
-
-  line comment : "//"
-  block comment: "/*" * "*/"
-  
-  fences : [ ] { } ( )

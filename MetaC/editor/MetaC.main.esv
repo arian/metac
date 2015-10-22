@@ -1,0 +1,26 @@
+module MetaC.main
+
+imports
+
+  Colorer
+  Menus
+  References
+  Syntax
+  Views
+
+language General properties
+
+  name:          MetaC
+
+  extensions:    mc
+  table:         include/MetaC.tbl
+  start symbols: Program
+
+  provider:      include/metac.ctree
+  provider:      include/metac-java.jar
+
+  observer:      editor-analyze (multifile)
+
+  disambiguator: disamb
+
+  jvm opts:      -server -Xss8m -Xmx1024m
