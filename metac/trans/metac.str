@@ -18,13 +18,13 @@ imports
   generate-c
   generate-dot
   pp
-  utils/-
   test-utils
   desugar/-
   signatures/BaseC/Program-sig
   BaseC/trans
   MetaC-bitfield/trans
   MetaC-SM/trans
+  MetaC/err/trans/trans
 
 rules // Analysis
 

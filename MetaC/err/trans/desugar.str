@@ -1,0 +1,26 @@
+module MetaC/err/trans/desugar
+
+imports
+
+  include/Metac
+  MetaC/err/trans/constructors
+  BaseC/trans/desugar/BaseC-desugar-constructors
+
+rules
+
+  desugar05:
+    ErrAttemptStatement(ErrCompoundStatement(items), fail-items) ->
+    ErrAttemptStatement(CompoundStatement(<map(desugar-err-fn-call <+ id)> items), fail-items)
+
+  desugar-err-fn-call:
+    VarDeclaration(
+      [],
+      type,
+      _,
+      Decl(ident@Identifier(_)),
+      Some(Call(fn, params))
+    ) -> ErrVarDeclaration(
+      type,
+      ident,
+      Call(fn, params)
+    )

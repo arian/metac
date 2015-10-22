@@ -1,0 +1,99 @@
+module MetaC/err/trans/names
+
+imports
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/properties/-
+  lib/runtime/types/-
+  lib/runtime/relations/-
+  lib/runtime/editor/-
+  include/Metac
+  BaseC/trans/desugar/-
+  BaseC/trans/names/-
+  MetaC/err/trans/constructors
+
+
+signature
+  constructors
+    
+
+
+signature
+  constructors
+    
+
+
+rules
+
+  nabl-custom-properties(add-properties) =
+    ![] ; add-properties
+
+
+rules
+
+  nabl-get-name :
+    ErrVarDeclaration(
+      Type(mods, type)
+    , Identifier(name)
+    , _
+    ) -> name
+
+  nabl-name-apply(s) =
+    ErrVarDeclaration(Type(id, id), Identifier(s), id)
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?ErrVarDeclaration(
+       Type(mods, type)
+     , Identifier(name)
+     , _
+     )
+    ; origin-track-forced(
+        ErrVarDeclaration(
+          origin-track-forced(Type(id, id)|)
+        , origin-track-forced(
+            Identifier(
+              nabl-def(
+                ?c-uri1__
+              , ?s-uri1__
+              | lang__
+              , ctx__
+              , uniques__
+              , uri__
+              , uri__
+              , NablNsVariable()
+              , Unique()
+              , Current()
+              , []
+              , []
+              )
+            )
+          |
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?ErrVarDeclaration(
+       Type(mods, type)
+     , Identifier(name)
+     , _
+     )
+    ; (where(id)
+       ; ErrVarDeclaration(
+           Type(id, id)
+         , Identifier(
+             nabl-store-props(
+             | ctx__
+             , [ Prop(Type(), type, [])
+               , Prop(NablProp_modifiers(), Modifiers(mods), [])
+               ]
+             )
+           )
+         , id
+         ))
+    ; fail

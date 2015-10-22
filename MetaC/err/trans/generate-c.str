@@ -1,0 +1,66 @@
+module MetaC/err/trans/generate-c
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/types/-
+  MetaC/err/trans/constructors
+  runtime/types/-
+
+rules
+
+  generate01:
+    FunDefinition(
+      identifier,
+      storage,
+      Type(mods, ErrMaybeError(type)),
+      params,
+      body
+    ) -> FunDefinition(
+      identifier,
+      storage,
+      Type([], Void()),
+      new-params,
+      body
+    )
+    where
+      new-params := <conc> ([], params)
+
+  // desugar normal declarations again
+  generate01:
+    ErrVarDeclaration(
+      type,
+      ident,
+      Call(fn, params)
+    ) -> VarDeclaration(
+      [],
+      type,
+      Declarator(None(), decl),
+      decl,
+      Some(Call(fn, params))
+    )
+    where
+      decl := Decl(ident)
+      ; <get-type ; not(?FunType(ErrMaybeError(_)))> fn
+
+  // desugar normal declarations again
+  generate01:
+    ErrVarDeclaration(
+      type,
+      ident,
+      Call(fn, params)
+    ) -> VarDeclaration(
+      [],
+      type,
+      Declarator(None(), decl),
+      decl,
+      Some(Call(fn, params))
+    )
+    where
+      decl := Decl(ident)
+      ; <get-type ; ?FunType(ErrMaybeError(_))> fn
+
+  generate:
+    ErrAttemptStatement(compound-stmt, fail-compound-stmt) ->
+    compound-stmt

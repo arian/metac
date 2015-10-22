@@ -1,0 +1,84 @@
+module err
+
+language metac
+
+start symbol Program
+
+test err returning function [[
+  MaybeError<int8> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(TypeName([Int8],None))],
+      FunDeclarator(
+        None,
+        Identifier("x"),_
+      ),
+      _,
+      _
+    )
+  ])
+
+test err returning function with pointer [[
+  MaybeError<int8*> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(TypeName([Int8],Some(Pointer([], None))))],
+      _,
+      _,
+      _
+    )
+  ])
+
+test err returning function two types [[
+  MaybeError<int8*, int8> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(
+        TypeName([Int8], Some(Pointer([], None))),
+        TypeName([Int8], None)
+      )],
+      _,
+      _,
+      _
+    )
+  ])
+
+test err returning an error [[
+  MaybeError<int8> x() {
+    return Error();
+  }
+]] parse to Program(_, [
+    FunDef(
+      _,
+      _,
+      _,
+      CompoundStatement([
+        Return(Some(ErrError()))
+      ])
+    )
+  ])
+
+test err returning an error [[
+  MaybeError<int8,int8> x() {
+    return Error(1);
+  }
+]] parse to Program(_, [
+    FunDef(
+      _,
+      _,
+      _,
+      CompoundStatement([
+        Return(Some(ErrError(Integer("1"))))
+      ])
+    )
+  ])
+
+test attempt statement [[
+  void f() {
+    attempt {} fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(CompoundStatement([]), CompoundStatement([]))
+    ]))
+  ])

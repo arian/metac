@@ -8,6 +8,10 @@ imports
   BaseC-Identifiers
   BaseC-Stmt
 
+lexical syntax
+
+  Keyword = "Error"
+
 context-free syntax
 
   TypeSpecifier.ErrMaybeError =
@@ -17,30 +21,32 @@ context-free syntax
     [MaybeError<[TypeName],[TypeName]>]
 
 
-  Constant.ErrNone =
-    [None()]
+  Constant.ErrError =
+    [Error()]
 
-  Constant.ErrNone =
-    [None([Expr])]
+  Constant.ErrError =
+    [Error([Expr])]
 
 
   ErrBlockItem =
     BlockItem
 
-  ErrBlockItem.UnpackDeclaration =
-    [[TypeName] [Identifier] <| [FunctionCallExpr];]
+  ErrBlockItem.ErrVarDeclaration =
+    [[TypeName] [Identifier] <= [FunctionCallExpr];]
 
 
-  ErrAttemptCompoundStatement.ErrAttemptCompoundStatement =
-    <
+  ErrCompoundStatement.ErrCompoundStatement =
+    [
     {
-      <{ErrBlockItem "\n"}*>
+      [{ErrBlockItem "\n"}*]
     }
-    >
+    ]
 
 
   Statement.ErrAttemptStatement =
     [
-    attempt [ErrAttemptCompoundStatement]
+    attempt [ErrCompoundStatement]
     fail [CompoundStatement]
     ]
+
+

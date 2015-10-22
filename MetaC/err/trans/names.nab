@@ -1,0 +1,15 @@
+module MetaC/err/trans/names
+
+imports
+
+  include/Metac
+  BaseC/trans/desugar/-
+  BaseC/trans/names/-
+  MetaC/err/trans/constructors
+
+binding rules
+
+  ErrVarDeclaration(Type(mods, type), Identifier(name), _):
+    defines Variable name
+    of type type
+    of modifiers Modifiers(mods)

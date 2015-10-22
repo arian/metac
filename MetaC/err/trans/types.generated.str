@@ -1,0 +1,49 @@
+module MetaC/err/trans/types.generated
+
+
+imports
+
+  include/-
+  lib/runtime/nabl/-
+  lib/runtime/task/-
+  lib/runtime/types/-
+  lib/runtime/properties/-
+  lib/runtime/relations/-
+  BaseC/trans/types/-
+  BaseC/trans/desugar/-
+  MetaC/err/trans/-
+  
+signature constructors
+  
+  
+  
+rules // functions 
+  
+
+rules // relations
+  
+
+rules // rules
+  
+  nabl-constraint(|ctx) :
+    d@ErrVarDeclaration(_, _, Call(fn, params)) -> <fail>
+    where 
+      x560 := <type-task(|ctx)> fn;
+      it128 := <new-task(|ctx)> Rewrite("proj106", x560); task-create-id(|ctx, [x560]);
+      x561 := <type-task(|ctx)> fn;
+      it129 := <new-task(|ctx)> Rewrite("proj107", x561); task-create-id(|ctx, [x561]);
+      or402 := <type-is(|ctx)> <task-create-choice(|ctx)> [it128, it129];
+      it := <type-is(|ctx); task-create-id(|ctx, [or402])> <task-create-choice(|ctx)> [it128, it129];
+      t := <type-lookup(|ctx); task-create-id(|ctx, [it])> d;
+      relmatch552 := <relation-create-match(|ctx); task-create-id(|ctx, [t])> ("<is-assignable:", t, it);
+      <task-create-error-on-failure(|ctx, relmatch552, ["Incompatible types when initializing type ", t, " using type ", it])> fn
+  
+
+rules // projections
+  
+  task-rewrite :
+    ("proj107", FunType(it129)) -> it129
+  
+  task-rewrite :
+    ("proj106", FunType(ErrMaybeError(Type(_, it128)))) -> it128
+  
