@@ -85,10 +85,6 @@
 				<version>${metaborg-version}</version>
 				<extensions>true</extensions>
 				<configuration>
-					<pardonedLanguages combine.children="append">
-						<pardonedLanguage>NameBindingLanguage</pardonedLanguage>
-						<pardonedLanguage>TypeSystemLanguage</pardonedLanguage>
-					</pardonedLanguages>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -5,7 +5,7 @@ imports
   signatures/BaseC/-
   BaseC/desugar/-
   BaseC/names/variables
-  BaseC/names/structs-custom
+  BaseC/names/-
 
 namespaces
 

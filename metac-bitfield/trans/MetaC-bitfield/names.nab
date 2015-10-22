@@ -3,9 +3,8 @@ module MetaC-bitfield/names
 imports
 
   signatures/-
-  MetaC-bitfield/trans
-  MetaC-bitfield/desugar
-  MetaC-bitfield/names-custom
+  BaseC/names/typedefs
+  MetaC-bitfield/-
 
 namespaces
 

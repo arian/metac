@@ -4,9 +4,11 @@ imports
 
   signatures/BaseC/-
   BaseC/desugar/-
+  BaseC/names/enums
   BaseC/names/functions
   BaseC/names/structs
   BaseC/names/variables
+  BaseC/names/typedefs
 
 namespaces
   Module

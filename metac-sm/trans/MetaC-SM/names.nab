@@ -3,7 +3,7 @@ module MetaC-SM/names
 imports
 
   BaseC/names/variables
-  MetaC-SM/constructors
+  MetaC-SM/-
 
 namespaces
 
