@@ -87,3 +87,16 @@ test getting some bit [[
     (a >> 7 & 0x1) + (a >> 0 & 0x1F);
   }"
 
+test using some bit in another expression [[
+  bitfields X { a : 1; };
+  void main() {
+    X a;
+    a.a = 1;
+    int32 b = !a.a;
+  }
+]] build generate-c to "
+  void main () {
+    unsigned char a = 0;
+    a = (a & ~(0x1 << 0) & 0xFF) | ((1 & 0x1) << 0);
+    signed int b = !(a >> 0 & 0x1);
+  }"

@@ -87,10 +87,10 @@ rules
 
   // field lookups
   generate:
-    Field(lvalue, Identifier(field)) -> InclusiveAnd(
+    Field(lvalue, Identifier(field)) -> Paren(InclusiveAnd(
       ShiftRight(lvalue, Integer(<int-to-string> shift)),
       field-mask
-    )
+    ))
     where
       type := <get-type ; ?Bitfields(_, size)> lvalue
       ; BitfieldRange(shift, _) := <get-bitfield-range> field
