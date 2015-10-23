@@ -1,3 +1,5 @@
 module MetaC/err/trans/constructors
 
 signature constructors
+
+  ErrMaybeError: Type * Type * String -> ErrMaybeError

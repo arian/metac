@@ -1,0 +1,102 @@
+module generate-c
+
+language metac
+
+start symbol Program
+
+test a function that returns a MaybeError should generate a struct and prepend that as first argument [[
+  MaybeError<const float64> f() {}
+]] build generate-c to "
+  typedef struct  {
+    unsigned char success;
+    const double value;
+  } __MaybeError_f;
+
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
+
+test a function that returns Error() should return success, and set success to false [[
+  MaybeError<const float64> f() {
+    return Error();
+  }
+]] build generate-c to "
+  typedef struct  {
+    unsigned char success;
+    const double value;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
+    return __maybeErrorReturn_f->success = 0;
+  }"
+
+test a function that returns void should return success, and set value to void [[
+  MaybeError<void> f() {
+    return;
+  }
+]] build generate-c to "
+  typedef struct  {
+    unsigned char success;
+    void value;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
+    return (__maybeErrorReturn_f->value = (void) 0, __maybeErrorReturn_f->success = 1);
+  }"
+
+test a function that returns some value should return success, and set value to the returned value [[
+  MaybeError<int32> f() {
+    return 1 + 2;
+  }
+]] build generate-c to "
+  typedef struct  {
+    unsigned char success;
+    signed int value;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
+    return (__maybeErrorReturn_f->value = 1 + 2, __maybeErrorReturn_f->success = 1);
+  }"
+
+test un-desugar normal function calls [[
+  void f() {}
+  int * g() {}
+  const int ** h() {}
+  void k() {
+    attempt {
+      void a = f();
+      volatile void b = f();
+      int * c = g();
+      const int **d = h();
+    } fail {}
+  }
+]] build generate-c to "
+  void f() {}
+  signed int * g() {}
+  const signed int** h() {}
+  void k() {
+    {
+    void a = f();
+    volatile void b = f();
+    signed int *c = g();
+    const signed int **d = h();
+    }
+  }"
+
+test un-desugar error function unpack call [[
+  MaybeError<uint8*> f() {}
+  void g() {
+    attempt {
+      uint8 *a <= f();
+    } fail {}
+  }
+]] build generate-c to "
+  typedef struct {
+    unsigned char success;
+    unsigned char * value;
+  } __MaybeError_f;
+  void g() {
+    {
+      __MaybeError_f __a;
+      f(&__a);
+      if (!__a.success) goto __err_1;
+      unsigned char *a = __a.value;
+      __err_fail_1:
+      __err_finally_1:
+    }
+  }"

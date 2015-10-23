@@ -17,7 +17,7 @@ type rules
   d@ErrVarDeclaration(_, _, Call(fn, params)) :-
     where
       (
-           fn : FunType(ErrMaybeError(Type(_, it)))
+           fn : FunType(ErrMaybeError(Type(_, it), _, _))
         or fn : FunType(it)
       )
       and definition of d : t

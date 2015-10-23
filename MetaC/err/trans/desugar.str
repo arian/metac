@@ -24,3 +24,19 @@ rules
       ident,
       Call(fn, params)
     )
+
+  desugar05:
+    FunDefinition(
+      identifier@Identifier(name),
+      storage,
+      Type(mods, ErrMaybeError(type)),
+      params,
+      body
+    ) ->
+    FunDefinition(
+      identifier,
+      storage,
+      Type(mods, ErrMaybeError(type, None(), name)),
+      params,
+      body
+    )

@@ -4,30 +4,142 @@ imports
 
   include/Metac
   BaseC/trans/desugar/BaseC-desugar-constructors
+  BaseC/trans/generate/-
   BaseC/trans/types/-
   MetaC/err/trans/constructors
   runtime/types/-
 
 rules
 
+  // generate Declarator from Decl and Type(mods, type)
+  // move to BaseC
+  generate-Declarator:
+    (decl, Type(mods, t)) ->
+    Declarator(<generate-Declarator-type> t, decl)
+
+  generate-Declarator-type:
+    Array(t) -> Some(ArrayDecl([], <generate-Declarator-type> t))
+
+  generate-Declarator-type:
+    Pointer(t) -> Some(Pointer([], <generate-Declarator-type> t))
+
+  generate-Declarator-type:
+    t -> None()
+
+  // generate modified functions that return ErrMaybeTypes
   generate01:
     FunDefinition(
-      identifier,
+      identifier@Identifier(name),
       storage,
-      Type(mods, ErrMaybeError(type)),
+      Type(mods, ErrMaybeError(type, None(), fn-name)),
       params,
       body
-    ) -> FunDefinition(
-      identifier,
-      storage,
-      Type([], Void()),
-      new-params,
-      body
+    ) -> [
+      maybe-struct,
+      FunDefinition(
+        identifier,
+        storage,
+        Type([], UInt8()),
+        new-params,
+        body-with-returns
+      )
+    ]
+    where
+      struct-typename := <conc-strings> ("__MaybeError_" , <strip-annos> name)
+      ; return-var-name := <conc-strings> ("__maybeErrorReturn_", <strip-annos> name)
+      ; maybe-struct := <gen-err-struct> (struct-typename, type)
+      ; new-params := <conc> ([
+          FunDefinitionParameter(
+            Type([], Pointer(TypedefName(Identifier(struct-typename)))),
+            Declarator(Some(Pointer([], None())), Decl(Identifier(return-var-name))),
+            Decl(Identifier(return-var-name))
+          )
+        ], params)
+        ; body-with-returns := <gen-err-body-returns(|return-var-name)> body
+
+  gen-err-struct: (struct-typename, type) ->
+    Declaration(
+      [Typedef(), Struct(None(), struct-declarations)],
+      [Declarator(None(), Decl(Identifier(struct-typename)))]
     )
     where
-      new-params := <conc> ([], params)
+      types := <gen-Type> type
+      ; struct-declarations := <conc> (
+        [StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))])],
+        [StructDeclaration(types, [Declarator(None(), Decl(Identifier("value")))])]
+      )
 
-  // desugar normal declarations again
+  gen-err-body-returns(|return-var-name) =
+    topdown(try(gen-err-return(|return-var-name)))
+
+  gen-err-return(|return-var-name):
+    Return(None()) ->
+    <gen-err-return(|return-var-name)> Return(
+      Some(Cast(Type([], Void()), Integer("0")))
+    )
+
+  gen-err-return(|return-var-name):
+    Return(Some(value)) ->
+    Return(Some(Paren(
+      Comma(
+        Assign(
+          PointerField(Var(Identifier(return-var-name)), Identifier("value")),
+          Assign(),
+          value
+        ),
+        [],
+        Assign(
+          PointerField(Var(Identifier(return-var-name)), Identifier("success")),
+          Assign(),
+          Integer("1")
+        )
+      )
+    )))
+    where
+      <not(?ErrError() <+ ?ErrError(_))> value
+
+  gen-err-return(|return-var-name):
+    Return(Some(ErrError())) ->
+    Return(Some(Assign(
+      PointerField(Var(Identifier(return-var-name)), Identifier("success")),
+      Assign(),
+      Integer("0")
+    )))
+
+  // desugar Error Handling declarations
+  generate01:
+    ErrVarDeclaration(
+      type,
+      ident@Identifier(var-name),
+      Call(fn, params)
+    ) -> [
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier(struct-typename))),
+        Declarator(None(), struct-decl),
+        struct-decl,
+        None()
+      ),
+      ExpressionStatement(Some(
+        Call(fn, params-with-struct)
+      )),
+      VarDeclaration(
+        [],
+        type,
+        Declarator(None(), decl),
+        decl,
+        Some(Field(Var(Identifier(struct-varname)), Identifier("value")))
+      )
+    ]
+    where
+      <get-type ; debug ; ?FunType(ErrMaybeError(_, _, fn-name))> fn
+      ; struct-typename := <conc-strings> ("__MaybeError_" , fn-name)
+      ; struct-varname := <conc-strings> ("__maybe_", var-name)
+      ; decl := Decl(ident)
+      ; struct-decl := Decl(Identifier(struct-varname))
+      ; params-with-struct := <conc> ([Address(Var(Identifier(struct-varname)))], params)
+
+  // un-desugar normal declarations again
   generate01:
     ErrVarDeclaration(
       type,
@@ -36,30 +148,14 @@ rules
     ) -> VarDeclaration(
       [],
       type,
-      Declarator(None(), decl),
+      declarator,
       decl,
       Some(Call(fn, params))
     )
     where
-      decl := Decl(ident)
-      ; <get-type ; not(?FunType(ErrMaybeError(_)))> fn
-
-  // desugar normal declarations again
-  generate01:
-    ErrVarDeclaration(
-      type,
-      ident,
-      Call(fn, params)
-    ) -> VarDeclaration(
-      [],
-      type,
-      Declarator(None(), decl),
-      decl,
-      Some(Call(fn, params))
-    )
-    where
-      decl := Decl(ident)
-      ; <get-type ; ?FunType(ErrMaybeError(_))> fn
+      <get-type ; not(?FunType(ErrMaybeError(_, _, _)))> fn
+      ; decl := Decl(ident)
+      ; declarator := <generate-Declarator> (decl, type)
 
   generate:
     ErrAttemptStatement(compound-stmt, fail-compound-stmt) ->
