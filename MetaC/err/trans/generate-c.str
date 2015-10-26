@@ -64,10 +64,10 @@ rules
     )
     where
       types := <gen-Type> type
-      ; struct-declarations := <conc> (
-        [StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))])],
-        [StructDeclaration(types, [<generate-Declarator> (Decl(Identifier("value")), type)])]
-      )
+      ; struct-declarations := [
+        StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))]),
+        StructDeclaration(types, [<generate-Declarator> (Decl(Identifier("value")), type)])
+      ]
 
   gen-err-body-returns(|return-var-name) =
     topdown(try(gen-err-return(|return-var-name)))

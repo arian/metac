@@ -9,7 +9,7 @@ MaybeError<uint8> f(uint8 test) {
 int8 g(uint8 b) {
   int8 result;
   attempt {
-    uint8 a <= f(b);
+    uint8 a ?= f(b);
     result = a;
   } fail {
     // how ironic ;-)

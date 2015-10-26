@@ -32,7 +32,7 @@ context-free syntax
     BlockItem
 
   ErrBlockItem.ErrVarDeclaration =
-    [[TypeName] [Identifier] <= [FunctionCallExpr];]
+    [[TypeName] [Identifier] ?= [FunctionCallExpr];]
 
 
   ErrCompoundStatement.ErrCompoundStatement =
@@ -46,7 +46,7 @@ context-free syntax
   Statement.ErrAttemptStatement =
     [
     attempt[ErrAttemptLabelName?] [ErrCompoundStatement]
-    fail [CompoundStatement]
+    fail [Statement]
     ]
 
   ErrAttemptLabelName.ErrAttemptLabelName =

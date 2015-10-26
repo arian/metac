@@ -9,8 +9,8 @@ imports
 rules
 
   desugar05:
-    ErrAttemptStatement(name, ErrCompoundStatement(items), fail-items) ->
-    ErrAttemptStatement(name, CompoundStatement(<map(try(desugar-err-fn-call))> items), fail-items)
+    ErrAttemptStatement(name, ErrCompoundStatement(items), fail-stmt) ->
+    ErrAttemptStatement(name, CompoundStatement(<map(try(desugar-err-fn-call))> items), fail-stmt)
 
   // Rewrite variable declarations, that assign a function call to a variable
   // to an ErrVarDeclaration. This is befor analysis, so at generation time

@@ -93,8 +93,8 @@ test un-desugar error function unpack call [[
   MaybeError<uint8*> f() {}
   void g() {
     attempt[a] {
-      uint8 *a <= f();
-    } fail {}
+      uint8 *a ?= f();
+    } fail;
   }
 ]] build generate-c to "
   typedef struct {
@@ -110,7 +110,7 @@ test un-desugar error function unpack call [[
       unsigned char *a = __maybe_a.value;
       goto attempt_a_finally;
     }
-    attempt_a_fail: {}
+    attempt_a_fail: ;
     attempt_a_finally: {}
   }"
 

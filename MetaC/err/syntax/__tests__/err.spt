@@ -83,6 +83,16 @@ test attempt statement [[
     ]))
   ])
 
+test attempt with fail statement [[
+  void f() {
+    attempt {} fail printf("fail\n");
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(None(), ErrCompoundStatement([]), ExpressionStatement(_))
+    ]))
+  ])
+
 test attempt statement with name [[
   void f() {
     attempt[x] {} fail {}
@@ -90,5 +100,23 @@ test attempt statement with name [[
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
       ErrAttemptStatement(Some(ErrAttemptLabelName(Identifier("x"))), _, _)
+    ]))
+  ])
+
+test unpack value declaration [[
+  void f() {
+    attempt {
+      uint8 a ?= g();
+    } fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(None(), ErrCompoundStatement([
+        ErrVarDeclaration(
+          TypeName([UInt8()], None()),
+          Identifier("a"),
+          Call(Var(Identifier("g")), [])
+        )
+      ]), _)
     ]))
   ])
