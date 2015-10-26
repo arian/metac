@@ -9,9 +9,13 @@ imports
 rules
 
   desugar05:
-    ErrAttemptStatement(ErrCompoundStatement(items), fail-items) ->
-    ErrAttemptStatement(CompoundStatement(<map(desugar-err-fn-call <+ id)> items), fail-items)
+    ErrAttemptStatement(name, ErrCompoundStatement(items), fail-items) ->
+    ErrAttemptStatement(name, CompoundStatement(<map(try(desugar-err-fn-call))> items), fail-items)
 
+  // Rewrite variable declarations, that assign a function call to a variable
+  // to an ErrVarDeclaration. This is befor analysis, so at generation time
+  // this can be undone if the function call in the initializer did not return
+  // a ErrMaybeError.
   desugar-err-fn-call:
     VarDeclaration(
       [],
@@ -25,6 +29,8 @@ rules
       Call(fn, params)
     )
 
+  // Desugar all ErrMabybeError function return types to include the function
+  // name, when getting the type at the use-site, the function-name is readable
   desugar05:
     FunDefinition(
       identifier@Identifier(name),

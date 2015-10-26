@@ -11,7 +11,15 @@ test a function that returns a MaybeError should generate a struct and prepend t
     unsigned char success;
     const double value;
   } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
 
+test a function that returns a MaybeError containing a pointer [[
+  MaybeError<const float64 **> f() {}
+]] build generate-c to "
+  typedef struct  {
+    unsigned char success;
+    const double ** value;
+  } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
 
 test a function that returns Error() should return success, and set success to false [[
@@ -58,7 +66,7 @@ test un-desugar normal function calls [[
   int * g() {}
   const int ** h() {}
   void k() {
-    attempt {
+    attempt[none] {
       void a = f();
       volatile void b = f();
       int * c = g();
@@ -71,17 +79,20 @@ test un-desugar normal function calls [[
   const signed int** h() {}
   void k() {
     {
-    void a = f();
-    volatile void b = f();
-    signed int *c = g();
-    const signed int **d = h();
+      void a = f();
+      volatile void b = f();
+      signed int *c = g();
+      const signed int **d = h();
+      goto attempt_none_finally;
     }
+    attempt_none_fail: {}
+    attempt_none_finally: {}
   }"
 
 test un-desugar error function unpack call [[
   MaybeError<uint8*> f() {}
   void g() {
-    attempt {
+    attempt[a] {
       uint8 *a <= f();
     } fail {}
   }
@@ -90,13 +101,39 @@ test un-desugar error function unpack call [[
     unsigned char success;
     unsigned char * value;
   } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
   void g() {
     {
-      __MaybeError_f __a;
-      f(&__a);
-      if (!__a.success) goto __err_1;
-      unsigned char *a = __a.value;
-      __err_fail_1:
-      __err_finally_1:
+      __MaybeError_f __maybe_a;
+      f(&__maybe_a);
+      if (!__maybe_a.success) goto attempt_a_fail;
+      unsigned char *a = __maybe_a.value;
+      goto attempt_a_finally;
     }
+    attempt_a_fail: {}
+    attempt_a_finally: {}
+  }"
+
+test un-desugar error function unpack call [[
+  MaybeError<uint8*> f() {}
+  void g() {
+    attempt[a] {
+    } fail {
+      31;
+    }
+  }
+]] build generate-c to "
+  typedef struct {
+    unsigned char success;
+    unsigned char * value;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
+  void g() {
+    {
+      goto attempt_a_finally;
+    }
+    attempt_a_fail: {
+      31;
+    }
+    attempt_a_finally: {}
   }"

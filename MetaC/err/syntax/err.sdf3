@@ -45,8 +45,9 @@ context-free syntax
 
   Statement.ErrAttemptStatement =
     [
-    attempt [ErrCompoundStatement]
+    attempt[ErrAttemptLabelName?] [ErrCompoundStatement]
     fail [CompoundStatement]
     ]
 
-
+  ErrAttemptLabelName.ErrAttemptLabelName =
+    <[<Identifier>]>

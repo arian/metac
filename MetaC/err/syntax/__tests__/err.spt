@@ -79,6 +79,16 @@ test attempt statement [[
   }
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
-      ErrAttemptStatement(CompoundStatement([]), CompoundStatement([]))
+      ErrAttemptStatement(None(), ErrCompoundStatement([]), CompoundStatement([]))
+    ]))
+  ])
+
+test attempt statement with name [[
+  void f() {
+    attempt[x] {} fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(Some(ErrAttemptLabelName(Identifier("x"))), _, _)
     ]))
   ])

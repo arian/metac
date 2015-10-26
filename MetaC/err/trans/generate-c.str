@@ -66,7 +66,7 @@ rules
       types := <gen-Type> type
       ; struct-declarations := <conc> (
         [StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))])],
-        [StructDeclaration(types, [Declarator(None(), Decl(Identifier("value")))])]
+        [StructDeclaration(types, [<generate-Declarator> (Decl(Identifier("value")), type)])]
       )
 
   gen-err-body-returns(|return-var-name) =
@@ -106,8 +106,25 @@ rules
       Integer("0")
     )))
 
-  // desugar Error Handling declarations
+  // generate the C code for the attempt/fail statement blocks
   generate01:
+    ErrAttemptStatement(some-name, CompoundStatement(compound-stmts), fail-compound-stmt) -> [
+      CompoundStatement(<conc> (attempt-stmts, [
+        Goto(Identifier(<conc-strings> (name, "_finally")))
+      ])),
+      Label(Identifier(<conc-strings> (name, "_fail")), fail-compound-stmt),
+      Label(Identifier(<conc-strings> (name, "_finally")), CompoundStatement([]))
+    ]
+    where
+      label-name := <gen-err-label-name> some-name
+      ; name := <conc-strings> ("attempt_", label-name)
+      ; attempt-stmts := <map(try(gen-err-declaration(|name)))> compound-stmts
+
+  gen-err-label-name: Some(ErrAttemptLabelName(Identifier(t))) -> t
+  gen-err-label-name: None() -> <newname> ""
+
+  // desugar Error Handling declarations
+  gen-err-declaration(|label-name):
     ErrVarDeclaration(
       type,
       ident@Identifier(var-name),
@@ -123,24 +140,29 @@ rules
       ExpressionStatement(Some(
         Call(fn, params-with-struct)
       )),
+      If(
+        Negate(Field(Var(Identifier(struct-varname)), Identifier("success"))),
+        Goto(Identifier(<conc-strings> (label-name, "_fail")))
+      ),
       VarDeclaration(
         [],
         type,
-        Declarator(None(), decl),
-        decl,
+        value-declarator,
+        value-decl,
         Some(Field(Var(Identifier(struct-varname)), Identifier("value")))
       )
     ]
     where
-      <get-type ; debug ; ?FunType(ErrMaybeError(_, _, fn-name))> fn
+      <get-type ; ?FunType(ErrMaybeError(_, _, fn-name))> fn
       ; struct-typename := <conc-strings> ("__MaybeError_" , fn-name)
       ; struct-varname := <conc-strings> ("__maybe_", var-name)
-      ; decl := Decl(ident)
       ; struct-decl := Decl(Identifier(struct-varname))
       ; params-with-struct := <conc> ([Address(Var(Identifier(struct-varname)))], params)
+      ; value-decl := Decl(ident)
+      ; value-declarator := <generate-Declarator> (value-decl, type)
 
   // un-desugar normal declarations again
-  generate01:
+  gen-err-declaration(|label-name):
     ErrVarDeclaration(
       type,
       ident,
@@ -156,7 +178,3 @@ rules
       <get-type ; not(?FunType(ErrMaybeError(_, _, _)))> fn
       ; decl := Decl(ident)
       ; declarator := <generate-Declarator> (decl, type)
-
-  generate:
-    ErrAttemptStatement(compound-stmt, fail-compound-stmt) ->
-    compound-stmt

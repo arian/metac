@@ -1,19 +1,27 @@
+#include <stdio.h>
+#include <assert.h>
 
-MaybeError<volatile int8> f() {
-  return Error();
+MaybeError<uint8> f(uint8 test) {
+  if (test) return test;
+  else return Error();
 }
 
-int8 h(int32 a) {
-  return 1;
+int8 g(uint8 b) {
+  int8 result;
+  attempt {
+    uint8 a <= f(b);
+    result = a;
+  } fail {
+    // how ironic ;-)
+    result = -1;
+  }
+  return result;
 }
 
 int main() {
-  int32 *z = &h();
-  attempt {
-    int32 x <= f();
-    int32 y = h();
-    return x + y;
-  } fail {
-    return -1;
-  }
+  assert(g(0) == -1);
+  assert(g(1) == 1);
+  assert(g(2) == 2);
+  puts("all done\n");
+  return 0;
 }
