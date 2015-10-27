@@ -79,7 +79,11 @@ test attempt statement [[
   }
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
-      ErrAttemptStatement(None(), ErrCompoundStatement([]), CompoundStatement([]))
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [ErrFailWildcard(CompoundStatement([]))]
+      )
     ]))
   ])
 
@@ -89,7 +93,11 @@ test attempt with fail statement [[
   }
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
-      ErrAttemptStatement(None(), ErrCompoundStatement([]), ExpressionStatement(_))
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [ErrFailWildcard(ExpressionStatement(_))]
+      )
     ]))
   ])
 
@@ -111,12 +119,38 @@ test unpack value declaration [[
   }
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
-      ErrAttemptStatement(None(), ErrCompoundStatement([
-        ErrVarDeclaration(
-          TypeName([UInt8()], None()),
-          Identifier("a"),
-          Call(Var(Identifier("g")), [])
-        )
-      ]), _)
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([
+          ErrVarDeclaration(
+            TypeName([UInt8()], None()),
+            Identifier("a"),
+            Call(Var(Identifier("g")), [])
+          )
+        ]),
+        _
+      )
+    ]))
+  ])
+
+test guarded fail blocks [[
+  void f() {
+    attempt {
+    } fail (int8 e) {
+    } fail (float32 e) {
+    } fail {
+    }
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [
+          ErrFailGuarded(TypeName([Int8()], None()), Identifier("e"), CompoundStatement([])),
+          ErrFailGuarded(TypeName([Float32()], None()), Identifier("e"), CompoundStatement([])),
+          ErrFailWildcard(CompoundStatement([]))
+        ]
+      )
     ]))
   ])

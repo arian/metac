@@ -108,11 +108,15 @@ rules
 
   // generate the C code for the attempt/fail statement blocks
   generate01:
-    ErrAttemptStatement(some-name, CompoundStatement(compound-stmts), fail-compound-stmt) -> [
+    ErrAttemptStatement(
+      some-name,
+      CompoundStatement(compound-stmts),
+      [ErrFailWildcard(fail-stmt)]
+    ) -> [
       CompoundStatement(<conc> (attempt-stmts, [
         Goto(Identifier(<conc-strings> (name, "_finally")))
       ])),
-      Label(Identifier(<conc-strings> (name, "_fail")), fail-compound-stmt),
+      Label(Identifier(<conc-strings> (name, "_fail")), fail-stmt),
       Label(Identifier(<conc-strings> (name, "_finally")), CompoundStatement([]))
     ]
     where

@@ -8,9 +8,19 @@ imports
 
 rules
 
+  // Desugar ErrCompoundStatement to CompoundStatement, as all analysis
+  // for ErrCompoundStatement is the same as normal CompoundStatements.
   desugar05:
-    ErrAttemptStatement(name, ErrCompoundStatement(items), fail-stmt) ->
-    ErrAttemptStatement(name, CompoundStatement(<map(try(desugar-err-fn-call))> items), fail-stmt)
+    ErrAttemptStatement(
+      name,
+      ErrCompoundStatement(items),
+      fails
+    ) ->
+    ErrAttemptStatement(
+      name,
+      CompoundStatement(<map(try(desugar-err-fn-call))> items),
+      fails
+    )
 
   // Rewrite variable declarations, that assign a function call to a variable
   // to an ErrVarDeclaration. This is befor analysis, so at generation time
@@ -35,14 +45,18 @@ rules
     FunDefinition(
       identifier@Identifier(name),
       storage,
-      Type(mods, ErrMaybeError(type)),
+      Type(mods, t),
       params,
       body
     ) ->
     FunDefinition(
       identifier,
       storage,
-      Type(mods, ErrMaybeError(type, None(), name)),
+      Type(mods, <desugar-err-fn-return-type(|name)> t),
       params,
       body
     )
+
+  desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1) -> ErrMaybeError(t1, None(), fn-name)
+  desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1, t2) -> ErrMaybeError(t1, t2, fn-name)
+  desugar-err-fn-return-type(|): t -> t

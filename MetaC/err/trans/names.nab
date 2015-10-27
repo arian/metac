@@ -7,9 +7,19 @@ imports
   BaseC/trans/names/-
   MetaC/err/trans/constructors
 
+namespaces
+  ErrFailGuarded
+
 binding rules
+
+  ErrAttemptStatement(_, _, _):
+    scopes ErrFailGuarded
 
   ErrVarDeclaration(Type(mods, type), Identifier(name), _):
     defines Variable name
     of type type
     of modifiers Modifiers(mods)
+
+  ErrFailGuarded(t@Type(mods, type), Identifier(name), s):
+    defines ErrFailGuarded t
+    defines Variable name of type type in s

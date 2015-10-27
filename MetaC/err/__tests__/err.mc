@@ -1,27 +1,19 @@
-#include <stdio.h>
-#include <assert.h>
-
-MaybeError<uint8> f(uint8 test) {
-  if (test) return test;
-  else return Error();
+MaybeError<uint8,int32> f(uint8 test) {
+  return Error(1);
+}
+MaybeError<uint8,int16> g(uint8 test) {
+  return Error(1);
 }
 
-int8 g(uint8 b) {
-  int8 result;
+
+int8 h() {
   attempt {
-    uint8 a ?= f(b);
-    result = a;
-  } fail {
-    // how ironic ;-)
-    result = -1;
+    uint8 a ?= f();
+    uint8 c ?= f();
+    uint8 b ?= g();
+  } fail (int16 a) {
+    a + 1;
+  } fail (int32 b) {
+    b + 2;
   }
-  return result;
-}
-
-int main() {
-  assert(g(0) == -1);
-  assert(g(1) == 1);
-  assert(g(2) == 2);
-  puts("all done\n");
-  return 0;
 }

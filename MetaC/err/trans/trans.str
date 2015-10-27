@@ -5,4 +5,5 @@ imports
   MetaC/err/trans/constructors
   MetaC/err/trans/desugar
   MetaC/err/trans/names
+  MetaC/err/trans/names-custom
   MetaC/err/trans/types.generated

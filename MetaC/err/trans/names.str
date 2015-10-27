@@ -15,7 +15,7 @@ imports
 
 signature
   constructors
-    
+    NablNsErrFailGuarded : Namespace
 
 
 signature
@@ -30,6 +30,14 @@ rules
 
 
 rules
+
+  nabl-scoping-site =
+    ?ErrAttemptStatement(_, _, _)
+    ; nabl-scope(|[NablNsErrFailGuarded()])
+
+  nabl-get-scope =
+    ?ErrAttemptStatement(_, _, _)
+    ; ![NablNsErrFailGuarded()]
 
   nabl-get-name :
     ErrVarDeclaration(
@@ -92,6 +100,93 @@ rules
              , [ Prop(Type(), type, [])
                , Prop(NablProp_modifiers(), Modifiers(mods), [])
                ]
+             )
+           )
+         , id
+         ))
+    ; fail
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?ErrFailGuarded(
+       t@Type(mods, type)
+     , Identifier(name)
+     , s
+     )
+    ; origin-track-forced(
+        ErrFailGuarded(
+          nabl-def(
+            ?c-uri1__
+          , ?s-uri1__
+          | lang__
+          , ctx__
+          , uniques__
+          , uri__
+          , uri__
+          , NablNsErrFailGuarded()
+          , Unique()
+          , Current()
+          , []
+          , []
+          )
+          ; origin-track-forced(Type(id, id)|)
+        , origin-track-forced(Identifier(id)|)
+        , id
+        )
+      |
+      )
+    ; origin-track-forced(
+        ErrFailGuarded(
+          id ; origin-track-forced(Type(id, id)|)
+        , origin-track-forced(
+            Identifier(
+              nabl-def(
+                ?c-uri2__
+              , ?s-uri2__
+              | lang__
+              , ctx__
+              , uniques__
+              , c-uri1__
+              , s-uri1__
+              , NablNsVariable()
+              , Unique()
+              , [DefScope(s)]
+              , []
+              , []
+              )
+            )
+          |
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri2__)
+    ; match(sibl-uris__|s-uri2__)
+    ; match(implicits__|[])
+
+  nabl-external-def-site(|lang__, ctx__, uniques__, uri__, states__, implicits__) =
+    ?ErrFailGuarded(
+       t@Type(mods, type)
+     , Identifier(name)
+     , s
+     )
+    ; uri2__ := <nabl-uri> name
+    ; <nabl-def-alias(|ctx__, uri2__)> s
+    ; fail
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?ErrFailGuarded(
+       t@Type(mods, type)
+     , Identifier(name)
+     , s
+     )
+    ; (where(id)
+       ; ErrFailGuarded(
+           id ; Type(id, id)
+         , Identifier(
+             nabl-store-props(
+             | ctx__
+             , [Prop(Type(), type, [])]
              )
            )
          , id

@@ -11,6 +11,7 @@ imports
 lexical syntax
 
   Keyword = "Error"
+  Keyword = "fail"
 
 context-free syntax
 
@@ -45,9 +46,19 @@ context-free syntax
 
   Statement.ErrAttemptStatement =
     [
-    attempt[ErrAttemptLabelName?] [ErrCompoundStatement]
-    fail [Statement]
+    attempt[ErrAttemptLabelName?] [ErrCompoundStatement] [ErrFailBlock+]
     ]
 
   ErrAttemptLabelName.ErrAttemptLabelName =
     <[<Identifier>]>
+
+
+  ErrFailBlock.ErrFailWildcard =
+    [
+    fail [Statement]
+    ]
+
+  ErrFailBlock.ErrFailGuarded =
+    [
+    fail ([TypeName] [Identifier]) [Statement]
+    ]
