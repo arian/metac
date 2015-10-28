@@ -28,22 +28,22 @@ rules // rules
   nabl-constraint(|ctx) :
     d@ErrVarDeclaration(_, _, Call(fn, params)) -> <fail>
     where 
-      x327 := <type-task(|ctx)> fn;
-      it8 := <new-task(|ctx)> Rewrite("proj58", x327); task-create-id(|ctx, [x327]);
-      x328 := <type-task(|ctx)> fn;
-      it9 := <new-task(|ctx)> Rewrite("proj59", x328); task-create-id(|ctx, [x328]);
-      or337 := <type-is(|ctx)> <task-create-choice(|ctx)> [it8, it9];
-      it := <type-is(|ctx); task-create-id(|ctx, [or337])> <task-create-choice(|ctx)> [it8, it9];
+      x156 := <type-task(|ctx)> fn;
+      it24 := <new-task(|ctx)> Rewrite("proj22", x156); task-create-id(|ctx, [x156]);
+      x157 := <type-task(|ctx)> fn;
+      it25 := <new-task(|ctx)> Rewrite("proj23", x157); task-create-id(|ctx, [x157]);
+      or99 := <type-is(|ctx)> <task-create-choice(|ctx)> [it24, it25];
+      it := <type-is(|ctx); task-create-id(|ctx, [or99])> <task-create-choice(|ctx)> [it24, it25];
       t := <type-lookup(|ctx); task-create-id(|ctx, [it])> d;
-      relmatch463 := <relation-create-match(|ctx); task-create-id(|ctx, [t])> ("<is-assignable:", t, it);
-      <task-create-error-on-failure(|ctx, relmatch463, ["Incompatible types when initializing type ", t, " using type ", it])> fn
+      relmatch135 := <relation-create-match(|ctx); task-create-id(|ctx, [t])> ("<is-assignable:", t, it);
+      <task-create-error-on-failure(|ctx, relmatch135, ["Incompatible types when initializing type ", t, " using type ", it])> fn
   
 
 rules // projections
   
   task-rewrite :
-    ("proj59", FunType(it9)) -> it9
+    ("proj23", FunType(it25)) -> it25
   
   task-rewrite :
-    ("proj58", FunType(ErrMaybeError(Type(_, it8), _, _))) -> it8
+    ("proj22", FunType(ErrMaybeError(Type(_, it24), _, _))) -> it24
   

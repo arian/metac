@@ -15,7 +15,8 @@ imports
 
 signature
   constructors
-    NablNsErrFailGuarded : Namespace
+    NablNsErrFailGuarded  : Namespace
+    NablNsErrFailWildcard : Namespace
 
 
 signature
@@ -33,11 +34,13 @@ rules
 
   nabl-scoping-site =
     ?ErrAttemptStatement(_, _, _)
-    ; nabl-scope(|[NablNsErrFailGuarded()])
+    ; nabl-scope(
+      | [NablNsErrFailGuarded(), NablNsErrFailWildcard()]
+      )
 
   nabl-get-scope =
     ?ErrAttemptStatement(_, _, _)
-    ; ![NablNsErrFailGuarded()]
+    ; ![NablNsErrFailGuarded(), NablNsErrFailWildcard()]
 
   nabl-get-name :
     ErrVarDeclaration(
@@ -192,3 +195,35 @@ rules
          , id
          ))
     ; fail
+
+  nabl-get-name :
+    ErrFailWildcard(wildcard-name, _) -> wildcard-name
+
+  nabl-name-apply(s) =
+    ErrFailWildcard(s, id)
+
+  nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
+    ?ErrFailWildcard(wildcard-name, _)
+    ; origin-track-forced(
+        ErrFailWildcard(
+          nabl-def(
+            ?c-uri1__
+          , ?s-uri1__
+          | lang__
+          , ctx__
+          , uniques__
+          , uri__
+          , uri__
+          , NablNsErrFailWildcard()
+          , Unique()
+          , Current()
+          , []
+          , []
+          )
+        , id
+        )
+      |
+      )
+    ; match(child-uris__|c-uri1__)
+    ; match(sibl-uris__|s-uri1__)
+    ; match(implicits__|[])

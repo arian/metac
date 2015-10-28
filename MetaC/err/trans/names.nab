@@ -9,11 +9,12 @@ imports
 
 namespaces
   ErrFailGuarded
+  ErrFailWildcard
 
 binding rules
 
   ErrAttemptStatement(_, _, _):
-    scopes ErrFailGuarded
+    scopes ErrFailGuarded, ErrFailWildcard
 
   ErrVarDeclaration(Type(mods, type), Identifier(name), _):
     defines Variable name
@@ -23,3 +24,6 @@ binding rules
   ErrFailGuarded(t@Type(mods, type), Identifier(name), s):
     defines ErrFailGuarded t
     defines Variable name of type type in s
+
+  ErrFailWildcard(wildcard-name, _):
+    defines ErrFailWildcard wildcard-name

@@ -60,3 +60,7 @@ rules
   desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1) -> ErrMaybeError(t1, None(), fn-name)
   desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1, t2) -> ErrMaybeError(t1, t2, fn-name)
   desugar-err-fn-return-type(|): t -> t
+
+  // Add a dummy name to the fail { ... } block, so nabl can understand this
+  // to define the wildcard fail block
+  desugar: ErrFailWildcard(s) -> ErrFailWildcard("*", s)

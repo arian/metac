@@ -24,7 +24,11 @@ rules
     // Get the error value type
     ; name := <new-task-fixdeps(|ctx, [fn-type])> Rewrite("err-error-type", fn-type)
     // lookup the error type that matches a guarded (with parameter) fail block
-    ; task := <nabl-use-candidate(|lang, ctx, uris, name)> UseCandidate(NablNsErrFailGuarded(), [], Current(), True(), [])
+    ; task-guard := <nabl-use-candidate(|lang, ctx, uris, name)> UseCandidate(NablNsErrFailGuarded(), [], Current(), True(), [])
+    // lookup the wildcard failure
+    ; task-wildcard := <nabl-use-candidate(|lang, ctx, uris, "*")> UseCandidate(NablNsErrFailWildcard(), [], Current(), True(), [])
+    // either of these
+    ; task := <task-create-choice(|ctx)> [task-guard, task-wildcard]
     // if it's not found, show an error that no compatible fail block was found
     ; <nabl-fix-name; task-create-error-on-failure(|ctx, task, "No compatible fail block found")> d
     // set the Use(_) to the resuling fail block

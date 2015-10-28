@@ -1,0 +1,66 @@
+module names
+
+language Metac
+
+test wildcard should be the default referred failure block [[
+  MaybeError<int> f() { return Error(); }
+  void g() {
+    attempt {
+      [[int a ?= f();]]
+    } [[fail {
+    }]]
+  }
+]] resolve #1 to #2
+
+test wildcard should be the default referred failure block, if error type was not found [[
+  MaybeError<int,float32> f() { return Error(); }
+  void g() {
+    attempt {
+      [[int a ?= f();]]
+    } [[fail {
+    }]]
+  }
+]] resolve #1 to #2
+
+test wildcard should be the default referred failure block, int32 != float32 [[
+  MaybeError<int,float32> f() { return Error(); }
+  void g() {
+    attempt {
+      [[int a ?= f();]]
+    } fail (int32 a) {
+    } [[fail {
+    }]]
+  }
+]] resolve #1 to #2
+
+test fail block with a type if error type was found [[
+  MaybeError<int,float32> f() { return Error(); }
+  void g() {
+    attempt {
+      [[int a ?= f();]]
+    } [[fail (float32 a) {
+    }]]
+  }
+]] resolve #1 to #2
+
+test resolve to the second fail block, as that one matches [[
+  MaybeError<int,float32> f() { return Error(); }
+  void g() {
+    attempt {
+      [[int a ?= f();]]
+    }
+    fail (int32 a) {
+    } [[fail (float32 a) {
+    }]]
+  }
+]] resolve #1 to #2
+
+test resolve error value variable [[
+  void g() {
+    attempt {
+    }
+    fail (int32 [[a]]) {
+      [[a]];
+    }
+  }
+]] resolve #2 to #1

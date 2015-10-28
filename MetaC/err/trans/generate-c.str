@@ -111,7 +111,7 @@ rules
     ErrAttemptStatement(
       some-name,
       CompoundStatement(compound-stmts),
-      [ErrFailWildcard(fail-stmt)]
+      [ErrFailWildcard(_, fail-stmt)]
     ) -> [
       CompoundStatement(<conc> (attempt-stmts, [
         Goto(Identifier(<conc-strings> (name, "_finally")))
