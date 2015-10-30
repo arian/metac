@@ -21,25 +21,172 @@ signature
 
 signature
   constructors
-    
+    NablProp_err-fail-index    : Property
+    NablProp_err-fail-var-name : Property
+    NablProp_err-fail-var      : Property
 
 
 rules
 
   nabl-custom-properties(add-properties) =
-    ![] ; add-properties
+    ![NablProp_err-fail-index(), NablProp_err-fail-var-name(), NablProp_err-fail-var()]
+    ; add-properties
+
+  err-fail-index-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  err-fail-index-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  err-fail-index-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_err-fail-index())
+
+  err-fail-index-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  err-fail-index-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  err-fail-index-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_err-fail-index(), ctx__, [])
+
+  err-fail-index-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_err-fail-index(), ctx__, dep*)
+
+  err-fail-index-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_err-fail-index()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  err-fail-index-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_err-fail-index(), ctx__, relation, expected)
+
+  create-err-fail-index-task(|ctx__) =
+    fail
+
+  get-err-fail-index(|) =
+    get-property(|NablProp_err-fail-index())
+
+  store-err-fail-index(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_err-fail-index(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-err-fail-index-task(|ctx__)> term
+    where NablProp_err-fail-index() := kind
+
+  err-fail-var-name-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  err-fail-var-name-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  err-fail-var-name-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_err-fail-var-name())
+
+  err-fail-var-name-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  err-fail-var-name-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  err-fail-var-name-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_err-fail-var-name(), ctx__, [])
+
+  err-fail-var-name-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_err-fail-var-name(), ctx__, dep*)
+
+  err-fail-var-name-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_err-fail-var-name()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  err-fail-var-name-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_err-fail-var-name(), ctx__, relation, expected)
+
+  create-err-fail-var-name-task(|ctx__) =
+    fail
+
+  get-err-fail-var-name(|) =
+    get-property(|NablProp_err-fail-var-name())
+
+  store-err-fail-var-name(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_err-fail-var-name(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-err-fail-var-name-task(|ctx__)> term
+    where NablProp_err-fail-var-name() := kind
+
+  err-fail-var-is(|ctx__) =
+    nabl-prop-calc(|ctx__, [])
+
+  err-fail-var-is(|ctx__, dep*) =
+    nabl-prop-calc(|ctx__, dep*)
+
+  err-fail-var-task(|ctx__) =
+    get-or-create-property-task(|ctx__, NablProp_err-fail-var())
+
+  err-fail-var-list(|ctx__) =
+    nabl-prop-list(|ctx__, [])
+
+  err-fail-var-list(|ctx__, dep*) =
+    nabl-prop-list(|ctx__, dep*)
+
+  err-fail-var-lookup(|ctx__) =
+    nabl-prop-lookup(|NablProp_err-fail-var(), ctx__, [])
+
+  err-fail-var-lookup(|ctx__, dep*) =
+    nabl-prop-lookup(|NablProp_err-fail-var(), ctx__, dep*)
+
+  err-fail-var-match(|ctx__, expected) =
+    nabl-prop-match(
+    | NablProp_err-fail-var()
+    , ctx__
+    , Eq()
+    , expected
+    )
+
+  err-fail-var-match(|ctx__, relation, expected) =
+    nabl-prop-match(|NablProp_err-fail-var(), ctx__, relation, expected)
+
+  create-err-fail-var-task(|ctx__) =
+    fail
+
+  get-err-fail-var(|) =
+    get-property(|NablProp_err-fail-var())
+
+  store-err-fail-var(|ctx__, prop) =
+    nabl-store-prop(
+    | ctx__
+    , Prop(NablProp_err-fail-var(), prop, [])
+    )
+
+  create-property-task(|ctx__, kind):
+    term -> <create-err-fail-var-task(|ctx__)> term
+    where NablProp_err-fail-var() := kind
 
 
 rules
 
   nabl-scoping-site =
-    ?ErrAttemptStatement(_, _, _)
+    ?ErrAttemptStatement(_, _, _, _)
     ; nabl-scope(
       | [NablNsErrFailGuarded(), NablNsErrFailWildcard()]
       )
 
   nabl-get-scope =
-    ?ErrAttemptStatement(_, _, _)
+    ?ErrAttemptStatement(_, _, _, _)
     ; ![NablNsErrFailGuarded(), NablNsErrFailWildcard()]
 
   nabl-get-name :
@@ -111,27 +258,34 @@ rules
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
     ?ErrFailGuarded(
-       t@Type(mods, type)
+       i
+     , Type(mods, type)
      , Identifier(name)
      , s
      )
     ; origin-track-forced(
         ErrFailGuarded(
-          nabl-def(
-            ?c-uri1__
-          , ?s-uri1__
-          | lang__
-          , ctx__
-          , uniques__
-          , uri__
-          , uri__
-          , NablNsErrFailGuarded()
-          , Unique()
-          , Current()
-          , []
-          , []
+          id
+        , origin-track-forced(
+            Type(
+              id
+            , nabl-def(
+                ?c-uri1__
+              , ?s-uri1__
+              | lang__
+              , ctx__
+              , uniques__
+              , uri__
+              , uri__
+              , NablNsErrFailGuarded()
+              , Unique()
+              , Current()
+              , []
+              , []
+              )
+            )
+          |
           )
-          ; origin-track-forced(Type(id, id)|)
         , origin-track-forced(Identifier(id)|)
         , id
         )
@@ -139,7 +293,8 @@ rules
       )
     ; origin-track-forced(
         ErrFailGuarded(
-          id ; origin-track-forced(Type(id, id)|)
+          id
+        , origin-track-forced(Type(id, id)|)
         , origin-track-forced(
             Identifier(
               nabl-def(
@@ -169,7 +324,8 @@ rules
 
   nabl-external-def-site(|lang__, ctx__, uniques__, uri__, states__, implicits__) =
     ?ErrFailGuarded(
-       t@Type(mods, type)
+       i
+     , Type(mods, type)
      , Identifier(name)
      , s
      )
@@ -179,17 +335,36 @@ rules
 
   nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
     ?ErrFailGuarded(
-       t@Type(mods, type)
+       i
+     , Type(mods, type)
      , Identifier(name)
      , s
      )
     ; (where(id)
        ; ErrFailGuarded(
-           id ; Type(id, id)
+           id
+         , Type(
+             id
+           , nabl-store-props(
+             | ctx__
+             , [ Prop(NablProp_err-fail-index(), i, [])
+               , Prop(NablProp_err-fail-var-name(), name, [])
+               ]
+             )
+           )
+         , Identifier(id)
+         , id
+         )
+       ; where(id)
+       ; ErrFailGuarded(
+           id
+         , Type(id, id)
          , Identifier(
              nabl-store-props(
              | ctx__
-             , [Prop(Type(), type, [])]
+             , [ Prop(Type(), type, [])
+               , Prop(NablProp_err-fail-var(), True(), [])
+               ]
              )
            )
          , id
@@ -227,3 +402,15 @@ rules
     ; match(child-uris__|c-uri1__)
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
+
+  nabl-prop-site(|lang__, ctx__, uris__, states__, implicits__) =
+    ?ErrFailWildcard(wildcard-name, _)
+    ; (where(id)
+       ; ErrFailWildcard(
+           nabl-store-props(
+           | ctx__
+           , [Prop(NablProp_err-fail-index(), wildcard-name, [])]
+           )
+         , id
+         ))
+    ; fail

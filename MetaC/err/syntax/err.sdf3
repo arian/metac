@@ -46,19 +46,21 @@ context-free syntax
 
   Statement.ErrAttemptStatement =
     [
-    attempt[ErrAttemptLabelName?] [ErrCompoundStatement] [ErrFailBlock+]
+    attempt[ErrAttemptLabelName?] [ErrCompoundStatement] [ErrFailGuarded*] [ErrFailWildcard?]
     ]
+
 
   ErrAttemptLabelName.ErrAttemptLabelName =
     <[<Identifier>]>
 
 
-  ErrFailBlock.ErrFailWildcard =
-    [
-    fail [Statement]
-    ]
-
-  ErrFailBlock.ErrFailGuarded =
+  ErrFailGuarded.ErrFailGuarded =
     [
     fail ([TypeName] [Identifier]) [Statement]
+    ]
+
+
+  ErrFailWildcard.ErrFailWildcard =
+    [
+    fail [Statement]
     ]

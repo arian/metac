@@ -5,3 +5,5 @@ signature constructors
   ErrMaybeError: Type * Type * String -> ErrMaybeError
 
   ErrFailWildcard: String * Statement -> ErrFailWildcard
+
+  ErrFailGuarded: Index * Type * Identifier * Statement -> ErrFailGuarded

@@ -82,7 +82,8 @@ test attempt statement [[
       ErrAttemptStatement(
         None(),
         ErrCompoundStatement([]),
-        [ErrFailWildcard(CompoundStatement([]))]
+        [],
+        Some(ErrFailWildcard(CompoundStatement([])))
       )
     ]))
   ])
@@ -96,7 +97,8 @@ test attempt with fail statement [[
       ErrAttemptStatement(
         None(),
         ErrCompoundStatement([]),
-        [ErrFailWildcard(ExpressionStatement(_))]
+        [],
+        Some(ErrFailWildcard(ExpressionStatement(_)))
       )
     ]))
   ])
@@ -107,7 +109,7 @@ test attempt statement with name [[
   }
 ]] parse to Program(_, [
     FunDef(_, _, _, CompoundStatement([
-      ErrAttemptStatement(Some(ErrAttemptLabelName(Identifier("x"))), _, _)
+      ErrAttemptStatement(Some(ErrAttemptLabelName(Identifier("x"))), _, _, _)
     ]))
   ])
 
@@ -128,6 +130,7 @@ test unpack value declaration [[
             Call(Var(Identifier("g")), [])
           )
         ]),
+        _,
         _
       )
     ]))
@@ -148,9 +151,18 @@ test guarded fail blocks [[
         ErrCompoundStatement([]),
         [
           ErrFailGuarded(TypeName([Int8()], None()), Identifier("e"), CompoundStatement([])),
-          ErrFailGuarded(TypeName([Float32()], None()), Identifier("e"), CompoundStatement([])),
-          ErrFailWildcard(CompoundStatement([]))
-        ]
+          ErrFailGuarded(TypeName([Float32()], None()), Identifier("e"), CompoundStatement([]))
+        ],
+        Some(ErrFailWildcard(CompoundStatement([])))
       )
     ]))
   ])
+
+test can't have two wildcard fail blocks [[
+  void f() {
+    attempt {
+    } fail {
+    } fail {
+    }
+  }
+]] parse fails

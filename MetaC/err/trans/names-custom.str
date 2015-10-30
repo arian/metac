@@ -26,7 +26,7 @@ rules
     // lookup the error type that matches a guarded (with parameter) fail block
     ; task-guard := <nabl-use-candidate(|lang, ctx, uris, name)> UseCandidate(NablNsErrFailGuarded(), [], Current(), True(), [])
     // lookup the wildcard failure
-    ; task-wildcard := <nabl-use-candidate(|lang, ctx, uris, "*")> UseCandidate(NablNsErrFailWildcard(), [], Current(), True(), [])
+    ; task-wildcard := <nabl-use-candidate(|lang, ctx, uris, "_")> UseCandidate(NablNsErrFailWildcard(), [], Current(), True(), [])
     // either of these
     ; task := <task-create-choice(|ctx)> [task-guard, task-wildcard]
     // if it's not found, show an error that no compatible fail block was found
@@ -34,4 +34,4 @@ rules
     // set the Use(_) to the resuling fail block
     ; <replace-annotation(?Use(_) | <new-use(|ctx, task)>)> d
 
-  task-rewrite: ("err-error-type", FunType(ErrMaybeError(_, err-type, _))) -> err-type
+  task-rewrite: ("err-error-type", FunType(ErrMaybeError(_, Type(_, err-type), _))) -> err-type

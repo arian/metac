@@ -14,12 +14,14 @@ rules
     ErrAttemptStatement(
       name,
       ErrCompoundStatement(items),
-      fails
+      fails-guarded,
+      fails-wildcard
     ) ->
     ErrAttemptStatement(
       name,
       CompoundStatement(<map(try(desugar-err-fn-call))> items),
-      fails
+      <map-with-index(desugar-fail-guarded)> fails-guarded,
+      fails-wildcard
     )
 
   // Rewrite variable declarations, that assign a function call to a variable
@@ -38,6 +40,10 @@ rules
       ident,
       Call(fn, params)
     )
+
+  // rewrite so NaBL can add the index of this fail block as property
+  desugar-fail-guarded:
+    (i, ErrFailGuarded(t1, t2, t3)) -> ErrFailGuarded(i, t1, t2, t3)
 
   // Desugar all ErrMabybeError function return types to include the function
   // name, when getting the type at the use-site, the function-name is readable
@@ -63,4 +69,4 @@ rules
 
   // Add a dummy name to the fail { ... } block, so nabl can understand this
   // to define the wildcard fail block
-  desugar: ErrFailWildcard(s) -> ErrFailWildcard("*", s)
+  desugar: ErrFailWildcard(s) -> ErrFailWildcard("_", s)
