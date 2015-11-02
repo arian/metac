@@ -1,0 +1,9 @@
+module metac-runtime-utils/string
+
+strategies
+
+  join-strings: [] -> ""
+  join-strings: list -> <map(\ x -> [" ", x] \)
+    ; concat
+    ; Tl
+    ; concat-strings> list

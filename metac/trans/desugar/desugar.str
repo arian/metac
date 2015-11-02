@@ -1,0 +1,26 @@
+module desugar
+
+imports
+
+  signatures/-
+  BaseC/desugar/-
+
+rules
+
+  desugar01 =
+    fail
+
+  desugar(|file) =
+    fail
+
+  desugar =
+    fail
+
+  desugar-all =
+    ?Program(f, _)
+    ; bottomup(try(desugar01))
+    ; bottomup(
+      try(desugar(|f))
+      ; try(desugar)
+      ; try(flatten-list)
+   )

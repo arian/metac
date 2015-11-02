@@ -1,0 +1,12 @@
+module bitmask
+
+language MetaC
+
+test bitmask of 8 bits
+  <bitmask> 8 => "0xFF"
+
+test bitmask of 1
+  <bitmask> 1 => "0x1"
+
+test bitmask of 16
+  <bitmask> 16 => "0xFFFF"

@@ -1,0 +1,12 @@
+module path-join
+
+language MetaC
+
+test path join
+  <path-join(|"x")> "y" => "x/y"
+
+test path relative file
+  <path-join(|"x")> "./y" => "x/y"
+
+test path relative, one up
+  <path-join(|"/foo/bar/x/")> "../y" => "/foo/bar/y"

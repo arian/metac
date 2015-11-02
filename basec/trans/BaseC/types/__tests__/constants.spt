@@ -1,0 +1,43 @@
+module constants
+
+language MetaC
+
+test is-int8
+  <map(to-bool(is-int8))>
+    ["5", -5, 127, -127, 128, -128, -129, 400, -400]
+  =>
+    [1,   1,  1,   1,    0,   1,    0,    0,   0]
+
+test is-unsigned
+  <map(to-bool(is-unsigned(id)))> ["2U", 2]
+  => [1, 0]
+
+test smallest-int-type
+  <map(smallest-int-type)>
+    [1, 300, "5U", "31LU"]
+  =>
+    [Int8(), Int16(), UInt8(), UInt64()]
+
+test get type of a constant integer [[
+  int32 f() { return [[1]]; }
+]] run get-type to Int8()
+
+test get type of a char [[
+  uint8 f() { return [['a']]; }
+]] run get-type to UInt8()
+
+test get type of a char [[
+  uint8 * f() { return [["ab"]]; }
+]] run get-type to Array(UInt8())
+
+test get type or bool [[
+  uint8 f() { return [[true]]; }
+]] run get-type to UInt8()
+
+test get type or bool [[
+  uint8 f() { return [[false]]; }
+]] run get-type to UInt8()
+
+test get type of float [[
+  float f() { return [[1.0]]; }
+]] run get-type to Float32()

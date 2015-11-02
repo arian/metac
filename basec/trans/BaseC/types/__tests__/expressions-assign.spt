@@ -1,0 +1,9 @@
+module expressions-assign
+
+language MetaC
+
+test assign expression of arrays [[
+  void a(float32 b[], int32 c[]) {
+    float64 d[] = b = c;
+  }
+]] 0 errors

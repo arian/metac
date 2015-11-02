@@ -1,0 +1,51 @@
+module test-utils
+
+imports
+
+  BaseC/analysis/-
+  runtime/types/query
+  signatures/BaseC/-
+
+rules
+
+  get-decl-from-program:
+    Program(_, [decl]) -> <strip-annos> decl
+
+  get-2nd-decl-from-program:
+    Program(_, [_, decl]) -> <strip-annos> decl
+
+  get-expr-from-program =
+    find-elem(?Return(Some(x))) ; !x ; strip-annos
+
+  get-fundef-from-program:
+    Program(_, [fundef]) -> <strip-annos> fundef
+
+  get-stmt-from-program:
+    Program(_, [FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
+
+  get-init-from-decl:
+    Declaration(_, [InitDeclarator(_, init)]) -> <strip-annos> init
+
+  get-init-decl =
+    get-decl-from-program ; get-init-from-decl
+
+  get-2nd-init-decl =
+    get-2nd-decl-from-program ; get-init-from-decl
+
+  get-decl-type =
+    get-decl-from-program
+    ; ?Declaration([type], _) ; !type ; strip-annos
+
+  get-expr-type =
+    find-elem(?Return(Some(x)))
+    ; <get-type> x
+
+strategies
+
+  get-type: Some(x) -> <get-type> x
+
+  find-elem(s) =
+    oncetd(s ; ?x) ; !x
+
+  to-bool(s) =
+    s ; !1 <+ !0

@@ -1,0 +1,12 @@
+module strings
+
+language MetaC
+
+test join-strings 0 elements
+  <join-strings> [] => ""
+
+test join-strings 1 element
+  <join-strings> ["abc"] => "abc"
+
+test join-strings more elements element
+  <join-strings> ["a", "b", "c"] => "a b c"

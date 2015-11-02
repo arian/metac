@@ -1,0 +1,19 @@
+module generate-declarations
+
+language MetaC
+
+test function [[
+  int32 ** a(int8 **x) {
+    return x;
+  }
+]] build generate-c to "signed int** a(signed char** x) {
+  return x;
+}"
+
+test function with array parameter [[
+  float64 a(float32 a[]) {
+    return 2.3;
+  }
+]] build generate-c to "double a(float a[]) {
+  return 2.3;
+}"

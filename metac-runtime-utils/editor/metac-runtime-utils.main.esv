@@ -1,0 +1,7 @@
+module metac-runtime-utils.main
+
+language
+
+  name : metac-runtime-utils
+
+  Stratego-Sugar includes : trans

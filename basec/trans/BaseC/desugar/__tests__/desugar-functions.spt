@@ -1,0 +1,53 @@
+module desugar-functions
+
+language MetaC
+
+test desugar parameter [[
+  extern unsigned const int g(unsigned volatile int a) {
+    return a;
+  }
+]] run strip-annos to Program(_, [
+    FunDefinition(
+      Identifier(_),
+      [Extern()],
+      Type([Const], UInt32),
+      [FunDefinitionParameter(
+        Type([Volatile], UInt32),
+        Declarator(_, _),
+        Decl(Identifier(_))
+      )],
+      CompoundStatement(_)
+    )
+  ])
+
+test desugar parameter type with pointer [[
+  int32 g(int32 *x) {
+    return &x;
+  }
+]] run strip-annos to Program(_, [
+    FunDefinition(
+      Identifier(_),
+      [],
+      Type([], Int32),
+      [FunDefinitionParameter(
+        Type([], Pointer(Int32)),
+        Declarator(_, _),
+        Decl(_)
+      )],
+      _
+    )
+  ])
+
+test desugar function with return pointer [[
+  int8 *g(int *x) {
+    return x;
+  }
+]] run strip-annos to Program(_, [
+    FunDefinition(
+      _,
+      [],
+      Type([], Pointer(Int8)),
+      _,
+      _
+    )
+  ])

@@ -1,0 +1,41 @@
+module macros
+
+language MetaC
+
+test simple include [[
+  #include <stdio>
+]] parse to Program(_, [Include("stdio")])
+
+test can't have > in filename [[
+  #include <asdf>asdf
+]] parse fails
+
+test local include [[
+  #include "stdio"
+]] parse to Program(_, [IncludeLocal("stdio")])
+
+test include with " in filename [[
+  #include "std\"io"
+]] parse to Program(_, [IncludeLocal("std\\\"io")])
+
+test relative file path [[
+  #include "../../foo/bar.h"
+]] parse to Program(_, [IncludeLocal("../../foo/bar.h")])
+
+test multiple includes [[
+  #include "bar.h"
+  #include <stdio.h>
+]] parse to Program(_, [
+    IncludeLocal("bar.h"),
+    Include("stdio.h")
+  ])
+
+test includes between other decls [[
+  #include "bar.h"
+  x a;
+  #include <stdio.h>
+]] parse to Program(_, [
+    IncludeLocal("bar.h"),
+    _,
+    Include("stdio.h")
+  ])

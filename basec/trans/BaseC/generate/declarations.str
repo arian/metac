@@ -1,0 +1,53 @@
+module BaseC/generate/declarations
+
+imports
+
+  signatures/BaseC/-
+  BaseC/desugar/constructors
+  BaseC/generate/types
+
+strategies
+
+  generate-Initializer:
+    (decl, Some(init)) -> InitDeclarator(decl, init)
+
+  generate-Initializer:
+    (decl, None()) -> decl
+
+  generate:
+    VarDeclaration(storage, type, decl, name, init)
+    -> Declaration(
+      specifiers,
+      [declerator]
+    )
+    where
+      specifiers := <conc> (storage, <gen-Type> type)
+      ; declerator := <generate-Initializer> (decl, init)
+
+  // typedefs
+  generate:
+    TypedefDeclaration(type, decl, name)
+    -> Declaration(specifiers, [decl])
+    where
+      specifiers := <conc> ([Typedef()], <gen-Type> type)
+
+  // func decls
+  generate:
+    FuncDeclaration(storage, type, decl, name, params)
+    -> Declaration(specifiers, [decl])
+    where
+      specifiers := <conc> (storage, <gen-Type> type)
+
+  // structs
+
+  generate:
+    StructDeclarator(type, decl, name, None())
+    -> StructDeclaration(specifiers, [decl])
+    where
+      specifiers := <gen-Type> type
+
+  generate:
+    StructDeclarator(type, decl, name, Some(size))
+    -> StructDeclaration(specifiers, [StructSizedFieldDeclarator(Some(decl), size)])
+    where
+      specifiers := <gen-Type> type

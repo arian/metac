@@ -1,0 +1,220 @@
+module BaseC/analysis/disamb
+
+imports
+
+  libstratego-lib
+  libstratego-aterm
+  libstratego-sglr
+
+  signatures/BaseC/-
+
+strategies
+
+  disamb: (ast, _, _) -> <disamb> ast
+
+  disamb =
+    rules(td-names := [])
+    ; traverse(try(disamb-typedef))
+
+  traverse(s) =
+    s ; all(enter-scope(s) <+ traverse(s))
+
+  disamb-typedef =
+    resolve-amb ; try(collect-name)
+    <+ collect-name
+
+  resolve-amb =
+    try(disamb-decl-specifiers(|<td-names>))
+    ; try(disamb-parameters(|<td-names>))
+    ; try(disamb-parens-decl-or-func-decl(|<td-names>))
+    ; try(disamb-func-decl-or-func-decl-ids(|<td-names>))
+    ; try(disamb-expr-or-decl(|<td-names>))
+    ; try(disamb-cast(|<td-names>))
+    ; try(disamb-sizeof(|<td-names>))
+
+  enter-scope(s) =
+    (?CompoundStatement(_))
+    ; {| td-names : traverse(s) |}
+
+  collect-name =
+    ?x ; collect-td-name ; !x
+
+  collect-td-name =
+    get-typedef-declaration-name
+    ; ?name
+    ; update-td-names(union | [name])
+
+  update-td-names(s | ids) =
+    rules(td-names := <s> (<td-names>, ids))
+
+  test-collect-td-name =
+    rules(td-names := [])
+    ; collect-td-name
+    ; td-names
+
+rules
+
+  get-typedef-declaration-name: Declaration(
+      [Typedef() | _],
+      [Declarator(_, Decl(Identifier(name)))]
+    ) -> name
+
+rules
+
+  is-valid-type(|names) =
+    if TypedefName(Identifier(?name)) then
+      <elem> (name, names)
+    else
+      id
+    end
+
+  // if specifiers are correct, it selects a, otherwise b
+  disamb-intern-all-valid(|names): (a, b, specifiers) -> x
+    where
+      if <all(is-valid-type(|names))> specifiers then
+        x := a
+      else
+        x := b
+      end
+
+rules
+
+  is-valid-parameter(|names):
+    p@Parameter(specifiers, _) -> p
+    where
+      <all(is-valid-type(|names))> specifiers
+
+  is-valid-parameter(|names):
+    p@AbstractParameter(specifiers, _) -> p
+    where
+      <all(is-valid-type(|names))> specifiers
+
+rules
+
+  disamb-intern-longest-list:
+    (a, b) -> x
+    where
+      if <gt> (<length> a, <length> b)
+      then x := a
+      else x := b
+      end
+
+  disamb-intern-decl-specifiers(|names):
+    (a, b, specsOfA, specsOfB) -> x
+    where
+      if <disamb-intern-longest-list
+           ; last
+           ; is-valid-type(|names)
+         > (specsOfA, specsOfB)
+       then
+        x := a
+      else
+        x := b
+      end
+
+  disamb-decl-specifiers(|names):
+    amb([
+      a@Declaration(specsA, []),
+      b@Declaration(specsB, _)
+    ]) -> <disamb-intern-decl-specifiers(|names)> (a, b, specsA, specsB)
+
+  disamb-decl-specifiers(|names):
+    amb([
+      a@StructDeclaration(specsA, _),
+      b@StructDeclaration(specsB, _)
+    ]) -> <disamb-intern-decl-specifiers(|names)> (a, b, specsA, specsB)
+
+
+
+rules
+
+  disamb-parameter-sort:
+    x@(AbstractParameter(_, _), Parameter(_, _)) -> x
+
+  disamb-parameter(|names):
+    amb(ambs) -> p
+    where
+      // sort parameter options for abstract first, then normal parameter
+      ps := <sort-list(LSort(disamb-parameter-sort)) ; reverse> ambs
+      ; (
+          p := <fetch-elem(is-valid-parameter(|names))> ps
+          <+ p := <last> ps
+        )
+
+  disamb-parameters(|names):
+    ParameterList(ps) -> ParameterList(params)
+    where
+      params := <map(try(disamb-parameter(|names)))> ps
+
+rules
+
+  // empty parameters parses to fun decl
+  disamb-func-decl-or-func-decl-ids(|names):
+    amb([
+      FuncDeclIDs(_, []),
+      func@FuncDecl(_, ParameterList([]))]
+    ) -> func
+
+  disamb-func-decl-or-func-decl-ids(|names):
+    amb([
+      ids@FuncDeclIDs(_, _),
+      func@FuncDecl(_, ParameterList(parameterList))]
+    ) -> x
+    where
+      x := <bottomup(is-valid-type(|names)) < !func + !ids> parameterList
+
+rules
+
+  internal-disamb-parens-decl-or-func-decl(|names):
+    (specifiers, f, p) -> x
+    where
+      if <all(is-valid-type(|names))> specifiers then
+        x := p
+      else
+        x:= f
+      end
+
+  disamb-parens-decl-or-func-decl(|names):
+    amb([
+      f@Declaration(_, _),
+      p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _])
+    ]) -> <disamb-intern-all-valid(|names)> (p, f, specifiers)
+
+
+  disamb-parens-decl-or-func-decl(|names):
+    amb([
+      p@Declaration(specifiers, [Declarator(_, ParensDecl(_)) | _]),
+      f@Declaration(_, _)
+    ]) -> <disamb-intern-all-valid(|names)> (p, f, specifiers)
+
+rules
+
+  disamb-expr-or-decl(|names):
+    amb([expr@ExpressionStatement(_), decl@Declaration(specifiers, _)])
+    -> <disamb-intern-all-valid(|names)> (decl, expr, specifiers)
+
+  disamb-expr-or-decl(|names):
+    amb([decl@Declaration(specifiers, _), expr@ExpressionStatement(_)])
+    -> <disamb-intern-all-valid(|names)> (decl, expr, specifiers)
+
+rules
+
+  disamb-cast(|names):
+    amb([a, b]) -> x
+    where
+      x := <disamb-intern-cast(|names)> (a, b)
+      <+ x := <disamb-intern-cast(|names)> (b, a)
+
+  disamb-intern-cast(|names):
+    (a, b) -> <disamb-intern-all-valid(|names)> (a, b, types)
+    where
+      <oncetd(?Cast(_, _) ; ?cast)> a
+      ; Cast(TypeName(types, _), _) := cast
+
+rules
+
+  disamb-sizeof(|names):
+    amb([
+      a@Sizeof(TypeName(types, None())),
+      b@SizeofExpr(Paren(_))
+    ]) -> <disamb-intern-all-valid(|names)> (a, b, types)

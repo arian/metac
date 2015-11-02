@@ -1,0 +1,70 @@
+module expr-disamb
+
+language MetaC
+
+test multiply as x is not typedef'ed [[
+  void f () {
+    x * y;
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([ExpressionStatement(_)]))
+  ])
+
+test decl as x is typedef'ed [[
+  typedef int32 x;
+  void f () {
+    x * y;
+  }
+]] parse to Program(_, [
+    _,
+    FunDef(_, _, _, CompoundStatement([Declaration(_, _)]))
+  ])
+
+test pointer cast or mult [[
+  typedef int32 x;
+  typedef int32 k;
+  void f () {
+    (x) * y;
+    (a) * b;
+    return (k) *l;
+  }
+]] parse to Program(_, [
+    _, _,
+    FunDef(_, _, _, CompoundStatement([
+      ExpressionStatement(Some(Cast(_, _))),
+      ExpressionStatement(Some(Mult(_, _))),
+      Return(Some(Cast(_, _)))
+    ]))
+  ])
+
+test cast or call [[
+  typedef int32 a;
+  void f () {
+    int32 b;
+    (x) + (x)(b);
+    int32 d = (x)(b);
+    int32 e = (a)(b);
+    return (a)(b);
+  }
+]] parse to Program(_, [
+    _,
+    FunDef(_, _, _, CompoundStatement([
+      _,
+      ExpressionStatement(Some(Add(_, Call(_, _)))),
+      Declaration(_, [InitDeclarator(_, Call(_, _))]),
+      Declaration(_, [InitDeclarator(_, Cast(_, _))]),
+      Return(Some(Cast(_, _)))
+    ]))
+  ])
+
+test assign or decl [[
+  void f () {
+    int32 x;
+    x = 4;
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      Declaration(_, _),
+      ExpressionStatement(_)
+    ]))
+  ])

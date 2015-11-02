@@ -1,0 +1,11 @@
+module names
+
+language MetaC
+
+test compound statement scopes variables [[
+  int32 f() {
+    int32 [[a]];
+    { int32 a; }
+    return [[a]];
+  }
+]] resolve #2 to #1

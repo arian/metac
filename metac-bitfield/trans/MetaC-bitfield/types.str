@@ -1,0 +1,13 @@
+module MetaC-bitfield/types
+
+imports
+
+  signatures/-
+  BaseC/types/-
+  BaseC/desugar/-
+  MetaC-bitfield/desugar
+
+strategies
+
+  transform-typedef-type: Bitfields(_, _) -> UInt32()
+  get-type-transform: Bitfields(_, _) -> UInt32()

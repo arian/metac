@@ -1,0 +1,19 @@
+module desugar
+
+language MetaC
+
+test desugar should add size and ranges [[
+  bitfields X {
+    a: 2;
+    b: 6;
+  };
+]] run strip-annos to Program(_, [
+    Bitfields(
+      Identifier("X"),
+      [
+        Bitfield(Identifier("a"), 2, BitfieldRange(6, 8)),
+        Bitfield(Identifier("b"), 6, BitfieldRange(0, 6))
+      ],
+      8
+    )
+  ])

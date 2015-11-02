@@ -1,0 +1,23 @@
+module BaseC/desugar/module
+
+imports
+
+  signatures/BaseC/-
+  runtime/editor/-
+  BaseC/desugar/constructors
+  metac-runtime-utils/path-join
+
+rules
+
+//  desugar(|file):
+//    Module() -> file
+
+  desugar(|t):
+    i@Include(path) -> IncludeModule(resolved, i)
+    where
+      resolved := <concat-strings ; path-join(|"") ; guarantee-extension(|"mc")> ["extern/", path]
+
+  desugar(|file):
+    i@IncludeLocal(path) -> IncludeModule(resolved, i)
+    where
+      resolved := <path-join(|<dirname> file) ; guarantee-extension(|"mc")> path

@@ -1,0 +1,10 @@
+module MetaC-SM/trans
+
+imports
+
+  MetaC-SM/desugar
+  MetaC-SM/generate-c
+  MetaC-SM/generate-dot
+  MetaC-SM/names-custom
+  names/MetaC-SM/names
+  types/MetaC-SM/types

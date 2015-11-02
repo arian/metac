@@ -1,0 +1,13 @@
+module BaseC/types/Constructors
+
+signature constructors
+
+  Array: TypeKind -> TypeKind
+  Array: TypeKind
+
+  Int: TypeKind
+  Numeric: TypeKind
+  Str: TypeKind
+  Char: TypeKind
+
+  FunType: Type -> Type

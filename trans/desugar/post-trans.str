@@ -1,9 +1,0 @@
-module trans/post-trans
-
-strategies
-
-  post-trans(|t) =
-    fail
-
-  post-trans-all(|t) =
-    innermost(post-trans(|t))

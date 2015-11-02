@@ -1,0 +1,42 @@
+module expressions
+
+language MetaC
+
+test comma expression type [[
+  float a() { return [[1, 2, 3.0]]; }
+]] run get-type to Float32()
+
+test assign expression [[
+  void a(float32 b) { [[b = 2.3]]; }
+]] run get-type to Float32()
+
+test assign expression error for wrong array assignment [[
+  void a(float b[], int c) { [[b = c]]; }
+]] 1 error
+
+test assign expression, assigning wrong type [[
+  void a(float b) { b = a; }
+]] 1 error
+
+test conditional [[
+  float a() { return [[1 ? 2 : 3]]; }
+]] run get-type to UInt8()
+
+test conditional, widens lhs [[
+  float a() { return [[1 ? 1 : 2.1]]; }
+]] run get-type to Float32()
+
+test conditional, widens rhs [[
+  float a() { return [[1 ? 1.1 : 2]]; }
+]] run get-type to Float32()
+
+test parens [[
+  int8 a;
+  void f() { [[(a)]]; }
+]] run get-type to Int8()
+
+test paren/address/debug [[
+  void f(int8 a) {
+    [[*(&(a))]];
+  }
+]] run get-type to Int8()

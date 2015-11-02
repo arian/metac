@@ -1,0 +1,78 @@
+module names-sm
+
+language MetaC
+
+test initial state refers to one of the states [[
+  statemachine X {
+    init [[start]];
+    state [[start]] {
+    }
+  }
+]] resolve #1 to #2
+
+test transition [[
+  statemachine X {
+    init start;
+    state start {
+      on -> [[end]];
+    }
+    state [[end]] {}
+  }
+]] resolve #1 to #2
+
+
+test event name [[
+  statemachine X {
+    init start;
+    event [[foo]]();
+    state start {
+      on [[foo]] -> start;
+    }
+  }
+]] resolve #2 to #1
+
+test local variable [[
+  statemachine X {
+    init start;
+    int32 [[a]];
+    state start {
+      entry {
+        [[a]];
+      }
+    }
+  }
+]] resolve #2 to #1
+
+test global variable [[
+  int32 [[a]];
+  statemachine X {
+    init start;
+    state start {
+      entry {
+        [[a]];
+      }
+    }
+  }
+]] resolve #2 to #1
+
+test statemachine instantiation [[
+  statemachine [[X]] {
+    init start;
+    state start {}
+  }
+  void main () {
+    statemachine [[X]] y;
+  }
+]] resolve #2 to #1
+
+test statemachine event trigger [[
+  statemachine X {
+    init start;
+    event [[foo]]();
+    state start {}
+  }
+  void main () {
+    statemachine X y;
+    y<|[[foo]]();
+  }
+]] resolve #2 to #1

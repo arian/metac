@@ -1,0 +1,8 @@
+module Colorer
+
+imports editor/Colorer.generated
+
+colorer
+
+  CONSSTRING: blue
+  CONSCHAR: blue

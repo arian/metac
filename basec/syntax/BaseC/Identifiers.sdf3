@@ -1,0 +1,25 @@
+module BaseC/Identifiers
+
+imports
+
+  BaseC/Common
+  BaseC/Keywords
+
+
+lexical syntax
+
+  ID =
+    [a-zA-Z\_] [a-zA-Z0-9\_]*
+
+  ID =
+    Keyword {reject}
+
+lexical restrictions
+
+  ID -/-
+    [a-zA-Z0-9\_]
+
+context-free syntax
+
+  Identifier.Identifier =
+    ID

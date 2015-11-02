@@ -1,0 +1,29 @@
+module generate-c
+
+imports
+
+  BaseC/generate/-
+  MetaC-bitfield/generate-c
+  MetaC-SM/generate-c
+  pp
+
+strategies
+
+  generate01 = fail
+
+  generate = fail
+
+  generate(|t) = fail
+
+  generate-pp =
+    pp-debug // try to pretty print
+    <+ debug // or print the AST
+
+  generate-c: t@(selected, position, ast, path, project-path) -> (file-name, code)
+    where
+      file-name := <guarantee-extension(|"c")> path
+      ; code := <
+          bottomup(try(generate01)     ; try(flatten-list))
+          ; bottomup(try(generate(|t)) ; try(flatten-list))
+          ; bottomup(try(generate)     ; try(flatten-list))
+        ; generate-pp> ast

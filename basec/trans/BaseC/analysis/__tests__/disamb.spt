@@ -1,0 +1,161 @@
+module disamb
+
+language MetaC
+
+test get typedef name simple
+  <parse-string
+    ; oncetd(get-typedef-declaration-name ; ?x)
+    ; !x
+  > ("typedef int32 X;")
+  => "X"
+
+test get typedef name complexer
+  <parse-string
+    ; get-decl-from-program
+    ; get-typedef-declaration-name
+  > ("typedef const int32 * X;")
+  => "X"
+
+test is-valid-type, type is in the list
+  <is-valid-type(|["A", "B"]) ; !1 <+ !0>
+  Type(Identifier("A"))
+  => 1
+
+test is-valid-type, type is not in the list
+  <is-valid-type(|["A", "B"]) ; !1 <+ !0>
+  TypedefName(Identifier("C"))
+  => 0
+
+test is-valid-type
+  <is-valid-type(|["a", "b"]) ; !1 <+ !0>
+  Const()
+  => 1
+
+test valid type, using just TypedefName
+  <is-valid-type(|["k"]) ; !1 <+ !0>
+  TypedefName(Identifier("k"))
+  => 1
+
+test not valid type, using just TypedefName
+  <is-valid-type(|["k"]) ; !1 <+ !0>
+  TypedefName(Identifier("l"))
+  => 0
+
+test all-valid-types
+  <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
+    TypedefName(Identifier("A")),
+    Const(),
+    TypedefName(Identifier("B"))
+  ]
+  => 1
+
+test all-valid-types, some is not valid
+  <all(is-valid-type(|["A", "B"])); !1 <+ !0> [
+    TypedefName(Identifier("A")),
+    Const(),
+    TypedefName(Identifier("C"))
+  ]
+  => 0
+
+test all-valid-types, some is not valid
+  <is-valid-parameter(|[]); !1 <+ !0> AbstractParameter([
+    Int32(),
+    TypedefName(Identifier("c"))
+  ], None())
+  => 0
+
+test get parameter from amb list
+  <parse-string
+    ; find-elem(?amb(_))
+    ; disamb-parameter(|["abc"])
+  > ("void x(abc b);")
+  => Parameter(_, _)
+
+test get parameter from amb list with native type
+  <parse-string
+    ; disamb
+    ; find-elem(?ParameterList(_))
+  > ("void x(int32 b);")
+  => ParameterList([Parameter([Int32], _)])
+
+test get parameter from amb list with defined type
+  <parse-string
+    ; disamb
+    ; find-elem(?ParameterList(_))
+  > ("
+    typedef int32 A;
+    void x(A b);
+  ")
+  => ParameterList([
+    Parameter([TypedefName(Identifier("A"))], _)
+  ])
+
+test get parameter from amb list with defined type
+  <parse-string
+    ; disamb
+    ; find-elem(?ParameterList(_))
+  > ("
+    typedef int32 A;
+    void x(A);
+  ")
+  => ParameterList([
+    AbstractParameter([TypedefName(Identifier("A"))], _)
+  ])
+
+test func-decl vs func-decl with only IDs, param __isn't__ a type, so func decl with IDs
+  <disamb-func-decl-or-func-decl-ids(|[])> amb([
+    FuncDeclIDs(Identifier("a"), [Identifier("B")]),
+     FuncDecl(
+       Identifier("a"),
+       ParameterList([AbstractParameter([Type(TypedefName(Identifier("B")))], None())])
+      )
+  ])
+  => FuncDeclIDs(_, _)
+
+test func-decl vs func-decl with only IDs, param __is__ a type, so func decl with IDs
+  <disamb-func-decl-or-func-decl-ids(|["B"])> amb([
+    FuncDeclIDs(Identifier("a"), [Identifier("B")]),
+     FuncDecl(
+       Identifier("a"),
+       ParameterList([AbstractParameter([Type(Identifier("B"))], None())])
+      )
+  ])
+  => FuncDecl(_, _)
+
+test paren decl vs func decl, x isn't a type, so should be a function
+  <disamb-parens-decl-or-func-decl(|[])> amb([
+    Declaration(
+      [TypedefName(Identifier("x"))],
+      [Declarator(None(), ParensDecl(Declarator(None(), Identifier("a"))))]
+    ),
+    Declaration(
+      [],
+      [Declarator(
+        None(),
+        FuncDecl(
+          Identifier("x"),
+          ParameterList([AbstractParameter([Type(TypedefName(Identifier("a")))],None())])
+        )
+      )]
+    )
+  ])
+  => Declaration([], [Declarator(_, FuncDecl(_, _))])
+
+test paren decl vs func decl, x __is__ a type, so should be a function
+  <disamb-parens-decl-or-func-decl(|["x"])> amb([
+    Declaration(
+      [Type(Identifier("x"))],
+      [Declarator(None(), ParensDecl(Declarator(None(), Identifier("a"))))]
+    ),
+    Declaration(
+      [],
+      [Declarator(
+        None(),
+        FuncDecl(
+          Identifier("x"),
+          ParameterList([AbstractParameter([Type(Identifier("a"))],None())])
+        )
+      )]
+    )
+  ])
+  => Declaration(_, [Declarator(_, ParensDecl(_))])

@@ -1,0 +1,33 @@
+module functions
+
+language MetaC
+
+test function declaration [[
+  int32 [[f]](int32, int32);
+  int32 x = [[f]](1, 2);
+]] resolve #2 to #1
+
+test function definition [[
+  int32 [[f]](int32 a, int32 b) {}
+  int32 x = [[f]](1, 2);
+]] resolve #2 to #1
+
+// TODO for some reason, using [[a]] and refers ... to ...
+// parses to amb()
+test parameter reference [[
+  int32 f(int32 a) {
+    return a;
+  }
+]] 0 errors
+
+test double definition of a parameter [[
+  int32 f(int32 a, int32 a) {
+  }
+]] /Duplicate/
+
+// TODO FIXME
+// test double definition of a parameter/declaration [[
+//   int32 f(int32 a) {
+//     int32 a;
+//   }
+// ]] /Duplicate/

@@ -1,0 +1,13 @@
+module enums
+
+language MetaC
+
+test resolve enum type [[
+  enum [[X]] {A};
+  enum [[X]] y;
+]] resolve #2 to #1
+
+test resolve enum values [[
+  enum X {A, [[B]]};
+  enum X y = [[B]];
+]] resolve #2 to #1

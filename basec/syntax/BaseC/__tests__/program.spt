@@ -1,0 +1,8 @@
+module test-program
+
+language MetaC
+
+test empty program [[
+
+]] parse to
+  Program(_, [])

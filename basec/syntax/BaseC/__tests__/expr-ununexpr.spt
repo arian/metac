@@ -1,0 +1,117 @@
+module expr-unexpr
+
+language MetaC
+
+setup before [[
+  typedef int32 b;
+  int32 a;
+  int32 c;
+  void main() {
+    return
+]]
+
+
+test incr pre [[++a]] run get-expr-from-program to
+  IncrementPrefix(Var(Identifier("a")))
+
+test incr space [[ ++ a]] parse succeeds
+
+//test comma'd ++ [[ ++(a, b) ]] parse fails
+
+test decr pre [[--a]] run get-expr-from-program to
+  DecrementPrefix(Var(Identifier("a")))
+
+test decr space [[ -- a]] parse succeeds
+
+// test comma'd -- [[ --(a, b) ]] parse fails
+
+
+test address [[&a]] run get-expr-from-program to
+  Address(Var(Identifier("a")))
+
+test addr space [[ & a]] parse succeeds
+
+// test comma'd addr [[ &(a, b) ]] parse fails
+
+
+test deref [[*a]] run get-expr-from-program to
+  Deref(Var(Identifier("a")))
+
+test deref space [[ * a ]] parse succeeds
+
+// test comma'd deref [[ *(a, b) ]] parse fails
+
+
+test postive [[ +1 ]] run get-expr-from-program to
+  Positive(Integer("1"))
+
+test positive space [[ + a ]] parse succeeds
+
+test comma'd + [[ +(1, 2) ]] parse succeeds
+
+
+test negative int [[-1]] run get-expr-from-program to
+  Integer("-1")
+
+test negative space [[ - a ]] parse succeeds
+
+test negative op [[
+  -(1)
+]] run get-expr-from-program to
+  Negative(Paren(Integer("1")))
+
+test comma'd - [[ -(1, 2) ]] parse succeeds
+
+
+test complement [[ ~3 ]] run get-expr-from-program to
+  Complement(Integer("3"))
+
+test complement space [[ ~ 3 ]] parse succeeds
+
+test comma'd ~ [[ ~(1, 2) ]] parse succeeds
+
+
+test negate [[!a]] run get-expr-from-program to
+  Negate(Var(Identifier("a")))
+
+test negative space [[ ! a ]] parse succeeds
+
+test comma'd ! [[ !(1, 2) ]] parse succeeds
+
+
+test sizeof simple value [[ sizeof 3 ]] run get-expr-from-program to
+  SizeofExpr(Integer("3"))
+
+test sizeof value in parens [[ sizeof (3) ]] run get-expr-from-program to
+  SizeofExpr(Paren(Integer("3")))
+
+test sizeof of type [[ sizeof (int32) ]] run get-expr-from-program to
+  Sizeof(TypeName([Int32], None()))
+
+test sizeof const int32 [[ sizeof (const int32) ]] run get-expr-from-program to
+  Sizeof(TypeName([Const(), Int32()], None()))
+
+test sizeof with abstract decl [[ sizeof (int32 *(int32)) ]] run get-expr-from-program to
+  Sizeof(TypeName([Int32], Some(Declarator(_, _))))
+
+test sizeof identifier [[ sizeof (b); ]] run get-expr-from-program to
+  Sizeof(TypeName([TypedefName(Identifier("b"))], None))
+
+test sizeof identifier [[ sizeof (c); ]] run get-expr-from-program to
+  SizeofExpr(Paren(Var(Identifier("c"))))
+
+
+
+test combination of unary operators [[
+  !~+-*++&--a;
+]] parse succeeds
+
+test combinations of unary and cast [[
+  !+ (int32) *a++
+]] parse succeeds
+
+
+setup after [[
+    ;
+  }
+]]

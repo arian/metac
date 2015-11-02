@@ -1,0 +1,66 @@
+module BaseC/types/relation-is-assignable
+
+imports
+
+  include/-
+  runtime/nabl/-
+  runtime/task/-
+  runtime/types/-
+  runtime/properties/-
+  runtime/relations/-
+  BaseC/desugar/-
+  BaseC/types/-
+  BaseC/utils/-
+
+rules
+
+  // Assignments type checking
+
+  get-typedef-base-type: t -> <<get-type-transform ; get-typedef-base-type> t <+ !t>
+
+  get-type-transform: Array(t) -> t
+  get-type-transform: Pointer(t) -> t
+  get-type-transform: t@TypedefName(_) -> <get-type> t
+
+  create-base-type-task(|ctx) = task-create-rewrite(|ctx, "base-type")
+  task-rewrite: ("base-type", t) -> <get-typedef-base-type> t
+
+  create-resolve-typedef-task(|ctx) = task-create-rewrite(|ctx, "resolve-typedef")
+  task-rewrite: ("resolve-typedef", t) -> <topdown(try(?TypedefName(_) ; get-type ; try(transform-typedef-type)))> t
+  transform-typedef-type = fail
+
+  create-rewrite-type-structure-task(|ctx) = task-create-rewrite(|ctx, "type-structure")
+  task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t
+
+  is-type-structure: t@Pointer(_) -> t
+  is-type-structure: t@Array(_) -> t
+
+  relation-match-custom(|ctx):
+    ("<is-assignable:", t1, t2) -> and1
+    where
+      // base types, like Int8
+      t1-base := <create-base-type-task(|ctx)> t1;
+      t2-base := <create-base-type-task(|ctx)> t2;
+
+      // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
+      // becomse Array(Pointer(UInt32))
+      t1-resolved := <create-resolve-typedef-task(|ctx)> t1;
+      t2-resolved := <create-resolve-typedef-task(|ctx)> t2;
+
+      // transform the leaf of the structure into Int(), so irregardless of
+      // the base type, we can compare the same structure
+      t1-structure := <create-rewrite-type-structure-task(|ctx)> t1-resolved;
+      t2-structure := <create-rewrite-type-structure-task(|ctx)> t2-resolved;
+
+      // are they equal?
+      eq-base := <type-match(|ctx, t2-base)> t1-base;
+      eq-structure := <type-match(|ctx, t2-structure)> t1-structure;
+
+      // are both numeric
+      t1-numeric := <relation-create-match(|ctx)> ("<is:", t1-base, Numeric());
+      t2-numeric := <relation-create-match(|ctx); task-create-id(|ctx, [t1-numeric])> ("<is:", t2-base, Numeric());
+
+      // is either numeric or the same
+      or72 := <type-is(|ctx)> <task-create-choice(|ctx)> [eq-base, t2-numeric];
+      // and have the same structure
+      and1 := <task-create-id(|ctx, [eq-structure, or72])> t2

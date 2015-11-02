@@ -1,0 +1,126 @@
+module desugar-declarations
+
+language MetaC
+
+test desugar var declaration [[
+  static unsigned int x, y = 2;
+  float a;
+  double b;
+]] run strip-annos to Program(_, [
+    VarDeclaration(
+      [Static()],
+      Type([], UInt32()),
+      Declarator(None(), _),
+      Decl(Identifier("x")),
+      None()
+    ),
+    VarDeclaration(
+      [Static()],
+      Type([], UInt32()),
+      Declarator(_, _),
+      Decl(Identifier("y")),
+      Some(Integer("2"))
+    ),
+    VarDeclaration(_, Type([], Float32()), _, _, _),
+    VarDeclaration(_, Type([], Float64()), _, _, _)
+  ])
+
+test desugar var pointer declaration [[
+  uint32 *x;
+]] run strip-annos to Program(_, [
+    VarDeclaration(
+      [],
+      Type([], Pointer(UInt32)),
+      Declarator(_, _),
+      Decl(Identifier("x")),
+      None()
+    )
+  ])
+
+test desugar var double pointer declaration [[
+  uint32 ** const x;
+]] run strip-annos to Program(_, [
+    VarDeclaration(
+      [],
+      Type([Const], Pointer(Pointer(UInt32))),
+      Declarator(_, _),
+      Decl(Identifier("x")),
+      None()
+    )
+  ])
+
+test desugar typedefs [[
+  typedef unsigned const int a, ***b;
+]] run strip-annos to Program(_, [
+    TypedefDeclaration(
+      Type([Const], UInt32),
+      Declarator(_, _),
+      Decl(Identifier("a"))
+    ),
+    TypedefDeclaration(
+      Type([Const], Pointer(Pointer(Pointer(UInt32)))),
+      Declarator(_, _),
+      Decl(Identifier("b"))
+    )
+  ])
+
+test enum declaration [[
+  enum X {A};
+]] run strip-annos to Program(_, [
+    _
+  ])
+
+test struct declaration [[
+  struct X {const unsigned int x;};
+]] run strip-annos to Program(_, [
+    Declaration(
+      [Struct(
+        Some(Identifier("X")),
+        [
+          StructDeclarator(
+            Type([Const], UInt32()),
+            Declarator(_, _),
+            Decl(Identifier("x")),
+            None()
+          )
+        ]
+      )],
+      []
+    )
+  ])
+
+test union declaration [[
+  union X {volatile unsigned char (*x)(int): 3;};
+]] run strip-annos to Program(_, [
+    Declaration(
+      [Union(
+        Some(Identifier("X")),
+        [
+          StructDeclarator(
+            Type([Volatile], UInt8()),
+            Declarator(_, _),
+            Decl(Identifier("x")),
+            Some(Integer("3"))
+          )
+        ]
+      )],
+      []
+    )
+  ])
+
+test function declaration [[
+  int *a(int, int *, int **b, int c[]);
+]] run strip-annos to Program(_, [
+    FuncDeclaration(
+      [],
+      Type([], Pointer(Int32())),
+      _,
+      Decl(Identifier("a")),
+      [
+        FunDefinitionParameter(Type([], Int32())),
+        FunDefinitionParameter(Type([], Pointer(Int32()))),
+        FunDefinitionParameter(Type([], Pointer(Pointer(Int32))), _, _),
+        FunDefinitionParameter(Type([], Array(Int32)), _, _)
+      ]
+    )
+  ])

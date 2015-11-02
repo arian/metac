@@ -1,0 +1,8 @@
+module names
+
+language MetaC
+
+test typedef name [[
+  typedef int32 [[x]];
+  [[x]] y;
+]] resolve #2 to #1

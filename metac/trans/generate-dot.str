@@ -1,0 +1,20 @@
+module generate-dot
+
+imports
+
+  MetaC-SM/generate-dot
+
+strategies
+
+  generate-dot = fail
+
+  can-generate-dot = fail
+
+  generate-dot: t@(selected, position, ast, path, project-path) -> (file-name, dot)
+    where
+      file-name := <guarantee-extension(|"gv")> path
+      ; dot := <
+        collect-all(can-generate-dot)
+        ; map(generate-dot)
+        // for now, just create one graph
+        ; Hd> ast

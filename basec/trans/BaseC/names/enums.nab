@@ -1,0 +1,21 @@
+module BaseC/names/enums
+
+imports
+
+  signatures/BaseC/-
+
+namespaces
+
+  Enum Enumerator
+
+binding rules
+
+  Enum(Some(Identifier(name)), _):
+    defines Enum name
+
+  Enum(Identifier(name)):
+    refers to Enum name
+
+  Enumerator(Identifier(name), _):
+    defines Enumerator name
+    of type UInt8()

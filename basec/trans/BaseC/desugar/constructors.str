@@ -1,0 +1,69 @@
+module BaseC/desugar/constructors
+
+imports
+
+  signatures/BaseC/-
+
+signature constructors
+
+  IncludeModule:
+    String * Include -> IncludeModule
+
+  Type:
+    Modifiers *
+    Name -> Type
+
+  Modifiers:
+    List(Modifier) -> Modifiers
+
+  Storage:
+    List(Store) -> Storage
+
+  Pointer: Type -> Pointer
+  Array: Type -> Array
+
+  VarDeclaration:
+    List(StorageClassSpecifiers) *
+    Type *
+    Declarator *
+    Decl *
+    Some(Initializer) -> VarDeclaration
+
+  FuncDeclaration:
+    List(StorageClassSpecifiers) *
+    Type *
+    Declarator *
+    Decl *
+    List(Parameter) -> FuncDeclaration
+
+  TypedefDeclaration:
+    Type *
+    Declarator *
+    Decl -> TypedefDeclaration
+
+  FunDefinition:
+    String *
+    List(StorageClassSpecifiers) *
+    List(Type) *
+    List(Parameter) *
+    CompoundStatement -> FunDef
+
+  FunDefinitionParameter:
+    List(Type) *
+    Declarator *
+    Decl -> FunDefParameter
+
+  // for abstract parameters
+  FunDefinitionParameter:
+    List(Type) -> FunDefinitionParameter
+
+  StructDeclarator:
+    Type *
+    Declerator *
+    Decl *
+    Option -> StructDeclarator
+
+  Comma:
+    Expression *
+    List(Expression) *
+    Expression -> Comma

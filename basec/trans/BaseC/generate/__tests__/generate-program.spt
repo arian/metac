@@ -1,0 +1,6 @@
+module generate-program
+
+language MetaC
+
+test generate empty program [[
+]] build generate-c to ""

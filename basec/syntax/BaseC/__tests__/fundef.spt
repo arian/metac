@@ -1,0 +1,81 @@
+module fundef
+
+language MetaC
+
+test minimal function definition [[
+  x() {}
+]] run get-fundef-from-program to FunDef(
+  [],
+  FunDeclarator(
+    None,
+    Identifier("x"),
+    ParameterList([])
+  ),
+  [],
+  CompoundStatement([])
+)
+
+test parenthesized function name [[
+  (x)() {}
+]] run get-fundef-from-program to FunDef(
+  [],
+  FunDeclarator(
+    None,
+    ParenName(Identifier("x")),
+    ParameterList([])
+  ),
+  [],
+  _
+)
+
+test function with one parameter [[
+   x (int32 a) {}
+]] run get-fundef-from-program to
+  FunDef(
+    [],
+    FunDeclarator(
+      None,
+      Identifier("x"),
+      ParameterList([
+        Parameter([Int32], Declarator(None, Decl(Identifier("a"))))
+      ])
+    ),
+    [],
+    CompoundStatement([])
+  )
+
+test old style declaration [[
+  void x(a, b) int32 a, b; {
+
+  }
+]] parse succeeds
+
+// TODO this should give some errors
+// test function without parameter name [[x (int32) {}]] parse fails
+// test function without parameter name [[x (const int32) {}]] parse fails
+
+test function return type [[
+  int32 x () {}
+]] run get-fundef-from-program to FunDef(
+  [Int32],
+  FunDeclarator(
+    None,
+    Identifier("x"),
+    ParameterList([])
+  ),
+  [],
+  CompoundStatement([])
+)
+
+test function complicated return type [[
+  const static int32 * const x() {}
+]] run get-fundef-from-program to FunDef(
+  [Const, Static, Int32],
+  FunDeclarator(
+    Some(Pointer([Const], None)),
+    Identifier("x"),
+    ParameterList([])
+  ),
+  _,
+  _
+)

@@ -1,0 +1,22 @@
+module BaseC/names/typedefs
+
+imports
+
+  signatures/BaseC/-
+  BaseC/desugar/-
+
+namespaces
+
+  Typedef
+
+binding rules
+
+  TypedefDeclaration(
+    Type(mod, type),
+    Declarator(_, _),
+    Decl(Identifier(name))
+  ) :
+    defines unique Typedef name of type type
+
+  TypedefName(Identifier(name)):
+    refers to Typedef name

@@ -1,0 +1,83 @@
+module MetaC-SM/generate-dot
+
+imports
+
+  metac-runtime-utils/string
+  libstratego-gpp
+  pp/MetaC-SM-pp
+  signatures/MetaC-SM-sig
+  signatures/BaseC/-
+  MetaC-SM/constructors
+
+rules
+
+  can-generate-dot: sm@StateMachine(_, _, _, _, _) -> sm
+
+  generate-dot: StateMachine(Identifier(name), InitState(Identifier(initial-state)), decls, events, states)
+    ->
+    <concat-strings> [
+      "digraph ", <strip-annos> name, " {
+        rankdir=LR;
+        size=\"8,5\"
+        ", terminal-states, "
+        ", non-terminal-states, "
+        node [shape = point];
+        __StateMachineInitialPoint -> ", <strip-annos> initial-state, ";
+        ", transitions, "
+      }"
+    ]
+    where
+      terminal-states := <
+        filter(sm-is-terminal-state)
+        ; map(sm-get-state-name)
+        ; gen-dot-sm-terminal-states> states
+      ; non-terminal-states := <
+        filter(sm-is-non-terminal-state)
+        ; map(sm-get-state-name)
+        ; gen-dot-sm-non-terminal-states> states
+      ; transitions := <
+        gen-dot-sm-transitions
+        ; map(\t -> <conc-strings> (t, ";\n")\)
+        ; concat-strings> states
+
+  sm-is-terminal-state = ?State(_, _, [])
+
+  sm-is-non-terminal-state = not(sm-is-terminal-state)
+
+  sm-get-state-name: State(Identifier(name), _, _) -> <strip-annos> name
+
+  gen-dot-sm-states(|shape): [] -> ""
+  gen-dot-sm-states(|shape): states -> <concat-strings> [
+      "node [shape = ", shape, "]; ",
+      <join-strings> states,
+      ";"
+    ]
+
+  gen-dot-sm-terminal-states = gen-dot-sm-states(|"doublecircle")
+  gen-dot-sm-non-terminal-states = gen-dot-sm-states(|"circle")
+
+  gen-dot-sm-transitions: states ->
+    <map(\ state@State(_, _, trans)
+            -> (<sm-get-state-name> state, <map(sm-get-transition-target)> trans)\)
+      ; map(\ (state, targets)
+            -> <map(\ t -> (state, t) \)> targets \)
+      ; concat
+      ; map(\ (s, (end, event, guard))
+            -> <concat-strings> [s,
+                " -> ",
+                end,
+                " [label=\"",
+                event, " ",
+                guard,
+                "\"]"
+              ] \)> states
+
+  sm-get-transition-target: Transition(event, guard, _, Identifier(name)) ->
+    (
+      <strip-annos> name,
+      <gen-dot-sm-event> event,
+      <prettyprint-Guard ; box2text-string(|120) ; escape> guard
+    )
+
+  gen-dot-sm-event: Some(Identifier(name)) -> <strip-annos> name
+  gen-dot-sm-event: None() -> "<<e>>"

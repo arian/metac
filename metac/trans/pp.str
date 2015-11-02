@@ -1,0 +1,51 @@
+module pp
+
+imports
+
+  libstratego-gpp
+  runtime/refactoring/-
+  include/MetaC-parenthesize
+  pp/-
+
+signature
+  constructors
+
+    PPString: S -> S
+
+rules
+
+  pp-MetaC-string =
+    parenthesize-MetaC
+    ; prettyprint-SDF-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+  pp-partial-MetaC-string =
+    parenthesize-MetaC
+    ; prettyprint-example
+    ; !V([], <id>)
+    ; box2text-string(|120)
+
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-MetaC-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-MetaC-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
+
+  // For testing, wrap the result in a PPString constructor, so
+  // SPT correctly compares the results
+  pp-test:
+    ast -> PPString(<pp-debug> ast)
+
+rules
+
+  /**
+  * Given an old AST and a new AST, pretty-prints the new AST while presevering
+  * layout (e.g. whitespacing and comments) associated with the old AST.
+  *
+  * Example:
+  *   new-text := <construct-textual-change> (old-ast, new-ast)
+  */
+  construct-textual-change = construct-textual-change(pp-partial-MetaC-string, parenthesize, override-reconstruction, resugar)
+

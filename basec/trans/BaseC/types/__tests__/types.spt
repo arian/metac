@@ -1,0 +1,46 @@
+module types
+
+language MetaC
+
+test pointer type [[
+  int32 *a;
+  int32 *b = [[a]];
+]] run get-type to Pointer(Int32)
+
+test array type [[
+  int32 a[];
+  int32 b[] = [[a]];
+]] run get-type to Array(Int32)
+
+test multi dimensional array type [[
+  int32 a[][];
+  int32 b[][] = [[a]];
+]] run get-type to Array(Array(Int32))
+
+test pointer to array type [[
+  int32 *a[];
+  int32 *b[] = [[a]];
+]] run get-type to Pointer(Array(Int32))
+
+test enum type [[
+  enum X {A};
+  enum X a = [[A]];
+]] run get-type to UInt8()
+
+test enum type [[
+  enum X {A};
+  enum X a = A;
+  enum X b = [[a]];
+]] run get-type to UInt8()
+
+test struct type [[
+  struct X {};
+  struct X a;
+  struct X b = [[a]];
+]] run get-type to Struct(Identifier("X"{_}))
+
+test union type [[
+  union X {};
+  union X a;
+  union X b = [[a]];
+]] run get-type to Union(Identifier("X"{_}))
