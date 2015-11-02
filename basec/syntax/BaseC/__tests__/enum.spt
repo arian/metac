@@ -1,8 +1,6 @@
 module enum
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test enum type [[
   enum X x;

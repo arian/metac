@@ -1,6 +1,6 @@
 module constants
 
-language Metac
+language MetaC
 
 test is-int8
   <map(to-bool(is-int8))>

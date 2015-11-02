@@ -1,8 +1,6 @@
 module declarations-functions-1
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test function declaration [[
   void a();

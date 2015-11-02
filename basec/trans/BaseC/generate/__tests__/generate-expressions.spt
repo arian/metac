@@ -1,8 +1,6 @@
 module generate-declarations
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test comma expression [[
   int32 a = (1, 2, 3);

@@ -1,6 +1,6 @@
 module desugar-declarations
 
-language Metac
+language MetaC
 
 test desugar var declaration [[
   static unsigned int x, y = 2;

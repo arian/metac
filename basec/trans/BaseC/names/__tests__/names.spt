@@ -1,8 +1,6 @@
 module names
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test compound statement scopes variables [[
   int32 f() {

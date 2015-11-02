@@ -1,8 +1,6 @@
 module unions
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test union declaration [[
   union x;

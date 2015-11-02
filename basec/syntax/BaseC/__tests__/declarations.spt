@@ -1,8 +1,6 @@
 module declarations
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test simple integer declaration without declarators [[
   int32;

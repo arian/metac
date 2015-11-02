@@ -1,8 +1,6 @@
 module stmt
 
-language Metac
-
-start symbol Program
+language MetaC
 
 setup before [[
   void main() {

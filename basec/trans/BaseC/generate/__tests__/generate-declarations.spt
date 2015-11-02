@@ -1,8 +1,6 @@
 module generate-declarations
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test variable declarations [[
   int32 a,b,c;

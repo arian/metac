@@ -1,6 +1,6 @@
 module types
 
-language Metac
+language MetaC
 
 test pointer type [[
   int32 *a;

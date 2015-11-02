@@ -1,8 +1,6 @@
 module expr-bin
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test logical and type [[
   int32 a() { return [[1 && 2]]; }

@@ -1,6 +1,6 @@
 module desugar-declarations
 
-language Metac
+language MetaC
 
 test it should define a module [[
   int32 x;

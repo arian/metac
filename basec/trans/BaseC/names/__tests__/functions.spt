@@ -1,8 +1,6 @@
 module functions
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test function declaration [[
   int32 [[f]](int32, int32);

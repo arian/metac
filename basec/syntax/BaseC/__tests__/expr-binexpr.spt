@@ -1,8 +1,6 @@
 module expr-binexpr
 
-language Metac
-
-start symbol Program
+language MetaC
 
 setup before [[
   void main() {

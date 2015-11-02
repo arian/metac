@@ -1,8 +1,6 @@
 module expr-unexpr
 
-language Metac
-
-start symbol Program
+language MetaC
 
 setup before [[
   typedef int32 b;

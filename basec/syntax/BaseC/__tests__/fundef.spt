@@ -1,8 +1,6 @@
 module fundef
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test minimal function definition [[
   x() {}

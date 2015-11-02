@@ -1,8 +1,6 @@
 module names
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test typedef name [[
   typedef int32 [[x]];

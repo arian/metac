@@ -1,8 +1,6 @@
 module declarations-functions-2
 
-language Metac
-
-start symbol Program
+language MetaC
 
 // TODO fix this
 

@@ -1,8 +1,6 @@
 module expr-disamb
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test multiply as x is not typedef'ed [[
   void f () {

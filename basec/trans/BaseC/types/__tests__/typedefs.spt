@@ -1,8 +1,6 @@
 module typedefs
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test typedef type synonym [[
   typedef int32 a;

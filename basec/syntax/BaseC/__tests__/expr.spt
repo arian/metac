@@ -1,8 +1,6 @@
 module expr
 
-language Metac
-
-start symbol Program
+language MetaC
 
 setup before [[
   int32 a;

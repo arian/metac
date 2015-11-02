@@ -1,8 +1,6 @@
 module expr-bin
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test type cast [[
   void f() { [[(unsigned long *) 1]]; }

@@ -1,6 +1,6 @@
 module disamb
 
-language BaseC
+language MetaC
 
 test get typedef name simple
   <parse-string

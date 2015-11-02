@@ -1,6 +1,6 @@
 module declarations
 
-language Metac
+language MetaC
 
 test implicit unsigned type conversion [[
   uint32 a = -1;

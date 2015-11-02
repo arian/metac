@@ -1,8 +1,6 @@
 module expressions-assign
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test assign expression of arrays [[
   void a(float32 b[], int32 c[]) {
