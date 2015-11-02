@@ -1,0 +1,6 @@
+**/__tests__/*.pp*
+**/__tests__/*.analysis*
+**/__tests__/*.task
+**/__tests__/*.index
+**/__tests__/*.c
+**/__tests__/*.gv
