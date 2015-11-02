@@ -5,7 +5,7 @@ imports
   signatures/BaseC/-
   runtime/editor/-
   BaseC/desugar/constructors
-  lib/path-join
+  metac-runtime-utils/path-join
 
 rules
 

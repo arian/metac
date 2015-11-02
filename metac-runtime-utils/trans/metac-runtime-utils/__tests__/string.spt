@@ -1,6 +1,6 @@
 module strings
 
-language Metac
+language MetaC
 
 test join-strings 0 elements
   <join-strings> [] => ""

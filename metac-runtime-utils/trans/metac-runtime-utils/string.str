@@ -1,4 +1,4 @@
-module lib/string
+module metac-runtime-utils/string
 
 strategies
 

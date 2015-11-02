@@ -4,6 +4,7 @@ imports
 
   BaseC/analysis/-
   runtime/types/query
+  signatures/BaseC/-
 
 rules
 

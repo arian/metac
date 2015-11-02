@@ -1,8 +1,8 @@
-module MetaC-bitfield/util
+module MetaC-bitfield/utils
 
 imports
 
-  lib/in-range
+  metac-runtime-utils/in-range
 
 strategies
 

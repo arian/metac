@@ -1,6 +1,6 @@
 module bitmask
 
-language Metac
+language MetaC
 
 test bitmask of 8 bits
   <bitmask> 8 => "0xFF"

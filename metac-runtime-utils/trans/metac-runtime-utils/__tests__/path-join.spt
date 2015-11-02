@@ -1,6 +1,6 @@
 module path-join
 
-language Metac
+language MetaC
 
 test path join
   <path-join(|"x")> "y" => "x/y"

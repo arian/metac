@@ -1,4 +1,4 @@
-module lib/in-range
+module metac-runtime-utils/in-range
 
 strategies
 

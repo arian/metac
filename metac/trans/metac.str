@@ -18,6 +18,7 @@ imports
   generate-c
   generate-dot
   pp
+  utils/-
   test-utils
   desugar/-
   signatures/BaseC/Program-sig

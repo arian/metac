@@ -8,8 +8,8 @@ imports
   MetaC-bitfield/trans
   names/MetaC-bitfield/names
   MetaC-bitfield/desugar
-  MetaC-bitfield/util
-  lib/bitmask
+  MetaC-bitfield/utils
+  metac-runtime-utils/bitmask
 
 rules
 

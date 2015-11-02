@@ -1,0 +1,5 @@
+module metac-runtime-utils/bitmask
+
+rules
+
+  external bitmask(|)

@@ -5,7 +5,6 @@ imports
   signatures/BaseC/-
   BaseC/desugar/constructors
   BaseC/utils/-
-  src-gen/pp/-
 
 strategies
 

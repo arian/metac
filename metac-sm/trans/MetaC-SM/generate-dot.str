@@ -2,13 +2,13 @@ module MetaC-SM/generate-dot
 
 imports
 
-  lib/string
+  metac-runtime-utils/string
   libstratego-gpp
   pp/MetaC-SM-pp
   signatures/MetaC-SM-sig
   signatures/BaseC/-
   MetaC-SM/constructors
-  
+
 rules
 
   can-generate-dot: sm@StateMachine(_, _, _, _, _) -> sm

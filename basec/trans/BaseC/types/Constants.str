@@ -5,7 +5,7 @@ imports
   signatures/BaseC/-
   BaseC/types/Constructors
   runtime/types/-
-  lib/in-range
+  metac-runtime-utils/in-range
 
 rules
 

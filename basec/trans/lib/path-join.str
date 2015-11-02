@@ -1,5 +1,0 @@
-module lib/path-join
-
-rules
-
-  external path-join(|dir)
