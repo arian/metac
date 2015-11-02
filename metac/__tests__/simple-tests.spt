@@ -1,0 +1,7 @@
+module simple-tests
+
+language MetaC
+
+test xxx [[
+  void x(int * a){}
+]] parse succeeds

@@ -1,8 +1,6 @@
 module names
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test declaration of a bitfield should refer to the specification [[
   bitfields [[X]] {};

@@ -1,6 +1,6 @@
 module generate-sm
 
-language Metac
+language MetaC
 
 test generate minimal state machine C code [[
   statemachine X {

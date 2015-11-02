@@ -1,8 +1,6 @@
 module desugar
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test desugar should add size and ranges [[
   bitfields X {

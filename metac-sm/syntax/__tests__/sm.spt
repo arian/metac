@@ -1,8 +1,6 @@
 module sm
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test parse empty sm [[
   statemachine Name {

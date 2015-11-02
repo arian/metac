@@ -1,8 +1,6 @@
 module bitfields
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test bitfields declaration [[
   bitfields X {a: 1; b: 7;};
