@@ -1,0 +1,40 @@
+module MetaC-Err/names
+
+imports
+
+  BaseC/desugar/-
+  BaseC/names/-
+
+namespaces
+  ErrFailGuarded
+  ErrFailWildcard
+
+properties
+  err-fail-index of ErrFailGuarded
+  err-fail-var-name of ErrFailGuarded
+  err-fail-var of Variable
+
+binding rules
+
+  ErrAttemptStatement(_, _, _, _):
+    scopes ErrFailGuarded, ErrFailWildcard
+
+  ErrVarDeclaration(Type(mods, type), Identifier(name), _):
+    defines Variable name
+    of type type
+    of modifiers Modifiers(mods)
+
+  ErrFailGuarded(i, Type(mods, type), Identifier(name), s):
+    // TODO the name should be "i", not the type, but that needs updating in the
+    // nabl-use-site matching for ErrFailGuarded.
+    defines ErrFailGuarded type
+      of err-fail-index i
+      of err-fail-var-name name
+    defines Variable name
+      of type type
+      of err-fail-var True()
+    in s
+
+  ErrFailWildcard(wildcard-name, _):
+    defines ErrFailWildcard wildcard-name
+      of err-fail-index wildcard-name

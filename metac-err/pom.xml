@@ -4,9 +4,9 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.tudelft.metac</groupId>
-	<artifactId>metac</artifactId>
+	<artifactId>metac-err</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>MetaC</name>
+	<name>MetaC-Err</name>
 	<packaging>spoofax-language</packaging>
 
 	<parent>
@@ -19,34 +19,18 @@
 	<dependencies>
 		<dependency>
 			<groupId>nl.tudelft.metac</groupId>
-			<artifactId>metac-runtime-utils</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<type>spoofax-language</type>
-		</dependency>
-		<dependency>
-			<groupId>nl.tudelft.metac</groupId>
 			<artifactId>basec</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 			<type>spoofax-language</type>
 		</dependency>
+
 		<dependency>
 			<groupId>nl.tudelft.metac</groupId>
-			<artifactId>metac-sm</artifactId>
+			<artifactId>metac-runtime-utils</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 			<type>spoofax-language</type>
 		</dependency>
-		<dependency>
-			<groupId>nl.tudelft.metac</groupId>
-			<artifactId>metac-bitfield</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<type>spoofax-language</type>
-		</dependency>
-		<dependency>
-			<groupId>nl.tudelft.metac</groupId>
-			<artifactId>metac-err</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<type>spoofax-language</type>
-		</dependency>
+
 		<dependency>
 			<groupId>org.metaborg</groupId>
 			<artifactId>org.metaborg.meta.lib.analysis</artifactId>
@@ -113,3 +97,4 @@
 		</plugins>
 	</build>
 </project>
+

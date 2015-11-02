@@ -1,0 +1,72 @@
+module MetaC-Err/desugar
+
+imports
+
+  MetaC-Err/constructors
+  BaseC/desugar/constructors
+  signatures/MetaC-Err-sig
+
+rules
+
+  // Desugar ErrCompoundStatement to CompoundStatement, as all analysis
+  // for ErrCompoundStatement is the same as normal CompoundStatements.
+  desugar05:
+    ErrAttemptStatement(
+      name,
+      ErrCompoundStatement(items),
+      fails-guarded,
+      fails-wildcard
+    ) ->
+    ErrAttemptStatement(
+      name,
+      CompoundStatement(<map(try(desugar-err-fn-call))> items),
+      <map-with-index(desugar-fail-guarded)> fails-guarded,
+      fails-wildcard
+    )
+
+  // Rewrite variable declarations, that assign a function call to a variable
+  // to an ErrVarDeclaration. This is befor analysis, so at generation time
+  // this can be undone if the function call in the initializer did not return
+  // a ErrMaybeError.
+  desugar-err-fn-call:
+    VarDeclaration(
+      [],
+      type,
+      _,
+      Decl(ident@Identifier(_)),
+      Some(Call(fn, params))
+    ) -> ErrVarDeclaration(
+      type,
+      ident,
+      Call(fn, params)
+    )
+
+  // rewrite so NaBL can add the index of this fail block as property
+  desugar-fail-guarded:
+    (i, ErrFailGuarded(t1, t2, t3)) -> ErrFailGuarded(i, t1, t2, t3)
+
+  // Desugar all ErrMabybeError function return types to include the function
+  // name, when getting the type at the use-site, the function-name is readable
+  desugar05:
+    FunDefinition(
+      identifier@Identifier(name),
+      storage,
+      Type(mods, t),
+      params,
+      body
+    ) ->
+    FunDefinition(
+      identifier,
+      storage,
+      Type(mods, <desugar-err-fn-return-type(|name)> t),
+      params,
+      body
+    )
+
+  desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1) -> ErrMaybeError(t1, None(), fn-name)
+  desugar-err-fn-return-type(|fn-name): ErrMaybeError(t1, t2) -> ErrMaybeError(t1, t2, fn-name)
+  desugar-err-fn-return-type(|): t -> t
+
+  // Add a dummy name to the fail { ... } block, so nabl can understand this
+  // to define the wildcard fail block
+  desugar: ErrFailWildcard(s) -> ErrFailWildcard("_", s)

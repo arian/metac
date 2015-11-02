@@ -1,0 +1,166 @@
+module err
+
+language MetaC
+
+test err returning function [[
+  MaybeError<int8> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(TypeName([Int8],None))],
+      FunDeclarator(
+        None,
+        Identifier("x"),_
+      ),
+      _,
+      _
+    )
+  ])
+
+test err returning function with pointer [[
+  MaybeError<int8*> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(TypeName([Int8],Some(Pointer([], None))))],
+      _,
+      _,
+      _
+    )
+  ])
+
+test err returning function two types [[
+  MaybeError<int8*, int8> x() {}
+]] parse to Program(_, [
+    FunDef(
+      [ErrMaybeError(
+        TypeName([Int8], Some(Pointer([], None))),
+        TypeName([Int8], None)
+      )],
+      _,
+      _,
+      _
+    )
+  ])
+
+test err returning an error [[
+  MaybeError<int8> x() {
+    return Error();
+  }
+]] parse to Program(_, [
+    FunDef(
+      _,
+      _,
+      _,
+      CompoundStatement([
+        Return(Some(ErrError()))
+      ])
+    )
+  ])
+
+test err returning an error [[
+  MaybeError<int8,int8> x() {
+    return Error(1);
+  }
+]] parse to Program(_, [
+    FunDef(
+      _,
+      _,
+      _,
+      CompoundStatement([
+        Return(Some(ErrError(Integer("1"))))
+      ])
+    )
+  ])
+
+test attempt statement [[
+  void f() {
+    attempt {} fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [],
+        Some(ErrFailWildcard(CompoundStatement([])))
+      )
+    ]))
+  ])
+
+test attempt with fail statement [[
+  void f() {
+    attempt {} fail printf("fail\n");
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [],
+        Some(ErrFailWildcard(ExpressionStatement(_)))
+      )
+    ]))
+  ])
+
+test attempt statement with name [[
+  void f() {
+    attempt[x] {} fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(Some(ErrAttemptLabelName(Identifier("x"))), _, _, _)
+    ]))
+  ])
+
+test unpack value declaration [[
+  void f() {
+    attempt {
+      uint8 a ?= g();
+    } fail {}
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([
+          ErrVarDeclaration(
+            TypeName([UInt8()], None()),
+            Identifier("a"),
+            Call(Var(Identifier("g")), [])
+          )
+        ]),
+        _,
+        _
+      )
+    ]))
+  ])
+
+test guarded fail blocks [[
+  void f() {
+    attempt {
+    } fail (int8 e) {
+    } fail (float32 e) {
+    } fail {
+    }
+  }
+]] parse to Program(_, [
+    FunDef(_, _, _, CompoundStatement([
+      ErrAttemptStatement(
+        None(),
+        ErrCompoundStatement([]),
+        [
+          ErrFailGuarded(TypeName([Int8()], None()), Identifier("e"), CompoundStatement([])),
+          ErrFailGuarded(TypeName([Float32()], None()), Identifier("e"), CompoundStatement([]))
+        ],
+        Some(ErrFailWildcard(CompoundStatement([])))
+      )
+    ]))
+  ])
+
+test can't have two wildcard fail blocks [[
+  void f() {
+    attempt {
+    } fail {
+    } fail {
+    }
+  }
+]] parse fails

@@ -1,0 +1,37 @@
+module MetaC-err/names-custom
+
+imports
+
+  runtime/nabl/-
+  runtime/task/-
+  runtime/properties/-
+  runtime/types/-
+  runtime/relations/-
+  runtime/editor/-
+  BaseC/types/-
+  BaseC/types/Constructors
+
+  MetaC-Err/constructors
+  names/MetaC-Err/names
+  signatures/MetaC-Err-sig
+
+rules
+
+  nabl-use-site(|lang, ctx, uniques, uris, states) =
+    ?d@ErrVarDeclaration(_, _, Call(fn, _))
+    // lookup the type of the function variable, FunType(...)
+    ; fn-type := <new-task-fixdeps(|ctx, [])> Id(<get-or-create-property-task(|ctx, Type())> fn)
+    // Get the error value type
+    ; name := <new-task-fixdeps(|ctx, [fn-type])> Rewrite("err-error-type", fn-type)
+    // lookup the error type that matches a guarded (with parameter) fail block
+    ; task-guard := <nabl-use-candidate(|lang, ctx, uris, name)> UseCandidate(NablNsErrFailGuarded(), [], Current(), True(), [])
+    // lookup the wildcard failure
+    ; task-wildcard := <nabl-use-candidate(|lang, ctx, uris, "_")> UseCandidate(NablNsErrFailWildcard(), [], Current(), True(), [])
+    // either of these
+    ; task := <task-create-choice(|ctx)> [task-guard, task-wildcard]
+    // if it's not found, show an error that no compatible fail block was found
+    ; <nabl-fix-name; task-create-error-on-failure(|ctx, task, "No compatible fail block found")> d
+    // set the Use(_) to the resuling fail block
+    ; <replace-annotation(?Use(_) | <new-use(|ctx, task)>)> d
+
+  task-rewrite: ("err-error-type", FunType(ErrMaybeError(_, Type(_, err-type), _))) -> err-type

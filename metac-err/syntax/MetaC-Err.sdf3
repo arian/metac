@@ -1,0 +1,67 @@
+module MetaC-Err
+
+imports
+
+  BaseC/Constants
+  BaseC/Declarations
+  BaseC/Expr
+  BaseC/Identifiers
+  BaseC/Stmt
+  BaseC/Program // Importing start symbol to make sdf2rtg work
+
+lexical syntax
+
+  Keyword = "Error"
+  Keyword = "fail"
+
+context-free syntax
+
+  TypeSpecifier.ErrMaybeError =
+    [MaybeError<[TypeName]>]
+
+  TypeSpecifier.ErrMaybeError =
+    [MaybeError<[TypeName],[TypeName]>]
+
+
+  Constant.ErrError =
+    [Error()]
+
+  Constant.ErrError =
+    [Error([Expr])]
+
+
+  ErrBlockItem =
+    BlockItem
+
+  ErrBlockItem.ErrVarDeclaration =
+    [[TypeName] [Identifier] ?= [FunctionCallExpr];]
+
+
+  ErrCompoundStatement.ErrCompoundStatement =
+    [
+    {
+      [{ErrBlockItem "\n"}*]
+    }
+    ]
+
+
+  Statement.ErrAttemptStatement =
+    [
+    attempt[ErrAttemptLabelName?] [ErrCompoundStatement] [ErrFailGuarded*] [ErrFailWildcard?]
+    ]
+
+
+  ErrAttemptLabelName.ErrAttemptLabelName =
+    <[<Identifier>]>
+
+
+  ErrFailGuarded.ErrFailGuarded =
+    [
+    fail ([TypeName] [Identifier]) [Statement]
+    ]
+
+
+  ErrFailWildcard.ErrFailWildcard =
+    [
+    fail [Statement]
+    ]

@@ -1,0 +1,306 @@
+module MetaC-Err/generate-c
+
+imports
+
+  BaseC/generate/-
+  BaseC/types/-
+  MetaC-Err/constructors
+  names/MetaC-Err/names
+  signatures/MetaC-Err-sig
+  signatures/BaseC/-
+
+  runtime/types/-
+  runtime/editor/-
+  runtime/properties/-
+  runtime/nabl/entries
+  runtime/task/core
+  runtime/index/core
+  runtime/index/query
+
+rules
+
+  // generate Declarator from Decl and Type(mods, type)
+  // move to BaseC
+  generate-Declarator:
+    (decl, Type(mods, t)) ->
+    Declarator(<generate-Declarator-type> t, decl)
+
+  generate-Declarator-type:
+    Array(t) -> Some(ArrayDecl([], <generate-Declarator-type> t))
+
+  generate-Declarator-type:
+    Pointer(t) -> Some(Pointer([], <generate-Declarator-type> t))
+
+  generate-Declarator-type:
+    t -> None()
+
+  get-err-fail-block-def =
+    ?ErrVarDeclaration(_, _, _)
+    ; get-annos
+    ; fetch-elem(?Use(<id>))
+    ; task-get-results ; Hd
+
+  // get the err-fail-index property of the fail-block an ErrVarDeclaration
+  // refers to, doing all kinds of magic
+  get-err-fail-index =
+    get-err-fail-block-def
+    ; get-index-property(|NablProp_err-fail-index())
+    ; task-get-results ; Hd
+
+  get-err-fail-var-name=
+    get-err-fail-block-def
+    ; get-index-property(|NablProp_err-fail-var-name())
+    ; task-get-results ; Hd
+
+  // generate modified functions that return ErrMaybeTypes
+  generate01:
+    FunDefinition(
+      identifier@Identifier(name),
+      storage,
+      Type(mods, ErrMaybeError(success-type, fail-type, fn-name)),
+      params,
+      body
+    ) -> [
+      maybe-struct,
+      FunDefinition(
+        identifier,
+        storage,
+        Type([], UInt8()),
+        new-params,
+        body-with-returns
+      )
+    ]
+    where
+      struct-typename := <conc-strings> ("__MaybeError_" , <strip-annos> name)
+      ; return-var-name := <conc-strings> ("__maybeErrorReturn_", <strip-annos> name)
+      ; maybe-struct := <gen-err-struct> (struct-typename, success-type, fail-type)
+      ; new-params := <conc> ([
+          FunDefinitionParameter(
+            Type([], Pointer(TypedefName(Identifier(struct-typename)))),
+            Declarator(Some(Pointer([], None())), Decl(Identifier(return-var-name))),
+            Decl(Identifier(return-var-name))
+          )
+        ], params)
+        ; body-with-returns := <gen-err-body-returns(|return-var-name)> body
+
+  gen-err-struct: (struct-typename, success-type, fail-type) ->
+    Declaration(
+      [Typedef(), Struct(None(), struct-declarations)],
+      [Declarator(None(), Decl(Identifier(struct-typename)))]
+    )
+    where
+      struct-declarations := [
+        StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))]),
+        StructDeclaration(
+          [Union(
+            None(),
+            <gen-err-result-union-fields> (success-type, fail-type)
+          )],
+          [Declarator(None(), Decl(Identifier("result")))]
+        )
+      ]
+
+  gen-err-result-union-fields: (success-type, None()) ->
+    [<gen-err-result-field> ("value", success-type)]
+
+  gen-err-result-union-fields: (success-type, fail-type) ->
+    [
+      <gen-err-result-field> ("value", success-type),
+      <gen-err-result-field> ("error", fail-type)
+    ]
+
+  gen-err-result-field: (name, type) ->
+    StructDeclaration(<gen-Type> type, [<generate-Declarator> (Decl(Identifier(name)), type)])
+
+  // replace return statements
+  gen-err-body-returns(|return-var-name) =
+    topdown(try(gen-err-return(|return-var-name)))
+
+  // empty "return;", change it to "return (void) 0;
+  gen-err-return(|return-var-name):
+    Return(None()) ->
+    <gen-err-return(|return-var-name)> Return(
+      Some(Cast(Type([], Void()), Integer("0")))
+    )
+
+  gen-err-return(|return-var-name):
+    Return(Some(value)) -> Return(Some(<gen-err-return-value(|return-var-name)> value))
+
+  // return Error();
+  gen-err-return-value(|return-var-name): ErrError() ->
+    Assign(
+      PointerField(Var(Identifier(return-var-name)), Identifier("success")),
+      Assign(),
+      Integer("0")
+    )
+
+  // return Error(expression);
+  gen-err-return-value(|return-var-name): ErrError(value) ->
+    <gen-err-return-value-with-value(|return-var-name)> ("error", "0", value)
+
+  // return expression;
+  gen-err-return-value(|return-var-name): value ->
+    <gen-err-return-value-with-value(|return-var-name)> ("value", "1", value)
+
+  gen-err-return-value-with-value(|return-var-name): (field-name, success, value) ->
+    Paren(Comma(
+      Assign(
+        Field(
+          PointerField(Var(Identifier(return-var-name)), Identifier("result")),
+          Identifier(field-name)
+        ),
+        Assign(),
+        value
+      ),
+      [],
+      Assign(
+        PointerField(Var(Identifier(return-var-name)), Identifier("success")),
+        Assign(),
+        Integer(success)
+      )
+    ))
+
+  // generate the C code for the attempt/fail statement blocks
+  generate01:
+    ErrAttemptStatement(
+      some-name,
+      CompoundStatement(compound-stmts),
+      fails-guarded,
+      fails-wildcard
+    ) -> [
+      fail-error-vars,
+      CompoundStatement(<conc> (attempt-stmts, [
+        Goto(Identifier(<conc-strings> (name, "_finally")))
+      ])),
+      <map(gen-err-fail-guarded(|name))> fails-guarded,
+      <gen-err-fails-wildcard(|name)> fails-wildcard,
+      Label(Identifier(<conc-strings> (name, "_finally")), CompoundStatement([]))
+    ]
+    where
+      attempt-name := <gen-err-label-name> some-name
+      ; name := <conc-strings> ("attempt_", attempt-name)
+      ; attempt-stmts := <map(try(gen-err-declaration(|name)))> compound-stmts
+      ; fail-error-vars := <map(gen-err-fail-vars(|name))> fails-guarded
+
+  gen-err-label-name: Some(ErrAttemptLabelName(Identifier(t))) -> t
+  gen-err-label-name: None() -> <newname> ""
+
+  // desugar Error Handling declarations
+  gen-err-declaration(|label-name):
+    d@ErrVarDeclaration(
+      type,
+      ident@Identifier(var-name),
+      Call(fn, params)
+    ) -> [
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier(struct-typename))),
+        Declarator(None(), struct-decl),
+        struct-decl,
+        None()
+      ),
+      ExpressionStatement(Some(
+        Call(fn, params-with-struct)
+      )),
+      If(
+        Negate(Field(Var(Identifier(struct-var-name)), Identifier("success"))),
+        CompoundStatement(<conc> (
+          <gen-err-assign-error-value(|struct-var-name, fail-block-var-name)> fail-block-index,
+          [Goto(Identifier(<concat-strings> [label-name, "_fail_", fail-goto]))]
+        ))
+      ),
+      VarDeclaration(
+        [],
+        type,
+        value-declarator,
+        value-decl,
+        Some(Field(
+          Field(Var(Identifier(struct-var-name)), Identifier("result")),
+          Identifier("value")
+        ))
+      )
+    ]
+    where
+      <get-type ; ?FunType(ErrMaybeError(_, fail-type, fn-name))> fn
+      ; struct-var-name := <conc-strings> ("__maybe_", var-name)
+      ; struct-typename := <conc-strings> ("__MaybeError_" , fn-name)
+      ; struct-decl := Decl(Identifier(struct-var-name))
+      ; params-with-struct := <conc> ([Address(Var(Identifier(struct-var-name)))], params)
+      ; fail-block-index := <get-err-fail-index> d
+      ; fail-goto := <is-string ; id <+ int-to-string> fail-block-index
+      ; fail-block-var-name := <concat-strings> [label-name, "_", fail-goto, "_", <get-err-fail-var-name <+ !""> d]
+      ; value-decl := Decl(ident)
+      ; value-declarator := <generate-Declarator> (value-decl, type)
+
+  // un-desugar normal declarations again
+  gen-err-declaration(|label-name):
+    ErrVarDeclaration(
+      type,
+      ident,
+      Call(fn, params)
+    ) -> VarDeclaration(
+      [],
+      type,
+      declarator,
+      decl,
+      Some(Call(fn, params))
+    )
+    where
+      <get-type ; not(?FunType(ErrMaybeError(_, _, _)))> fn
+      ; decl := Decl(ident)
+      ; declarator := <generate-Declarator> (decl, type)
+
+  gen-err-fail-vars(|attempt-name): ErrFailGuarded(i, type, Identifier(var-name), _) ->
+    VarDeclaration(
+      [],
+      type,
+      declarator,
+      decl,
+      None()
+    )
+    where
+      name := <concat-strings> [attempt-name, "_", <int-to-string> i, "_", var-name]
+      ; decl := Decl(Identifier(name))
+      ; declarator := <generate-Declarator> (decl, type)
+
+  gen-err-fails-wildcard(|label-name): None() -> []
+  gen-err-fails-wildcard(|label-name):
+    Some(ErrFailWildcard(name, fail-stmt)) ->
+    Label(
+      Identifier(<concat-strings> [label-name, "_fail_", name]),
+      CompoundStatement([
+        fail-stmt,
+        Goto(Identifier(<conc-strings> (label-name, "_finally")))
+      ])
+    )
+
+  gen-err-fail-guarded(|label-name):
+    ErrFailGuarded(i, type, var-name, fail-stmt) ->
+    Label(
+      Identifier(<concat-strings> [label-name, "_fail_", <int-to-string> i]),
+      CompoundStatement([
+        <bottomup(try(gen-err-fail-block-var(|var-name-prepend)))> fail-stmt,
+        Goto(Identifier(<conc-strings> (label-name, "_finally")))
+      ])
+    )
+    where
+      var-name-prepend := <concat-strings> [label-name, "_", <int-to-string> i, "_"]
+
+  gen-err-fail-block-var(|var-name-prepend):
+    Var(Identifier(name)) -> Var(Identifier(<conc-strings> (var-name-prepend, name)))
+    where
+      <get-err-fail-var> name
+
+  gen-err-assign-error-value(|struct-var-name, var-name): "_" -> []
+  gen-err-assign-error-value(|struct-var-name, var-name): i -> [
+    ExpressionStatement(Some(
+      Assign(
+        Var(Identifier(var-name)),
+        Assign(),
+        Field(
+          Field(Var(Identifier(struct-var-name)), Identifier("result")),
+          Identifier("error")
+        )
+      )
+    ))
+  ]
