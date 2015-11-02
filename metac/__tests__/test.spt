@@ -1,0 +1,7 @@
+module test
+
+language MetaC
+
+test xxx [[
+  int a;
+]] parse succeeds;

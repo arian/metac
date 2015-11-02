@@ -13,8 +13,7 @@ strategies
   disamb: (ast, _, _) -> <disamb> ast
 
   disamb =
-    debug
-    ; rules(td-names := [])
+    rules(td-names := [])
     ; traverse(try(disamb-typedef))
 
   traverse(s) =

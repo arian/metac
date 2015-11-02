@@ -20,6 +20,7 @@ imports
   pp
   test-utils
   desugar/-
+  signatures/BaseC/Program-sig
   BaseC/analysis/disamb
   BaseC/types/-
   MetaC-bitfield/trans
@@ -44,7 +45,7 @@ rules // Analysis
 //      end
 
   pre-analysis:
-    File(file, Program(_, decls), num) -> File(file, Program(file, decls), num)
+    File(file, Program(_, decls), num) -> File(file, <disamb> Program(file, decls), num)
 
   editor-analyze = ?input; map(pre-analysis) ; analyze-all(desugar-all, id, id|<language>)
 

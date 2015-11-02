@@ -1,1 +1,6 @@
 module basec
+
+imports
+
+  BaseC/names/names-custom
+  BaseC/names/structs-custom

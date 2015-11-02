@@ -3,6 +3,7 @@ module MetaC-bitfield/trans
 imports
 
   names/MetaC-bitfield/names
+  MetaC-bitfield/names-custom
   MetaC-bitfield/desugar
   MetaC-bitfield/generate-c
   MetaC-bitfield/types

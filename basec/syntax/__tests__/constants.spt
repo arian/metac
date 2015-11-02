@@ -1,8 +1,6 @@
 module constants
 
-language Metac
-
-start symbol Program
+language MetaC
 
 test empty string [[
   uint8 x[] = "";
