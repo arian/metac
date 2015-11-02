@@ -2,7 +2,7 @@ module MetaC-bitfield/generate-c
 
 imports
 
-  signatures/-
+  signatures/BaseC/-
   runtime/types/-
   BaseC/desugar/constructors
   MetaC-bitfield/trans
