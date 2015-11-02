@@ -1,8 +1,6 @@
 module generate-c
 
-language metac
-
-start symbol Program
+language MetaC
 
 test a function that returns a MaybeError should generate a struct and prepend that as first argument [[
   MaybeError<const float64> f() {}

@@ -1,0 +1,11 @@
+module MetaC-Err.main
+
+language
+
+  name : MetaC-Err
+
+  TemplateLang        includes : syntax
+  SDF                 includes : src-gen/syntax
+  Stratego-Sugar      includes : trans, src-gen
+  NameBindingLanguage includes : trans, src-gen
+  TypeSystemLanguage  includes : trans, src-gen

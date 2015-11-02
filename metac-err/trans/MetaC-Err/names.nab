@@ -1,11 +1,9 @@
-module MetaC/err/trans/names
+module MetaC-Err/names
 
 imports
 
-  include/Metac
-  BaseC/trans/desugar/-
-  BaseC/trans/names/-
-  MetaC/err/trans/constructors
+  BaseC/desugar/-
+  BaseC/names/-
 
 namespaces
   ErrFailGuarded

@@ -1,12 +1,13 @@
-module MetaC/err/syntax/err
+module MetaC-Err
 
 imports
 
-  BaseC-Constants
-  BaseC-Declarations
-  BaseC-Expr
-  BaseC-Identifiers
-  BaseC-Stmt
+  BaseC/Constants
+  BaseC/Declarations
+  BaseC/Expr
+  BaseC/Identifiers
+  BaseC/Stmt
+  BaseC/Program // Importing start symbol to make sdf2rtg work
 
 lexical syntax
 

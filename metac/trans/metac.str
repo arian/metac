@@ -24,7 +24,7 @@ imports
   BaseC/trans
   MetaC-bitfield/trans
   MetaC-SM/trans
-  MetaC/err/trans/trans
+  MetaC-Err/trans
 
 rules // Analysis
 

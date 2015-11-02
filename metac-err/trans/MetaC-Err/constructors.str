@@ -1,4 +1,4 @@
-module MetaC/err/trans/constructors
+module MetaC-Err/constructors
 
 signature constructors
 

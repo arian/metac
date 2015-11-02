@@ -1,19 +1,19 @@
-module MetaC/err/trans/names-custom
+module MetaC-err/names-custom
 
 imports
 
-  include/Metac
   runtime/nabl/-
   runtime/task/-
   runtime/properties/-
   runtime/types/-
   runtime/relations/-
   runtime/editor/-
-  BaseC/trans/types/-
-  BaseC/trans/desugar/-
-  BaseC/trans/names/-
-  MetaC/err/trans/constructors
-  MetaC/err/trans/names
+  BaseC/types/-
+  BaseC/types/Constructors
+
+  MetaC-Err/constructors
+  names/MetaC-Err/names
+  signatures/MetaC-Err-sig
 
 rules
 

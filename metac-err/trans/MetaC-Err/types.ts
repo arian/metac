@@ -1,16 +1,16 @@
-module MetaC/err/trans/types
+module MetaC-Err/types
 
 imports
 
-  include/-
-  lib/runtime/nabl/-
-  lib/runtime/task/-
-  lib/runtime/types/-
-  lib/runtime/properties/-
-  lib/runtime/relations/-
-  BaseC/trans/types/-
-  BaseC/trans/desugar/-
-  MetaC/err/trans/-
+  runtime/nabl/-
+  runtime/task/-
+  runtime/types/-
+  runtime/properties/-
+  runtime/relations/-
+  signatures/MetaC-Err-sig
+  BaseC/types/Constructors
+  BaseC/desugar/-
+  MetaC-Err/-
 
 type rules
 

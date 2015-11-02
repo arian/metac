@@ -1,10 +1,10 @@
-module MetaC/err/trans/desugar
+module MetaC-Err/desugar
 
 imports
 
-  include/Metac
-  MetaC/err/trans/constructors
-  BaseC/trans/desugar/BaseC-desugar-constructors
+  MetaC-Err/constructors
+  BaseC/desugar/constructors
+  signatures/MetaC-Err-sig
 
 rules
 

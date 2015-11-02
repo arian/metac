@@ -1,0 +1,10 @@
+module MetaC-Err/trans
+
+imports
+
+  MetaC-Err/constructors
+  MetaC-Err/desugar
+  names/MetaC-Err/names
+  MetaC-Err/names-custom
+  types/MetaC-Err/types
+

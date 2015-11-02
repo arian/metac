@@ -5,6 +5,7 @@ imports
   BaseC/Program
   MetaC-bitfield
   MetaC-SM
+  MetaC-Err
 
 context-free start-symbols
 

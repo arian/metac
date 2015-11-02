@@ -1,6 +1,6 @@
 module names
 
-language Metac
+language MetaC
 
 test wildcard should be the default referred failure block [[
   MaybeError<int> f() { return Error(); }

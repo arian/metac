@@ -1,8 +1,6 @@
 module err
 
-language metac
-
-start symbol Program
+language MetaC
 
 test err returning function [[
   MaybeError<int8> x() {}

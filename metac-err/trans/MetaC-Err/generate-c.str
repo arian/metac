@@ -1,22 +1,21 @@
-module MetaC/err/trans/generate-c
+module MetaC-Err/generate-c
 
 imports
 
-  include/Metac
-  BaseC/trans/desugar/BaseC-desugar-constructors
-  BaseC/trans/generate/-
-  BaseC/trans/types/-
-  MetaC/err/trans/constructors
-  MetaC/err/trans/names
+  BaseC/generate/-
+  BaseC/types/-
+  MetaC-Err/constructors
+  names/MetaC-Err/names
+  signatures/MetaC-Err-sig
+  signatures/BaseC/-
+
   runtime/types/-
   runtime/editor/-
-
   runtime/properties/-
   runtime/nabl/entries
   runtime/task/core
   runtime/index/core
   runtime/index/query
-
 
 rules
 
