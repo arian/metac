@@ -1,0 +1,16 @@
+module BaseC/trans
+
+imports
+
+  BaseC/analysis/disamb
+  BaseC/desugar/-
+  BaseC/generate/-
+
+  names/BaseC/names/-
+  BaseC/names/names-custom
+  BaseC/names/structs-custom
+
+  types/BaseC/types/-
+  BaseC/types/-
+
+  BaseC/utils/types
