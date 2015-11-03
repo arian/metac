@@ -22,9 +22,11 @@ imports
   desugar/-
   signatures/BaseC/Program-sig
   BaseC/trans
+  BaseC/analysis/disamb
   MetaC-bitfield/trans
   MetaC-SM/trans
   MetaC-Err/trans
+  metac-runtime-utils/path-join
 
 rules // Analysis
 
@@ -45,7 +47,16 @@ rules // Analysis
 //      end
 
   pre-analysis:
-    File(file, Program(_, decls), num) -> File(file, <disamb> Program(file, decls), num)
+    File(file, Program(_, decls), num)
+    ->
+    File(
+      file,
+      Program(
+        <path-join(|<project-path>)> <vfs-to-path> file,
+        <disamb> decls
+      ),
+      num
+    )
 
   editor-analyze = ?input; map(pre-analysis) ; analyze-all(desugar-all, id, id|<language>)
 
@@ -144,3 +155,7 @@ rules // Debugging
 
   debug-reanalyze =
     analysis-debug-reanalyze(|<language>)
+
+strategies
+
+    external vfs-to-path(|)

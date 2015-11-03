@@ -23,6 +23,7 @@ binding rules
 
   IncludeModule(m, _):
     imports Typedef, Function, Enum, Enumerator, Struct, Union, Variable from Module m
+    refers to Module m
 
   CompoundStatement(_):
     scopes Variable, Typedef, Function, Enum, Enumerator, Struct, Union

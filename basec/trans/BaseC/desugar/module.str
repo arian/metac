@@ -15,7 +15,7 @@ rules
   desugar(|t):
     i@Include(path) -> IncludeModule(resolved, i)
     where
-      resolved := <concat-strings ; path-join(|"") ; guarantee-extension(|"mc")> ["extern/", path]
+      resolved := <concat-strings ; path-join(|<project-path>) ; guarantee-extension(|"mc")> ["extern/", path]
 
   desugar(|file):
     i@IncludeLocal(path) -> IncludeModule(resolved, i)

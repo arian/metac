@@ -19,4 +19,5 @@ int main() {
   } fail (float e) {
     e;
   }
+  assert(1);
 }
