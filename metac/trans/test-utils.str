@@ -4,6 +4,7 @@ imports
 
   BaseC/analysis/-
   BaseC/desugar/-
+  BaseC/names/-
   runtime/types/query
   signatures/BaseC/-
   editor-common.generated
@@ -42,6 +43,12 @@ rules
   get-expr-type =
     find-elem(?Return(Some(x)))
     ; <get-type> x
+
+  test-utils-get-modifiers:
+    Program(_, [VarDeclaration(_, _, _, Decl(Identifier(name)), _)]) -> <get-modifiers> name
+
+  test-utils-get-storage:
+    Program(_, [VarDeclaration(_, _, _, Decl(Identifier(name)), _)]) -> <get-storage> name
 
 strategies
 

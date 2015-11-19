@@ -30,9 +30,9 @@ test multiple vars [[
 ]] resolve #2 to #1
 
 test define type modifiers [[
-  volatile const int32 [[a]];
-]] run get-modifiers to Modifiers([Volatile, Const])
+  volatile const int32 a;
+]] run test-utils-get-modifiers to Modifiers([Volatile, Const])
 
 test define storage modifiers [[
-  extern static int32 [[a]];
-]] run get-storage to Storage([Extern, Static])
+  extern static int32 a;
+]] run test-utils-get-storage to Storage([Extern, Static])
