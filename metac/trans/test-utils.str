@@ -28,6 +28,9 @@ rules
     Program(_, [FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
 
   get-init-from-decl:
+    VarDeclaration(_, _, _, _, Some(init)) -> <strip-annos> init
+    
+  get-init-from-decl:
     Declaration(_, [InitDeclarator(_, init)]) -> <strip-annos> init
 
   get-init-decl =
