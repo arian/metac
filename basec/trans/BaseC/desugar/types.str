@@ -33,9 +33,6 @@ rules
   desugar-to-sized-ints: Int()   -> Int32()
   desugar-to-sized-ints: Long()  -> Int64()
 
-  // TODO, enum is basically an Int type...
-  desugar-to-sized-ints: Enum(_) -> UInt8()
-
   desugar-to-sized-floats: Float() -> Float32()
   desugar-to-sized-floats: Double() -> Float64()
 

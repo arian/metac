@@ -2,6 +2,7 @@ module BaseC/names/enums
 
 imports
 
+  BaseC/desugar/constructors
   signatures/BaseC/-
 
 namespaces
@@ -16,6 +17,6 @@ binding rules
   Enum(Identifier(name)):
     refers to Enum name
 
-  Enumerator(Identifier(name), _):
+  Enumerator(Identifier(name), _, type-name):
     defines Enumerator name
-    of type UInt8()
+    of type Enum(Identifier(type-name))

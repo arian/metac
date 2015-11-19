@@ -32,6 +32,9 @@ relations
   UInt32() <is: Int()
   UInt64() <is: Int()
 
+  // enum acts as int
+  Enum(_) <is: Int()
+
   Float32() <is: Float()
   Float64() <is: Float()
 

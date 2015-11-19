@@ -105,3 +105,10 @@ rules
     where
       type := <desugar-decl-types> specifiers
       ; decls := <map(desugar-struct-declarator(|type))> declarators
+
+// enums
+rules
+
+  desugar:
+    Enum(Some(name@Identifier(_)), decls) ->
+    Enum(name, <map(\ Enumerator(e, i) -> Enumerator(<strip-annos> name, e, i) \)> decls)

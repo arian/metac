@@ -63,6 +63,12 @@ signature constructors
     Decl *
     Option -> StructDeclarator
 
+  // desugar adds the type name to the enumerator for nabl
+  Enumerator:
+    Identifier *
+    EnumInit *
+    Identifier -> Enumerator
+
   Comma:
     Expression *
     List(Expression) *
