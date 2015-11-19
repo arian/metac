@@ -5,34 +5,25 @@ language MetaC
 test a function that returns a MaybeError should generate a struct and prepend that as first argument [[
   MaybeError<const float64> f() {}
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      const double value;
-    } result;
+  typedef union {
+    const double value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
 
 test a function that returns a MaybeError containing a pointer [[
   MaybeError<const float64 **> f() {}
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      const double ** value;
-    } result;
+  typedef union {
+    const double ** value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
 
 test a function that returns a MaybeError with an error type [[
   MaybeError<uint8, const float64 **> f() {}
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      unsigned char value;
-      const double ** error;
-    } result;
+  typedef union {
+    unsigned char value;
+    const double ** error;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}"
 
@@ -41,14 +32,11 @@ test a function that returns Error() should return success, and set success to f
     return Error();
   }
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      const double value;
-    } result;
+  typedef union {
+    const double value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
-    return __maybeErrorReturn_f->success = 0;
+    return 0;
   }"
 
 test a function that returns void should return success, and set value to void [[
@@ -56,14 +44,11 @@ test a function that returns void should return success, and set value to void [
     return;
   }
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      void value;
-    } result;
+  typedef union {
+    void value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
-    return (__maybeErrorReturn_f->result.value = (void) 0, __maybeErrorReturn_f->success = 1);
+    return (__maybeErrorReturn_f->value = (void) 0, 1);
   }"
 
 test a function that returns some value should return success, and set value to the returned value [[
@@ -71,14 +56,11 @@ test a function that returns some value should return success, and set value to 
     return 1 + 2;
   }
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      signed int value;
-    } result;
+  typedef union {
+    signed int value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
-    return (__maybeErrorReturn_f->result.value = 1 + 2, __maybeErrorReturn_f->success = 1);
+    return (__maybeErrorReturn_f->value = 1 + 2, 1);
   }"
 
 test a function that returns some error value should return failure [[
@@ -86,17 +68,13 @@ test a function that returns some error value should return failure [[
     return Error(1 + 2);
   }
 ]] build generate-c to "
-  typedef struct  {
-    unsigned char success;
-    union {
-      signed int value;
-      unsigned char error;
-    } result;
+  typedef union {
+    signed int value;
+    unsigned char error;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {
-    return (__maybeErrorReturn_f->result.error = 1 + 2, __maybeErrorReturn_f->success = 0);
+    return (__maybeErrorReturn_f->error = 1 + 2, 0);
   }"
-
 
 test un-desugar normal function calls [[
   void f() {}
@@ -137,21 +115,17 @@ test un-desugar error function unpack call [[
     } fail;
   }
 ]] build generate-c to "
-  typedef struct {
-    unsigned char success;
-    union {
-      unsigned char * value;
-    } result;
+  typedef union {
+    unsigned char * value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
   void g() {
     {
       __MaybeError_f __maybe_a;
-      f(&__maybe_a);
-      if (!__maybe_a.success) {
+      if (!f(&__maybe_a)) {
         goto attempt_a_fail__;
       }
-      unsigned char *a = __maybe_a.result.value;
+      unsigned char *a = __maybe_a.value;
       goto attempt_a_finally;
     }
     attempt_a_fail__: {
@@ -170,11 +144,8 @@ test un-desugar error function unpack call [[
     }
   }
 ]] build generate-c to "
-  typedef struct {
-    unsigned char success;
-    union {
-      unsigned char * value;
-    } result;
+  typedef union {
+    unsigned char * value;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
   void g() {
@@ -200,24 +171,20 @@ test goto the matching fail block [[
     }
   }
 ]] build generate-c to "
-  typedef struct {
-    unsigned char success;
-    union {
-      unsigned char value;
-      signed short error;
-    } result;
+  typedef union {
+    unsigned char value;
+    signed short error;
   } __MaybeError_f;
   unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
   void g() {
     signed short attempt_a_1_a;
     {
       __MaybeError_f __maybe_x;
-      f(&__maybe_x);
-      if (!__maybe_x.success) {
-        attempt_a_1_a = __maybe_x.result.error;
+      if (!f(&__maybe_x)) {
+        attempt_a_1_a = __maybe_x.error;
         goto attempt_a_fail_1;
       }
-      unsigned char x = __maybe_x.result.value;
+      unsigned char x = __maybe_x.value;
       goto attempt_a_finally;
     }
     attempt_a_fail_1: {

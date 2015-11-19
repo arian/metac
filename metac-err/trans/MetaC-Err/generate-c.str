@@ -4,6 +4,7 @@ imports
 
   BaseC/generate/-
   BaseC/types/-
+  BaseC/desugar/constructors
   MetaC-Err/constructors
   names/MetaC-Err/names
   signatures/MetaC-Err-sig
@@ -61,7 +62,7 @@ rules
       params,
       body
     ) -> [
-      maybe-struct,
+      maybe-union,
       FunDefinition(
         identifier,
         storage,
@@ -71,34 +72,25 @@ rules
       )
     ]
     where
-      struct-typename := <conc-strings> ("__MaybeError_" , <strip-annos> name)
+      union-typename := <conc-strings> ("__MaybeError_" , <strip-annos> name)
       ; return-var-name := <conc-strings> ("__maybeErrorReturn_", <strip-annos> name)
-      ; maybe-struct := <gen-err-struct> (struct-typename, success-type, fail-type)
+      ; maybe-union := <gen-err-union> (union-typename, success-type, fail-type)
       ; new-params := <conc> ([
           FunDefinitionParameter(
-            Type([], Pointer(TypedefName(Identifier(struct-typename)))),
+            Type([], Pointer(TypedefName(Identifier(union-typename)))),
             Declarator(Some(Pointer([], None())), Decl(Identifier(return-var-name))),
             Decl(Identifier(return-var-name))
           )
         ], params)
         ; body-with-returns := <gen-err-body-returns(|return-var-name)> body
 
-  gen-err-struct: (struct-typename, success-type, fail-type) ->
+  gen-err-union: (union-typename, success-type, fail-type) ->
     Declaration(
-      [Typedef(), Struct(None(), struct-declarations)],
-      [Declarator(None(), Decl(Identifier(struct-typename)))]
+      [Typedef(), Union(None(), union-declarations)],
+      [Declarator(None(), Decl(Identifier(union-typename)))]
     )
     where
-      struct-declarations := [
-        StructDeclaration([Unsigned(), Char()], [Declarator(None(), Decl(Identifier("success")))]),
-        StructDeclaration(
-          [Union(
-            None(),
-            <gen-err-result-union-fields> (success-type, fail-type)
-          )],
-          [Declarator(None(), Decl(Identifier("result")))]
-        )
-      ]
+      union-declarations := <gen-err-result-union-fields> (success-type, fail-type)
 
   gen-err-result-union-fields: (success-type, None()) ->
     [<gen-err-result-field> ("value", success-type)]
@@ -127,12 +119,7 @@ rules
     Return(Some(value)) -> Return(Some(<gen-err-return-value(|return-var-name)> value))
 
   // return Error();
-  gen-err-return-value(|return-var-name): ErrError() ->
-    Assign(
-      PointerField(Var(Identifier(return-var-name)), Identifier("success")),
-      Assign(),
-      Integer("0")
-    )
+  gen-err-return-value(|return-var-name): ErrError() -> Integer("0")
 
   // return Error(expression);
   gen-err-return-value(|return-var-name): ErrError(value) ->
@@ -145,19 +132,15 @@ rules
   gen-err-return-value-with-value(|return-var-name): (field-name, success, value) ->
     Paren(Comma(
       Assign(
-        Field(
-          PointerField(Var(Identifier(return-var-name)), Identifier("result")),
+        PointerField(
+          Var(Identifier(return-var-name)),
           Identifier(field-name)
         ),
         Assign(),
         value
       ),
       [],
-      Assign(
-        PointerField(Var(Identifier(return-var-name)), Identifier("success")),
-        Assign(),
-        Integer(success)
-      )
+      Integer(success)
     ))
 
   // generate the C code for the attempt/fail statement blocks
@@ -194,18 +177,17 @@ rules
     ) -> [
       VarDeclaration(
         [],
-        Type([], TypedefName(Identifier(struct-typename))),
-        Declarator(None(), struct-decl),
-        struct-decl,
+        Type([], TypedefName(Identifier(union-typename))),
+        Declarator(None(), union-decl),
+        union-decl,
         None()
       ),
-      ExpressionStatement(Some(
-        Call(fn, params-with-struct)
-      )),
       If(
-        Negate(Field(Var(Identifier(struct-var-name)), Identifier("success"))),
+        Negate(
+          Call(fn, params-with-struct)
+        ),
         CompoundStatement(<conc> (
-          <gen-err-assign-error-value(|struct-var-name, fail-block-var-name)> fail-block-index,
+          <gen-err-assign-error-value(|union-var-name, fail-block-var-name)> fail-block-index,
           [Goto(Identifier(<concat-strings> [label-name, "_fail_", fail-goto]))]
         ))
       ),
@@ -214,18 +196,17 @@ rules
         type,
         value-declarator,
         value-decl,
-        Some(Field(
-          Field(Var(Identifier(struct-var-name)), Identifier("result")),
-          Identifier("value")
-        ))
+        Some(
+          Field(Var(Identifier(union-var-name)), Identifier("value"))
+        )
       )
     ]
     where
       <get-type ; ?FunType(ErrMaybeError(_, fail-type, fn-name))> fn
-      ; struct-var-name := <conc-strings> ("__maybe_", var-name)
-      ; struct-typename := <conc-strings> ("__MaybeError_" , fn-name)
-      ; struct-decl := Decl(Identifier(struct-var-name))
-      ; params-with-struct := <conc> ([Address(Var(Identifier(struct-var-name)))], params)
+      ; union-var-name := <conc-strings> ("__maybe_", var-name)
+      ; union-typename := <conc-strings> ("__MaybeError_" , fn-name)
+      ; union-decl := Decl(Identifier(union-var-name))
+      ; params-with-struct := <conc> ([Address(Var(Identifier(union-var-name)))], params)
       ; fail-block-index := <get-err-fail-index> d
       ; fail-goto := <is-string ; id <+ int-to-string> fail-block-index
       ; fail-block-var-name := <concat-strings> [label-name, "_", fail-goto, "_", <get-err-fail-var-name <+ !""> d]
@@ -291,14 +272,15 @@ rules
     where
       <get-err-fail-var> name
 
-  gen-err-assign-error-value(|struct-var-name, var-name): "_" -> []
-  gen-err-assign-error-value(|struct-var-name, var-name): i -> [
+  // assign the returned error value to the error variable
+  gen-err-assign-error-value(|union-var-name, var-name): "_" -> []
+  gen-err-assign-error-value(|union-var-name, var-name): i -> [
     ExpressionStatement(Some(
       Assign(
         Var(Identifier(var-name)),
         Assign(),
         Field(
-          Field(Var(Identifier(struct-var-name)), Identifier("result")),
+          Var(Identifier(union-var-name)),
           Identifier("error")
         )
       )
