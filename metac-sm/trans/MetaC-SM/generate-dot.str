@@ -18,7 +18,7 @@ rules
     $[
       digraph [<strip-annos> name] {
         rankdir=LR;
-        size=\"8,5\"
+        size="8,5"
         [terminal-states]
         [non-terminal-states]
         node [shape];
@@ -69,6 +69,8 @@ rules
       <gen-dot-sm-event> event,
       <prettyprint-Guard ; box2text-string(|120) ; escape> guard
     )
+
+  sm-get-event-name: Event(_, Identifier(name), _) -> <strip-annos> name
 
   gen-dot-sm-event: Some(Identifier(name)) -> <strip-annos> name
   gen-dot-sm-event: None() -> "<<e>>"

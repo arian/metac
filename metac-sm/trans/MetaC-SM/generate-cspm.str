@@ -1,0 +1,60 @@
+module MetaC-SM/generate-cspm
+
+imports
+
+  metac-runtime-utils/string
+  signatures/BaseC/-
+  signatures/MetaC-SM-sig
+  MetaC-SM/constructors
+  MetaC-SM/generate-dot
+
+rules
+
+  can-generate-cspm = ?StateMachine(_, _, _, _, _)
+
+  generate-cspm: StateMachine(
+    Identifier(name),
+    InitState(Identifier(initial-state)),
+    decls,
+    events,
+    states
+  ) ->
+    $[
+    datatype Event = [event-types]
+    datatype State = [state-types]
+
+    channel event : Event
+    channel type : State
+    channel epsilon
+
+    [state-procs]
+
+    assert [name](st_[initial-state]) :["[deadlock free[F]]"]
+    ]
+  where
+    event-types := <map(sm-get-event-name ; sm-gen-prepend(|"e_")) ; join-strings(|" | ")> events
+    ; state-types := <map(sm-get-state-name ; sm-gen-prepend(|"st_")) ; join-strings(|" | ")> states
+    ; state-procs := <map(sm-gen-cspm-state-proc(|name))> states
+
+  sm-gen-cspm-state-proc(|name):
+    State(Identifier(state-name), _, transitions) ->
+    $[
+    [name](st_[state-name]) = [alts-combined]
+    ]
+    where
+      alt-transitions := <map(sm-gen-cspm-transition(|name))> transitions
+      // ; alts := <conc> (alt-transitions, [$[type.st_[state-name] -> [name](st_[state-name])]])
+      // if it has no transitions at all, do a STOP
+      ; <debug> alt-transitions
+      ; alts := <?[] ; !["STOP"] <+ id> alt-transitions
+      ; alts-combined := <join-strings(|" [] ")> alts
+
+  sm-gen-cspm-transition(|sm-name): 
+    Transition(Some(Identifier(event-name)), _, _, Identifier(new-state))
+    -> $[event.e_[event-name] -> [sm-name](st_[new-state])]
+
+  sm-gen-cspm-transition(|sm-name): 
+    Transition(None(), _, _, Identifier(new-state))
+    -> $[epsilon -> [sm-name](st_[new-state])]
+
+  sm-gen-prepend(|p): str -> <conc-strings> (p, str)

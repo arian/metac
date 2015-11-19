@@ -17,16 +17,18 @@ imports
   names/names
   generate-c
   generate-dot
+  generate-cspm
   pp
   test-utils
   desugar/-
+  metac-runtime-utils/path-join
   signatures/BaseC/Program-sig
+
   BaseC/trans
   BaseC/analysis/disamb
   MetaC-bitfield/trans
   MetaC-SM/trans
   MetaC-Err/trans
-  metac-runtime-utils/path-join
 
 rules // Analysis
 

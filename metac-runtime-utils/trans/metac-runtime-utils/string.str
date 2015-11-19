@@ -2,8 +2,10 @@ module metac-runtime-utils/string
 
 strategies
 
-  join-strings: [] -> ""
-  join-strings: list -> <map(\ x -> [" ", x] \)
+  join-strings(|sep): [] -> ""
+  join-strings(|sep): list -> <map(\ x -> [sep, x] \)
     ; concat
     ; Tl
     ; concat-strings> list
+
+  join-strings = join-strings(|" ")
