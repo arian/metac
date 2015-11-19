@@ -13,6 +13,17 @@ rules
     Integer(<id>) -> <smallest-int-type ; type-is(|ctx, [])>
 
   create-type-task(|ctx):
+    Octal(<id>) -> <explode-string ; oct-chars-to-int ; smallest-int-type ; type-is(|ctx, [])>
+
+  create-type-task(|ctx):
+    Hexadecimal(<id>) -> <
+      explode-string
+      ; drop(|2)
+      ; hex-chars-to-int
+      ; smallest-int-type
+      ; type-is(|ctx, [])>
+
+  create-type-task(|ctx):
     Float(<id>) -> <type-is(|ctx)> Float32()
 
   create-type-task(|ctx):
