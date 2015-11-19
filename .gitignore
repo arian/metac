@@ -5,3 +5,6 @@
 **/__tests__/*.index
 **/__tests__/*.c
 **/__tests__/*.gv
+**/__tests__/*.csp
+**/__tests__/*.gv.dot
+**/__tests__/*.pdf
