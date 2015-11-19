@@ -16,13 +16,26 @@ public class vfs_to_path_0_0 extends Strategy {
   public IStrategoTerm invoke(Context context, IStrategoTerm surl) {
     ITermFactory factory = context.getFactory();
 
-    FileObject c = ((IContext) context.contextObject()).location();
-    String pp = c.getName().getURI();
-
     String url = asJavaString(surl);
+    int length;
 
-    // +1 for the leading slash
-    return factory.makeString(url.substring(pp.length() + 1));
+    if (url.startsWith("file://")) {
+
+      String pp = "file://";
+      length = pp.length();
+
+    } else {
+
+      FileObject c = ((IContext) context.contextObject()).location();
+      String pp = c.getName().getURI();
+      // +1 for the leading slash
+      length = pp.length() + 1;
+
+    }
+
+    url = url.substring(length);
+
+    return factory.makeString(url);
   }
 
 }

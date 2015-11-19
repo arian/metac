@@ -9,3 +9,23 @@ strategies
     ; concat-strings> list
 
   join-strings = join-strings(|" ")
+
+  // removes s1 from the first part of s2
+  strip-string-first: (s1, s2) -> s
+    where
+      ss1 := <explode-string> s1
+      ; ss2 := <explode-string> s2
+      ; ss := <internal-strip-string-first> (ss1, ss2)
+      ; s := <implode-string> ss
+
+  internal-strip-string-first:
+    ([], ys) -> ys
+
+  internal-strip-string-first:
+    ([x | xs], [y | ys]) -> res
+    where
+      <eq> (x, y)
+      ; res := <internal-strip-string-first> (xs, ys)
+      <+
+      res := [y | ys]
+  

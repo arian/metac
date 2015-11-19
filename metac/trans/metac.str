@@ -36,18 +36,6 @@ rules // Analysis
     is-substring(!"BaseC/syntax/__tests__/")
     <+ is-substring(!"BaseC/pp/__tests__/")
 
-//  editor-analyze =
-//    ?tuple
-//    ; ?(ast, path, project-path)
-//    // hack to just get the original AST for syntax tests
-//    // as that's what we like to test for the syntax definitions
-//    // testing the analyzed AST is what we do somewhere else
-//    ; if (<is-source-ast-test> path) then
-//        !ast
-//      else
-//        <analysis-default-editor> tuple
-//      end
-
   pre-analysis:
     File(file, Program(_, decls), num)
     ->

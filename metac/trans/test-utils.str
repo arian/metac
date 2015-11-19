@@ -3,8 +3,11 @@ module test-utils
 imports
 
   BaseC/analysis/-
+  BaseC/desugar/-
   runtime/types/query
   signatures/BaseC/-
+  editor-common.generated
+  metac-runtime-utils/string
 
 rules
 
@@ -49,3 +52,16 @@ strategies
 
   to-bool(s) =
     s ; !1 <+ !0
+
+rules
+
+  test-utils-relative-paths-get-program-file =
+    oncetd(?Program(file, _))
+    ; <test-make-rel-file> file
+
+  test-utils-relative-paths-get-include =
+    oncetd(?IncludeModule(file, _))
+    ; <test-make-rel-file> file
+
+  test-make-rel-file:
+    file -> <strip-string-first> (<conc-strings> (<project-path>, "/"), file)
