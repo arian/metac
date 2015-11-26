@@ -11,12 +11,12 @@ namespaces
 
 binding rules
 
-  Enum(Some(Identifier(name)), _):
+  Enum(Identifier(name), _):
     defines Enum name
 
   Enum(Identifier(name)):
     refers to Enum name
 
-  Enumerator(Identifier(name), _, type-name):
+  Enumerator(Identifier(name), _, Identifier(type-name)):
     defines Enumerator name
     of type Enum(Identifier(type-name))

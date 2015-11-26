@@ -124,3 +124,15 @@ test function declaration [[
       ]
     )
   ])
+
+test enum declaration [[
+  enum X {A};
+]] run strip-annos to Program(_, [
+    Declaration(
+      [Enum(
+        Identifier("X"),
+        [Enumerator(Identifier("A"), None, Identifier("X"))]
+      )],
+      []
+    )
+  ])
