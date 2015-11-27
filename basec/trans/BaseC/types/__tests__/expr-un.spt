@@ -2,14 +2,19 @@ module expr-bin
 
 language MetaC
 
+test var lookup [[
+  int32 a;
+  int32 b = [[a]];
+]] run get-type to Int32()
+
 test type cast [[
   void f() { [[(unsigned long *) 1]]; }
-]] run get-type to Pointer(UInt64()){_}
+]] run get-type to Pointer(UInt64())
 
 test type cast [[
   typedef unsigned long * a;
   void f() { [[(a) 1]]; }
-]] run get-type to TypedefName(Identifier("a"{_})){_}
+]] run get-type to Pointer(UInt64())
 
 test prefix incr [[
   void f() { [[++1]]; }
@@ -90,7 +95,15 @@ test function call [[
   void g() {
     [[f()]];
   }
-]] run get-type to Pointer(Int8()){_}
+]] run get-type to Pointer(Int8())
+
+test function call with typedef [[
+  typedef uint8 * T;
+  T f(){}
+  void g() {
+    [[f()]];
+  }
+]] run get-type to Pointer(UInt8())
 
 test struct field type [[
   struct X {unsigned short x;};
@@ -98,8 +111,22 @@ test struct field type [[
   uint32 b = [[a.x]];
 ]] run get-type to UInt16()
 
+test struct field with typedef [[
+  typedef uint8 * T;
+  struct X {T x;};
+  struct X a;
+  T b = [[a.x]];
+]] run get-type to Pointer(UInt8())
+
 test union pointer field type [[
   union X {unsigned short x;};
   union X *a;
   uint32 b = [[a->x]];
 ]] run get-type to UInt16()
+
+test union pointer field with typedef [[
+  typedef uint8 * T;
+  union X {T x;};
+  union X *a;
+  T b = [[a->x]];
+]] run get-type to Pointer(UInt8())

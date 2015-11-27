@@ -11,8 +11,8 @@ test assign expression [[
 ]] run get-type to Float32()
 
 test assign expression error for wrong array assignment [[
-  void a(float b[], int c) { [[b = c]]; }
-]] 1 error
+  void a(float b[], int c) { b = c; }
+]] /Incompatible types/
 
 test assign expression, assigning wrong type [[
   void a(float b) { b = a; }

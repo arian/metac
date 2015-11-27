@@ -5,14 +5,14 @@ language MetaC
 test typedef type synonym [[
   typedef int32 a;
   a x;
-  int32 y = [[x]];
+  int32 y = [[(0, x)]];
 ]] run get-type to Int32()
 
 test typedef type synonym of another typedef [[
   typedef int32 a;
   typedef a b;
   b x;
-  int32 y = [[x]];
+  int32 y = [[(0, x)]];
 ]] run get-type to Int32()
 
 test typedef type synonym of another typedef [[
@@ -20,32 +20,42 @@ test typedef type synonym of another typedef [[
   typedef a b;
   typedef b c;
   c x;
-  int32 y = [[x]];
+  int32 y = [[(0,x)]];
 ]] run get-type to Int32()
 
 test typedef pointer of a base type [[
   typedef int32 * a;
   int32 x = 1;
   a y = &x;
-  a z = [[y]];
+  a z = [[(0,y)]];
 ]] run get-type to Pointer(Int32())
 
 test typedef pointer of a base type with array [[
   typedef int32 *** a[];
   a y;
-  a z = [[y]];
+  a z = [[(0,y)]];
 ]] run get-type to Pointer(Pointer(Pointer(Array(Int32()))))
 
 test typedef of another typedef with pointer [[
   typedef int32 a;
   typedef a * const b;
   b x;
-  int32 y = *[[x]];
+  int32 y = *[[(0,x)]];
 ]] run get-type to Pointer(Int32())
 
 test typedef of another typedef with double pointer [[
   typedef int32 a;
   typedef a ** b;
   b x;
-  int32 *y = *[[x]];
+  int32 *y = *[[(0,x)]];
 ]] run get-type to Pointer(Pointer(Int32()))
+
+test typedef cast [[
+  typedef int32 x;
+  int32 y = ((x) 1) + 2;
+]] 0 errors
+
+test double typedef cast [[
+  typedef int32 x;
+  int32 y = ((x) 1) + 2;
+]] 0 errors

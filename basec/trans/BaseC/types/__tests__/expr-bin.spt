@@ -86,4 +86,3 @@ test using variables in expressions [[
 test subtract [[
   int32 f() { [[10 - 3]]; }
 ]] run get-type to UInt8()
-
