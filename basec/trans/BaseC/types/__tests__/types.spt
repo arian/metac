@@ -5,7 +5,7 @@ language MetaC
 test pointer type [[
   int32 *a;
   int32 *b = [[a]];
-]] run get-type to Pointer(Int32)
+]] run get-type to Pointer(Int32){_}
 
 test array type [[
   int32 a[];
@@ -20,18 +20,18 @@ test multi dimensional array type [[
 test pointer to array type [[
   int32 *a[];
   int32 *b[] = [[a]];
-]] run get-type to Pointer(Array(Int32))
+]] run get-type to Pointer(Array(Int32)){_}
 
 test enum type [[
   enum X {A};
   enum X a = [[A]];
-]] run get-type to UInt8()
+]] run get-type to Enum(Identifier("X"))
 
 test enum type [[
   enum X {A};
   enum X a = A;
   enum X b = [[a]];
-]] run get-type to UInt8()
+]] run get-type to Enum(Identifier("X"{_}))
 
 test struct type [[
   struct X {};

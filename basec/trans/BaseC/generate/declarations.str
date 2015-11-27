@@ -51,3 +51,9 @@ strategies
     -> StructDeclaration(specifiers, [StructSizedFieldDeclarator(Some(decl), size)])
     where
       specifiers := <gen-Type> type
+
+  // enums
+
+  generate:
+    Enum(name@Identifier(_), enums)
+    -> Enum(Some(name), <map(\ Enumerator(e, i, t) -> Enumerator(e, i) \)> enums)
