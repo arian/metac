@@ -25,7 +25,7 @@ test pointer to array type [[
 test enum type [[
   enum X {A};
   enum X a = [[A]];
-]] run get-type to Enum(Identifier("X"{_}))
+]] run get-type to Enum(Identifier("X"))
 
 test enum type [[
   enum X {A};
