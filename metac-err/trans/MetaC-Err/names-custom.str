@@ -10,6 +10,8 @@ imports
   runtime/editor/-
   BaseC/types/-
   BaseC/types/Constructors
+  signatures/BaseC/Expr-sig
+  BaseC/desugar/-
 
   MetaC-Err/constructors
   names/MetaC-Err/names
@@ -17,14 +19,22 @@ imports
 
 rules
 
+  nabl-use-fail(|lang, ctx, uri*):
+    type -> choice
+    where
+      ns := NablNsErrFailGuarded()
+      ; uri := <lookup-uri(|lang, ns)> uri*
+      ; subtasks := <nabl-resolve-all-tasks(|ctx, ns, [Prop(NablProp_err-fail-type(), type, [])])> [uri]
+      ; choice := <task-create-choice(|ctx)> subtasks
+
   nabl-use-site(|lang, ctx, uniques, uris, states) =
     ?d@ErrVarDeclaration(_, _, Call(fn, _))
     // lookup the type of the function variable, FunType(...)
     ; fn-type := <new-task-fixdeps(|ctx, [])> Id(<get-or-create-property-task(|ctx, Type())> fn)
     // Get the error value type
-    ; name := <new-task-fixdeps(|ctx, [fn-type])> Rewrite("err-error-type", fn-type)
+    ; err-type := <new-task-fixdeps(|ctx, [fn-type])> Rewrite("err-error-type", fn-type)
     // lookup the error type that matches a guarded (with parameter) fail block
-    ; task-guard := <nabl-use-candidate(|lang, ctx, uris, name)> UseCandidate(NablNsErrFailGuarded(), [], Current(), True(), [])
+    ; task-guard := <nabl-use-fail(|lang, ctx, uris)> err-type
     // lookup the wildcard failure
     ; task-wildcard := <nabl-use-candidate(|lang, ctx, uris, "_")> UseCandidate(NablNsErrFailWildcard(), [], Current(), True(), [])
     // either of these

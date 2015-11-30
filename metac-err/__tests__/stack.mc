@@ -7,12 +7,12 @@ int32 stack[10];
 // pointer contains the next write position
 int32 sptr = 0;
 // define errors
-typedef enum {empty} empty_error;
-typedef enum {full} full_error;
+enum empty_error {empty};
+enum full_error {full};
 // add a value to the stack.
 // this MaybeError<void> is a parameterized type. C doesn't know this
 // kind of types at all, so this needs some hard-coding or bike-shedding.
-MaybeError<void,stack_error> push(int32 x) {
+MaybeError<void, enum empty_error> push(int32 x) {
   if (sptr < SIZE) {
     stack[sptr++] = x; // success, return void
   } else {
@@ -20,8 +20,9 @@ MaybeError<void,stack_error> push(int32 x) {
     return Error(full);
   }
 }
+
 // get the latest value, if one exists
-MaybeError<int32,stack_error> pop() {
+MaybeError<int32, enum empty_error> pop() {
   if (sptr > 0) {
     return stack[--sptr];
   } else {
@@ -41,9 +42,9 @@ void main() {
     printf("%d\n", last1); // and use directly
     int32 last2 ?= pop();
     int32 last3 ?= pop(); // oops, None returned, go to the catch
-  } fail (empty_error e){
-    printf("The stack is empty\n");
-  } fail (full_error e){
+  } fail (enum full_error e) {
     printf("The stack is full\n");
+  } fail (enum empty_error e) {
+    printf("The stack is empty\n");
   }
 }

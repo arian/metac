@@ -195,3 +195,64 @@ test goto the matching fail block [[
     }
     attempt_a_finally: {}
   }"
+
+test error function with MaybeError void [[
+  MaybeError<void> f() {}
+  void g() {
+    attempt[a] {
+      void a ?= f();
+    } fail {}
+  }
+]] build generate-c to "
+  typedef union  {
+    void value;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
+  void g () {
+    {
+      __MaybeError_f __maybe_a;
+      if (!f(&__maybe_a)) {
+        goto attempt_a_fail__;
+      }
+      void a = __maybe_a.value;
+      goto attempt_a_finally;
+    }
+    attempt_a_fail__: {
+      {}
+      goto attempt_a_finally;
+    }
+    attempt_a_finally: {}
+  }"
+
+test error function with MaybeError error as enum [[
+  enum x {A};
+  MaybeError<void, enum x> f() {}
+  void g() {
+    attempt[a] {
+      void a ?= f();
+    } fail (enum x e) {}
+  }
+]] build generate-c to "
+  enum x {A};
+  typedef union  {
+    void value;
+    enum x error;
+  } __MaybeError_f;
+  unsigned char f (__MaybeError_f *__maybeErrorReturn_f) {}
+  void g () {
+    enum x attempt_a_1_e;
+    {
+      __MaybeError_f __maybe_a;
+      if (!f(&__maybe_a)) {
+        attempt_a_1_e = __maybe_a.error;
+        goto attempt_a_fail_1;
+      }
+      void a = __maybe_a.value;
+      goto attempt_a_finally;
+    }
+    attempt_a_fail_1: {
+      {}
+      goto attempt_a_finally;
+    }
+    attempt_a_finally: {}
+  }"
