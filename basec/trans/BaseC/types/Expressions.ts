@@ -61,15 +61,15 @@ type rules
   // Pointer(e): Pointer(t)
   //   where e : t or e => t
 
-  TypedefName(Identifier(n)): t
-    where
-      definition of n : t'
-      and (t' : t) or (t' => t)
+//  TypedefName(Identifier(n)): t
+//    where
+//      definition of n : t'
+//      and (t' : t) or (t' => t)
 
-  Var(Identifier(e)): t
+  Var(Identifier(e)): t'
     where
-      definition of e : t'
-      and (t' : t) or (t' => t)
+      definition of e: t
+      and <resolve-typedefs> t => t'
 
 type rules
 
@@ -86,7 +86,9 @@ type rules
         else error "Numeric expected" on e2
       and <promote> (aty1, aty2) => ty
 
-  Cast(Type(mods, t), _): t
+  Cast(Type(mods, t), _): t'
+    where
+      <resolve-typedefs> t => t'
 
   IncrementPrefix(e)
   + DecrementPrefix(e)
@@ -117,28 +119,36 @@ type rules
   SizeofExpr(e): UInt8()
   Sizeof(e): UInt8()
 
-  ArrayField(e, index): t
+  ArrayField(e, index): t'
     where (
         e: Array(t)
         or e: Pointer(t)
       )
+      and <resolve-typedefs> t => t'
       and index: it
       and it <is: Int()
         else error "Integer expected as index" on index
 
-  Call(e, _): t
+  Call(e, _): t'
     where e: FunType(t)
+      and <resolve-typedefs> t => t'
 
-  Field(e, Identifier(name)): t
+  Field(e, Identifier(name)): t'
     where definition of name: t
+      and <resolve-typedefs> t => t'
 
-  PointerField(e, Identifier(name)): t
+  PointerField(e, Identifier(name)): t'
     where definition of name: t
+      and <resolve-typedefs> t => t'
 
   Paren(e): t
     where e: t
 
 type functions
+
+  // define dummy typedef function, it is actually implemented
+  // in typedefs.str
+  resolve-typedefs: None() -> None()
 
  // See section A6.1/A6.5 of "The C programming language"
  // TODO improve this

@@ -9,5 +9,4 @@ imports
 
 strategies
 
-  transform-typedef-type: Bitfields(_, _) -> UInt32()
   get-type-transform: Bitfields(_, _) -> UInt32()

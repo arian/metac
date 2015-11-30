@@ -16,25 +16,6 @@ rules
 
   // Assignments type checking
 
-  get-typedef-base-type: t -> <<get-type-transform ; get-typedef-base-type> t <+ !t>
-
-  get-type-transform: Array(t) -> t
-  get-type-transform: Pointer(t) -> t
-  get-type-transform: t@TypedefName(_) -> <get-type> t
-
-  create-base-type-task(|ctx) = task-create-rewrite(|ctx, "base-type")
-  task-rewrite: ("base-type", t) -> <get-typedef-base-type> t
-
-  create-resolve-typedef-task(|ctx) = task-create-rewrite(|ctx, "resolve-typedef")
-  task-rewrite: ("resolve-typedef", t) -> <topdown(try(?TypedefName(_) ; get-type ; try(transform-typedef-type)))> t
-  transform-typedef-type = fail
-
-  create-rewrite-type-structure-task(|ctx) = task-create-rewrite(|ctx, "type-structure")
-  task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t
-
-  is-type-structure: t@Pointer(_) -> t
-  is-type-structure: t@Array(_) -> t
-
   relation-match-custom(|ctx):
     ("<is-assignable:", t1, t2) -> and1
     where
@@ -43,7 +24,7 @@ rules
       t2-base := <create-base-type-task(|ctx)> t2;
 
       // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
-      // becomse Array(Pointer(UInt32))
+      // becomes Array(Pointer(UInt32))
       t1-resolved := <create-resolve-typedef-task(|ctx)> t1;
       t2-resolved := <create-resolve-typedef-task(|ctx)> t2;
 

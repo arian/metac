@@ -13,19 +13,34 @@ imports
 
 rules
 
-  create-maybe-typedef-task(|ctx):
-    e -> <if <?TypedefName(_) <+ ?Pointer(_)> e then
-           <type-task(|ctx)> e
-          else
-            task-create-fail(|ctx)
-          end
-         >
+  get-typedef-base-type: t -> <<get-type-transform ; get-typedef-base-type> t <+ !t>
 
-  create-type-task(|ctx) :
-    Pointer(e) -> <task-create-id(|ctx,[x106])> x106
+  get-type-transform: Array(t) -> t
+  get-type-transform: Pointer(t) -> t
+  get-type-transform: t@TypedefName(_) -> <get-type> t
+
+  create-base-type-task(|ctx) = task-create-rewrite(|ctx, "base-type")
+  task-rewrite: ("base-type", t) -> <get-typedef-base-type> t
+
+
+  create-resolve-typedef-task(|ctx) = task-create-rewrite(|ctx, "resolve-typedef")
+  task-rewrite: ("resolve-typedef", t) -> <topdown(repeat(?TypedefName(_) ; get-type ; try(transform-typedef-type)))> t
+  transform-typedef-type = fail
+
+
+  create-rewrite-type-structure-task(|ctx) = task-create-rewrite(|ctx, "type-structure")
+  task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t
+
+  is-type-structure: t@Pointer(_) -> t
+  is-type-structure: t@Array(_) -> t
+
+  type-func-resolve-typedefs(|ctx):
+    t -> <task-create-id(|ctx, rewrite')> rewrite'
     where
-      t252 := <create-maybe-typedef-task(|ctx)> e;
-      t253 := <type-is(|ctx)> e;
-      or42 := <type-is(|ctx)> <task-create-choice(|ctx)> [t252, t253];
-      t := <type-is(|ctx); task-create-id(|ctx, [or42])> <task-create-choice(|ctx)> [t252, t253];
-      x106 := <type-is(|ctx); task-create-id(|ctx, [t])> Pointer(t)
+      rewrite' := <create-resolve-typedef-task(|ctx)> t
+
+  create-type-task(|ctx):
+    td@TypedefName(x) -> <task-create-id(|ctx, rewrite)> rewrite
+    where
+      rewrite' := <create-resolve-typedef-task(|ctx)> td
+      ; rewrite := <type-is(|ctx)> rewrite'

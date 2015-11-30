@@ -1,7 +1,7 @@
 module constants
 
 language MetaC
-
+/*
 test is-int8
   <map(to-bool(is-int8))>
     ["5", -5, 127, -127, 128, -128, -129, 400, -400]
@@ -17,17 +17,18 @@ test smallest-int-type
     [1, 300, "5U", "31LU"]
   =>
     [Int8(), Int16(), UInt8(), UInt64()]
+*/
 
 test get type of a constant integer [[
-  int32 f() { return [[1]]; }
+  int32 f() { return [[(0,1)]]; }
 ]] run get-type to Int8()
 
 test get type of a char [[
-  uint8 f() { return [['a']]; }
+  uint8 f() { return [[(0,'a')]]; }
 ]] run get-type to UInt8()
 
 test get type of a char [[
-  uint8 * f() { return [["ab"]]; }
+  uint8 * f() { return [[(0,"ab")]]; }
 ]] run get-type to Array(UInt8())
 
 test get type or bool [[
@@ -39,5 +40,5 @@ test get type or bool [[
 ]] run get-type to UInt8()
 
 test get type of float [[
-  float f() { return [[1.0]]; }
+  float f() { return [[(0,1.0)]]; }
 ]] run get-type to Float32()
