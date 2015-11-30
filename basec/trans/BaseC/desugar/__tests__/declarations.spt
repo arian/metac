@@ -1,4 +1,4 @@
-module desugar-declarations
+module declarations
 
 language MetaC
 

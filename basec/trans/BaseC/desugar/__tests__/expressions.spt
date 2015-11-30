@@ -1,4 +1,4 @@
-module desugar-expressions
+module expressions
 
 language MetaC
 

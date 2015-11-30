@@ -1,11 +1,11 @@
-module desugar-declarations
+module declarations
 
 language MetaC
 
 test it should define a module [[
   int32 x;
 ]] run test-utils-relative-paths-get-program-file to
-  "trans/BaseC/desugar/__tests__/desugar-module.spt"
+  "trans/BaseC/desugar/__tests__/module.spt"
 
 test it should rename includes [[
   #include <foo.mc>
