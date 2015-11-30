@@ -8,10 +8,11 @@ imports
   runtime/types/-
   runtime/relations/-
   runtime/editor/-
+
   BaseC/types/-
-  BaseC/types/Constructors
   signatures/BaseC/Expr-sig
-  BaseC/desugar/-
+  signatures/BaseC/Program-sig
+  BaseC/desugar/constructors
 
   MetaC-Err/constructors
   names/MetaC-Err/names
@@ -45,3 +46,16 @@ rules
     ; <replace-annotation(?Use(_) | <new-use(|ctx, task)>)> d
 
   task-rewrite: ("err-error-type", FunType(ErrMaybeError(_, Type(_, err-type), _))) -> err-type
+
+  nabl-constraint(|ctx):
+    Program(_, decls) -> <fail>
+    where
+      msg := $[An attempt-error assignment should be placed inside an attempt block]
+      ; <rec x(
+        // create error if the traversal reaches this node
+        ?e@ErrVarDeclaration(_, _, _) ; task-create-error(|ctx, msg)
+        // traverse into the fail blocks, but not in the main block
+        <+ ?ErrAttemptStatement(_, _, f1, f2) ; <all(try(x))> [f1, f2]
+        // traverse all other nodes
+        <+ all(try(x))
+      )> decls

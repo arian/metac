@@ -5,6 +5,7 @@ imports
   MetaC-Err/constructors
   BaseC/desugar/constructors
   signatures/MetaC-Err-sig
+  signatures/BaseC/-
 
 rules
 
@@ -13,7 +14,7 @@ rules
   desugar05:
     ErrAttemptStatement(
       name,
-      ErrCompoundStatement(items),
+      CompoundStatement(items),
       fails-guarded,
       fails-wildcard
     ) ->
