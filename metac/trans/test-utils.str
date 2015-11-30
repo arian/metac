@@ -5,6 +5,7 @@ imports
   BaseC/analysis/-
   BaseC/desugar/-
   BaseC/names/-
+  names/BaseC/names/variables
   runtime/types/query
   signatures/BaseC/-
   editor-common.generated

@@ -22,11 +22,9 @@ rules
   desugar-to-unsigned: Int64() -> UInt64()
 
   desugar-unsigned =
-    if fetch(?Unsigned()) then
-      filter(not(?Unsigned())) ; map(try(desugar-to-unsigned))
-    else
-      id
-    end
+    ?specifiers
+    ; try(fetch(?Unsigned()) ; <map(try(desugar-to-unsigned))> specifiers)
+    ; filter(not(?Unsigned() <+ ?Signed()))
 
   desugar-to-sized-ints: Char()  -> Int8()
   desugar-to-sized-ints: Short() -> Int16()
