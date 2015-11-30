@@ -30,24 +30,13 @@ context-free syntax
     [Error([Expr])]
 
 
-  ErrBlockItem =
-    BlockItem
-
-  ErrBlockItem.ErrVarDeclaration =
+  Statement.ErrVarDeclaration =
     [[TypeName] [Identifier] ?= [FunctionCallExpr];]
-
-
-  ErrCompoundStatement.ErrCompoundStatement =
-    [
-    {
-      [{ErrBlockItem "\n"}*]
-    }
-    ]
 
 
   Statement.ErrAttemptStatement =
     [
-    attempt[ErrAttemptLabelName?] [ErrCompoundStatement] [ErrFailGuarded*] [ErrFailWildcard?]
+    attempt[ErrAttemptLabelName?] [CompoundStatement] [ErrFailGuarded*] [ErrFailWildcard?]
     ]
 
 

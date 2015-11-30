@@ -79,7 +79,7 @@ test attempt statement [[
     FunDef(_, _, _, CompoundStatement([
       ErrAttemptStatement(
         None(),
-        ErrCompoundStatement([]),
+        CompoundStatement([]),
         [],
         Some(ErrFailWildcard(CompoundStatement([])))
       )
@@ -94,7 +94,7 @@ test attempt with fail statement [[
     FunDef(_, _, _, CompoundStatement([
       ErrAttemptStatement(
         None(),
-        ErrCompoundStatement([]),
+        CompoundStatement([]),
         [],
         Some(ErrFailWildcard(ExpressionStatement(_)))
       )
@@ -121,7 +121,7 @@ test unpack value declaration [[
     FunDef(_, _, _, CompoundStatement([
       ErrAttemptStatement(
         None(),
-        ErrCompoundStatement([
+        CompoundStatement([
           ErrVarDeclaration(
             TypeName([UInt8()], None()),
             Identifier("a"),
@@ -146,7 +146,7 @@ test guarded fail blocks [[
     FunDef(_, _, _, CompoundStatement([
       ErrAttemptStatement(
         None(),
-        ErrCompoundStatement([]),
+        CompoundStatement([]),
         [
           ErrFailGuarded(TypeName([Int8()], None()), Identifier("e"), CompoundStatement([])),
           ErrFailGuarded(TypeName([Float32()], None()), Identifier("e"), CompoundStatement([]))

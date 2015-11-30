@@ -64,3 +64,49 @@ test resolve error value variable [[
     }
   }
 ]] resolve #2 to #1
+
+test ?= decl outside attempt should generate an error [[
+  void f() {
+    uint32 x ?= y();
+  }
+]] /should be placed inside an attempt block/
+
+test ?= decl outside/below an attempt should generate an error [[
+  MaybeError<uint32> g() {}
+  void f() {
+    attempt {
+      uint32 x ?= g();
+    } fail {}
+    uint32 x ?= g();
+  }
+]] /should be placed inside an attempt block/
+
+test ?= decl inside a fail {} should generate an error [[
+  MaybeError<uint32> g() {}
+  void f() {
+    attempt {
+    } fail {
+      uint32 x ?= g();
+    }
+  }
+]] /should be placed inside an attempt block/
+
+test ?= decl inside a fail (T e) {} should generate an error [[
+  MaybeError<uint32,uint8> g() {}
+  void f() {
+    attempt {
+    } fail (uint8 e) {
+      uint32 x ?= g();
+    }
+  }
+]] /should be placed inside an attempt block/
+
+test ?= decl inside attempt should not generate an error [[
+  MaybeError<uint32> g() {}
+  void f() {
+    attempt {
+      uint32 x ?= g();
+      if (1) uint32 x2 ?= g();
+    } fail {}
+  }
+]]
