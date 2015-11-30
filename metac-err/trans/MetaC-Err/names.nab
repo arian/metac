@@ -4,14 +4,17 @@ imports
 
   BaseC/desugar/-
   BaseC/names/-
+  MetaC-Err/trans
 
 namespaces
   ErrFailGuarded
   ErrFailWildcard
 
 properties
+
   err-fail-index of ErrFailGuarded
   err-fail-var-name of ErrFailGuarded
+  err-fail-type of ErrFailGuarded
   err-fail-var of Variable
 
 binding rules
@@ -25,11 +28,10 @@ binding rules
     of modifiers Modifiers(mods)
 
   ErrFailGuarded(i, Type(mods, type), Identifier(name), s):
-    // TODO the name should be "i", not the type, but that needs updating in the
-    // nabl-use-site matching for ErrFailGuarded.
-    defines ErrFailGuarded type
+    defines ErrFailGuarded i
       of err-fail-index i
       of err-fail-var-name name
+      of err-fail-type type
     defines Variable name
       of type type
       of err-fail-var True()
