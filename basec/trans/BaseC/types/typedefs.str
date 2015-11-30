@@ -22,9 +22,11 @@ rules
   create-base-type-task(|ctx) = task-create-rewrite(|ctx, "base-type")
   task-rewrite: ("base-type", t) -> <get-typedef-base-type> t
 
+
   create-resolve-typedef-task(|ctx) = task-create-rewrite(|ctx, "resolve-typedef")
-  task-rewrite: ("resolve-typedef", t) -> <innermost(?TypedefName(_) ; get-type ; try(transform-typedef-type))> t
+  task-rewrite: ("resolve-typedef", t) -> <topdown(repeat(?TypedefName(_) ; get-type ; try(transform-typedef-type)))> t
   transform-typedef-type = fail
+
 
   create-rewrite-type-structure-task(|ctx) = task-create-rewrite(|ctx, "type-structure")
   task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t

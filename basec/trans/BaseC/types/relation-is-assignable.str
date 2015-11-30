@@ -24,7 +24,7 @@ rules
       t2-base := <create-base-type-task(|ctx)> t2;
 
       // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
-      // becomse Array(Pointer(UInt32))
+      // becomes Array(Pointer(UInt32))
       t1-resolved := <create-resolve-typedef-task(|ctx)> t1;
       t2-resolved := <create-resolve-typedef-task(|ctx)> t2;
 
