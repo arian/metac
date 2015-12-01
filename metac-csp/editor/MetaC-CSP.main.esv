@@ -1,0 +1,11 @@
+module MetaC-CSP.main
+
+language
+
+  name : MetaC-CSP
+
+  TemplateLang        includes : syntax
+  SDF                 includes : src-gen/syntax
+  Stratego-Sugar      includes : trans, src-gen
+  NameBindingLanguage includes : trans, src-gen
+  TypeSystemLanguage  includes : trans, src-gen

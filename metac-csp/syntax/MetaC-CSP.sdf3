@@ -1,0 +1,5 @@
+module MetaC-CSP
+
+imports
+
+  BaseC/Program // Importing start symbol to make sdf2rtg work
