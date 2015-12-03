@@ -1,0 +1,46 @@
+module csp
+
+language MetaC
+
+test parsing of a simple process [[
+  process f() {}
+]] parse to Program(_, [
+    CSPProcess(Identifier("f"), ParameterList([]), CompoundStatement([]))
+  ])
+
+test declaration of a channel of ints [[
+  void f() {
+    [[chan<int> c;]]
+  }
+]] run strip-annos to Declaration(
+    [CSPChan(TypeName([Int],None))],
+    [Declarator(None,Decl(Identifier("c")))
+  ])
+
+test channel write [[
+  int f(){
+    chan<int> c;
+    [[c ! 5]];
+  }
+]] run strip-annos to CSPChanWrite(Identifier("c"), Integer("5"))
+
+test channel read [[
+  int f(){
+    chan<int> c;
+    int x;
+    [[c ? x]];
+  }
+]] run strip-annos to CSPChanRead(Identifier("c"), Identifier("x"))
+
+test parallel statement [[
+  process F() {}
+  int f(){
+    [[par {
+      {}
+      F();
+    }]]
+  }
+]] run strip-annos to CSPPar(CompoundStatement([
+    CompoundStatement([]),
+    ExpressionStatement(Some(Call(Var(Identifier("F")), [])))
+  ]))

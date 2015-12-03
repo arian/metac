@@ -21,6 +21,7 @@
 		<module>metac-bitfield</module>
 		<module>metac-sm</module>
 		<module>metac-err</module>
+		<module>metac-csp</module>
 		<module>metac</module>
 	</modules>
 

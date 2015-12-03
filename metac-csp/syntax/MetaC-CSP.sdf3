@@ -2,4 +2,70 @@ module MetaC-CSP
 
 imports
 
+  BaseC/Identifiers
+  BaseC/Declarations
+  BaseC/Stmt
+  BaseC/Expr
   BaseC/Program // Importing start symbol to make sdf2rtg work
+
+lexical syntax
+
+  Keyword = "process"
+  Keyword = "chan"
+  Keyword = "par"
+  Keyword = "alts"
+
+context-free syntax
+
+  Declaration = CSPProcess
+
+  CSPProcess.CSPProcess =
+    [
+
+    process [Identifier]([ParameterList]) [CompoundStatement]
+    ]
+
+
+  TypeSpecifier.CSPChan =
+    [chan<[TypeName]>]
+
+
+  CSPChanWrite.CSPChanWrite =
+    [[Identifier] ! [AExpr]]
+
+  AExpr =
+    CSPChanWrite
+
+
+  CSPChanRead.CSPChanRead =
+    [[Identifier] ? [Identifier]]
+
+  AExpr =
+    CSPChanRead
+
+
+  Statement.CSPPar =
+    [
+    par [CompoundStatement]
+    ]
+
+
+  Statement.CSPAlts =
+    [
+    alts {
+      [CSPAlt*]
+    }
+    ]
+
+
+  CSPAlt.CSPAlt =
+    [case [CSPAltAction]: [Statement]]
+
+  CSPAltAction =
+    CSPChanWrite
+
+  CSPAltAction =
+    CSPChanRead
+
+  CSPAltAction =
+    Identifier
