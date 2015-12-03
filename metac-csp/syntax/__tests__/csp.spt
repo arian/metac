@@ -8,6 +8,10 @@ test parsing of a simple process [[
     CSPProcess(Identifier("f"), ParameterList([]), CompoundStatement([]))
   ])
 
+test void channel [[
+  [[chan]] x;
+]] run strip-annos to CSPVoidChan()
+
 test declaration of a channel of ints [[
   void f() {
     [[chan<int> c;]]
@@ -40,7 +44,24 @@ test parallel statement [[
       F();
     }]]
   }
-]] run strip-annos to CSPPar(CompoundStatement([
-    CompoundStatement([]),
-    ExpressionStatement(Some(Call(Var(Identifier("F")), [])))
-  ]))
+]] run strip-annos to CSPPar([
+    CSPInvokeInlineProcess(CompoundStatement([])),
+    CSPInvokeProcess(Identifier("F"), [])
+  ])
+
+test alts statement [[
+  int f(){
+    chan c1;
+    chan<int> c2;
+    int x;
+    [[alts {
+      case c1: ;
+      case c2 ? x: ;
+      case c2 ! 1: ;
+    }]]
+  }
+]] run strip-annos to CSPAlts([
+    CSPAlt(Identifier("c1"), ExpressionStatement(_)),
+    CSPAlt(CSPChanRead(Identifier("c2"), Identifier("x")), ExpressionStatement(_)),
+    CSPAlt(CSPChanWrite(Identifier("c2"), Integer("1")), ExpressionStatement(_))
+  ])

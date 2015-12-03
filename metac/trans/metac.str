@@ -29,13 +29,15 @@ imports
   MetaC-bitfield/trans
   MetaC-SM/trans
   MetaC-Err/trans
+  MetaC-CSP/trans
 
 rules // Analysis
 
   is-source-ast-test =
     ? file
+    ; <is-substring(!"syntax/")> file
+    ; <is-substring(!"__tests__")> file
     ; <is-substring(!".spt")> file
-    ; <is-substring(!"syntax/BaseC/__tests__/")> file
 
   pre-analysis:
     File(file, Program(_, decls), num)
@@ -58,7 +60,7 @@ rules // Analysis
     // if it has syntax tests, don't do the nabl analysis and stuff, but just return
     // the original parsed AST
     if <has-test-file> input then
-      analyze-all(desugar-all, metac-test-collect, id, id|<language>)
+      analyze-all(id, metac-test-collect, id, id|<language>)
     else
        analyze-all(desugar-all, id, id|<language>)
     end

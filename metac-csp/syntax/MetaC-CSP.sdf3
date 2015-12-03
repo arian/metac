@@ -29,16 +29,19 @@ context-free syntax
   TypeSpecifier.CSPChan =
     [chan<[TypeName]>]
 
+  TypeSpecifier.CSPVoidChan =
+    [chan]
+
 
   CSPChanWrite.CSPChanWrite =
-    [[Identifier] ! [AExpr]]
+    [[VarExpr] ! [AExpr]]
 
   AExpr =
     CSPChanWrite
 
 
   CSPChanRead.CSPChanRead =
-    [[Identifier] ? [Identifier]]
+    [[VarExpr] ? [VarExpr]]
 
   AExpr =
     CSPChanRead
@@ -46,8 +49,17 @@ context-free syntax
 
   Statement.CSPPar =
     [
-    par [CompoundStatement]
+    par {
+      [CSPProcessInvocation*]
+    }
     ]
+
+
+  CSPProcessInvocation.CSPInvokeProcess =
+    [[Identifier]([{AExpr ", "}*]);]
+
+  CSPProcessInvocation.CSPInvokeInlineProcess =
+    CompoundStatement
 
 
   Statement.CSPAlts =
@@ -68,4 +80,4 @@ context-free syntax
     CSPChanRead
 
   CSPAltAction =
-    Identifier
+    VarExpr
