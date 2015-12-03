@@ -26,7 +26,7 @@ test channel write [[
     chan<int> c;
     [[c ! 5]];
   }
-]] run strip-annos to CSPChanWrite(Identifier("c"), Integer("5"))
+]] run strip-annos to CSPChanWrite(Var(Identifier("c")), Integer("5"))
 
 test channel read [[
   int f(){
@@ -34,7 +34,7 @@ test channel read [[
     int x;
     [[c ? x]];
   }
-]] run strip-annos to CSPChanRead(Identifier("c"), Identifier("x"))
+]] run strip-annos to CSPChanRead(Var(Identifier("c")), Var(Identifier("x")))
 
 test parallel statement [[
   process F() {}
@@ -61,7 +61,20 @@ test alts statement [[
     }]]
   }
 ]] run strip-annos to CSPAlts([
-    CSPAlt(Identifier("c1"), ExpressionStatement(_)),
-    CSPAlt(CSPChanRead(Identifier("c2"), Identifier("x")), ExpressionStatement(_)),
-    CSPAlt(CSPChanWrite(Identifier("c2"), Integer("1")), ExpressionStatement(_))
+    CSPAlt(Var(Identifier("c1")), ExpressionStatement(_)),
+    CSPAlt(CSPChanRead(Var(Identifier("c2")), Var(Identifier("x"))), ExpressionStatement(_)),
+    CSPAlt(CSPChanWrite(Var(Identifier("c2")), Integer("1")), ExpressionStatement(_))
+  ])
+
+test alts in par [[
+  int f() {
+    chan c;
+    [[par {
+      alts {
+        case c: ;
+      }
+    }]]
+  }
+]] run strip-annos to CSPPar([
+    CSPAlts(_)
   ])
