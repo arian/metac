@@ -50,7 +50,7 @@ context-free syntax
   Statement.CSPPar =
     [
     par {
-      [CSPProcessInvocation*]
+      [{CSPProcessInvocation "\n"}*]
     }
     ]
 
@@ -68,7 +68,7 @@ context-free syntax
   CSPAlts.CSPAlts =
     [
     alts {
-      [CSPAlt*]
+      [{CSPAlt "\n"}*]
     }
     ]
 

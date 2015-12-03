@@ -3,3 +3,4 @@ module MetaC-CSP/trans
 imports
 
   names/MetaC-CSP/names
+  MetaC-CSP/names-custom
