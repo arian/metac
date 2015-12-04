@@ -20,21 +20,6 @@ imports
 
 rules
 
-  // generate Declarator from Decl and Type(mods, type)
-  // move to BaseC
-  generate-Declarator:
-    (decl, Type(mods, t)) ->
-    Declarator(<generate-Declarator-type> t, decl)
-
-  generate-Declarator-type:
-    Array(t) -> Some(ArrayDecl([], <generate-Declarator-type> t))
-
-  generate-Declarator-type:
-    Pointer(t) -> Some(Pointer([], <generate-Declarator-type> t))
-
-  generate-Declarator-type:
-    t -> None()
-
   get-err-fail-block-def =
     ?ErrVarDeclaration(_, _, _)
     ; get-annos
@@ -58,7 +43,7 @@ rules
     FunDefinition(
       identifier@Identifier(name),
       storage,
-      Type(mods, ErrMaybeError(success-type, fail-type, fn-name)),
+      Type(mods, Function(Type(mods2, ErrMaybeError(success-type, fail-type, fn-name)), p-types)),
       params,
       body
     ) -> [
@@ -66,7 +51,7 @@ rules
       FunDefinition(
         identifier,
         storage,
-        Type([], UInt8()),
+        Type(mods, Function(Type([], UInt8()), new-p-types)),
         new-params,
         body-with-returns
       )
@@ -78,11 +63,11 @@ rules
       ; new-params := <conc> ([
           FunDefinitionParameter(
             Type([], Pointer(TypedefName(Identifier(union-typename)))),
-            Declarator(Some(Pointer([], None())), Decl(Identifier(return-var-name))),
             Decl(Identifier(return-var-name))
           )
         ], params)
-        ; body-with-returns := <gen-err-body-returns(|return-var-name)> body
+      ; new-p-types := <conc> ([Type([], Pointer(TypedefName(Identifier(union-typename))))], p-types)
+      ; body-with-returns := <gen-err-body-returns(|return-var-name)> body
 
   gen-err-union: (union-typename, success-type, fail-type) ->
     Declaration(
@@ -178,7 +163,6 @@ rules
       VarDeclaration(
         [],
         Type([], TypedefName(Identifier(union-typename))),
-        Declarator(None(), union-decl),
         union-decl,
         None()
       ),
@@ -194,7 +178,6 @@ rules
       VarDeclaration(
         [],
         type,
-        value-declarator,
         value-decl,
         Some(
           Field(Var(Identifier(union-var-name)), Identifier("value"))
@@ -202,7 +185,7 @@ rules
       )
     ]
     where
-      <get-type ; ?FunType(ErrMaybeError(_, fail-type, fn-name))> fn
+      <get-type ; ?Function(Type(_, ErrMaybeError(_, fail-type, fn-name)), _)> fn
       ; union-var-name := <conc-strings> ("__maybe_", var-name)
       ; union-typename := <conc-strings> ("__MaybeError_" , fn-name)
       ; union-decl := Decl(Identifier(union-var-name))
@@ -211,7 +194,6 @@ rules
       ; fail-goto := <is-string ; id <+ int-to-string> fail-block-index
       ; fail-block-var-name := <concat-strings> [label-name, "_", fail-goto, "_", <get-err-fail-var-name <+ !""> d]
       ; value-decl := Decl(ident)
-      ; value-declarator := <generate-Declarator> (value-decl, type)
 
   // un-desugar normal declarations again
   gen-err-declaration(|label-name):
@@ -222,27 +204,23 @@ rules
     ) -> VarDeclaration(
       [],
       type,
-      declarator,
       decl,
       Some(Call(fn, params))
     )
     where
-      <get-type ; not(?FunType(ErrMaybeError(_, _, _)))> fn
+      <get-type ; not(?Function(Type(_, ErrMaybeError(_, _, _)), _))> fn
       ; decl := Decl(ident)
-      ; declarator := <generate-Declarator> (decl, type)
 
   gen-err-fail-vars(|attempt-name): ErrFailGuarded(i, type, Identifier(var-name), _) ->
     VarDeclaration(
       [],
       type,
-      declarator,
       decl,
       None()
     )
     where
       name := <concat-strings> [attempt-name, "_", <int-to-string> i, "_", var-name]
       ; decl := Decl(Identifier(name))
-      ; declarator := <generate-Declarator> (decl, type)
 
   gen-err-fails-wildcard(|label-name): None() -> []
   gen-err-fails-wildcard(|label-name):

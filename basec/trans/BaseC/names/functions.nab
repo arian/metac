@@ -17,12 +17,12 @@ properties
 
 binding rules
 
-  FunDefinition(Identifier(name), storage, Type(mods, type), parameters, body):
+  FunDefinition(Identifier(name), storage, Type(mods, type), params, body):
     defines unique Function name
-    of type FunType(type)
+    of type type
     scopes Parameter
 
-  FunDefinitionParameter(Type(mods, type), _, Decl(Identifier(name))):
+  FunDefinitionParameter(Type(mods, type), Decl(Identifier(name))):
     defines unique Parameter name
     of type type
     of modifiers mods

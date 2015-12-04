@@ -22,13 +22,11 @@ rules
   generate01: VarDeclaration(
       storage,
       Type(mods, t),
-      decl,
       declarator,
       init
     ) -> VarDeclaration(
       storage,
       Type(mods, type),
-      decl,
       declarator,
       Some(initializer)
     )

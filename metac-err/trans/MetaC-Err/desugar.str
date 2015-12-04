@@ -33,7 +33,6 @@ rules
     VarDeclaration(
       [],
       type,
-      _,
       Decl(ident@Identifier(_)),
       Some(Call(fn, params))
     ) -> ErrVarDeclaration(
@@ -52,14 +51,14 @@ rules
     FunDefinition(
       identifier@Identifier(name),
       storage,
-      Type(mods, t),
+      Type(mods, Function(Type(mods2, t), p-types)),
       params,
       body
     ) ->
     FunDefinition(
       identifier,
       storage,
-      Type(mods, <desugar-err-fn-return-type(|name)> t),
+      Type(mods, Function(Type(mods2, <desugar-err-fn-return-type(|name)> t), p-types)),
       params,
       body
     )

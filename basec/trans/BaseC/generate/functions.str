@@ -5,16 +5,20 @@ imports
   signatures/BaseC/-
   BaseC/desugar/constructors
   BaseC/generate/types
+  BaseC/generate/declarations
   BaseC/utils/-
 
 strategies
 
-  generate-fn-param: FunDefinitionParameter(type, decl, name) ->
-    Parameter(specifiers, decl)
+  generate-fn-param:
+    FunDefinitionParameter(type, name)
+    -> Parameter(specifiers, decl)
     where
       specifiers := <gen-Type> type
+      ; decl := <generate-Declarator> (name, type)
 
-  generate: FunDefinition(name, storage, type@Type(_, t), params, body)
+  generate:
+    FunDefinition(name, storage, Type(_, Function(type@Type(_, t), _)), params, body)
     -> FunDef(
       specifiers,
       FunDeclarator(ptr, name, ParameterList(ps)),

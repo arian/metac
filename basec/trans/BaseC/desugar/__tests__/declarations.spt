@@ -10,19 +10,17 @@ test desugar var declaration [[
     VarDeclaration(
       [Static()],
       Type([], UInt32()),
-      Declarator(None(), _),
       Decl(Identifier("x")),
       None()
     ),
     VarDeclaration(
       [Static()],
       Type([], UInt32()),
-      Declarator(_, _),
       Decl(Identifier("y")),
       Some(Integer("2"))
     ),
-    VarDeclaration(_, Type([], Float32()), _, _, _),
-    VarDeclaration(_, Type([], Float64()), _, _, _)
+    VarDeclaration(_, Type([], Float32()), _, _),
+    VarDeclaration(_, Type([], Float64()), _, _)
   ])
 
 test desugar var pointer declaration [[
@@ -31,7 +29,6 @@ test desugar var pointer declaration [[
     VarDeclaration(
       [],
       Type([], Pointer(UInt32)),
-      Declarator(_, _),
       Decl(Identifier("x")),
       None()
     )
@@ -43,7 +40,6 @@ test desugar var double pointer declaration [[
     VarDeclaration(
       [],
       Type([Const], Pointer(Pointer(UInt32))),
-      Declarator(_, _),
       Decl(Identifier("x")),
       None()
     )
@@ -54,12 +50,10 @@ test desugar typedefs [[
 ]] run strip-annos to Program(_, [
     TypedefDeclaration(
       Type([Const], UInt32),
-      Declarator(_, _),
       Decl(Identifier("a"))
     ),
     TypedefDeclaration(
       Type([Const], Pointer(Pointer(Pointer(UInt32)))),
-      Declarator(_, _),
       Decl(Identifier("b"))
     )
   ])
@@ -97,7 +91,7 @@ test union declaration [[
         Some(Identifier("X")),
         [
           StructDeclarator(
-            Type([Volatile], UInt8()),
+            Type([Volatile], Function(UInt8(), [Type([], Int32())])),
             Declarator(_, _),
             Decl(Identifier("x")),
             Some(Integer("3"))
@@ -108,20 +102,65 @@ test union declaration [[
     )
   ])
 
+test paren decl [[
+  void a(b, c);
+]] run strip-annos to Program(_, [
+    VarDeclaration(
+      [],
+      Type([], Function(
+        Void(),
+        [
+          Type([], Int32()),
+          Type([], Int32())
+        ]
+      )),
+      Decl(Identifier("a")),
+      None()
+    )
+  ])
+
+test abstract function declarations [[
+  void a(int32,int32 *,const int32);
+]] run strip-annos to Program(_, [VarDeclaration(
+    [],
+    Type([], Function(Void(), [
+      Type([], Int32()),
+      Type([], Pointer(Int32())),
+      Type([Const], Int32())
+    ])),
+    Decl(Identifier("a")),
+    None()
+  )])
+
+test function declarations [[
+  void a(int32 b,int32 * c,const int32 d);
+]] run strip-annos to Program(_, [VarDeclaration(
+    [],
+    Type([], Function(Void(), [
+      Type([], Int32()),
+      Type([], Pointer(Int32())),
+      Type([Const], Int32())
+    ])),
+    Decl(Identifier("a")),
+    None()
+  )])
+
 test function declaration [[
   int *a(int, int *, int **b, int c[]);
 ]] run strip-annos to Program(_, [
-    FuncDeclaration(
+    VarDeclaration(
       [],
-      Type([], Pointer(Int32())),
-      _,
+      Type([], Function(
+        Pointer(Int32()),
+        [
+          Type([], Int32()),
+          Type([], Pointer(Int32())),
+          Type([], Pointer(Pointer(Int32))),
+          Type([], Array(Int32))
+        ]
+      )),
       Decl(Identifier("a")),
-      [
-        FunDefinitionParameter(Type([], Int32())),
-        FunDefinitionParameter(Type([], Pointer(Int32()))),
-        FunDefinitionParameter(Type([], Pointer(Pointer(Int32))), _, _),
-        FunDefinitionParameter(Type([], Array(Int32)), _, _)
-      ]
+      None()
     )
   ])
 

@@ -130,7 +130,7 @@ type rules
         else error "Integer expected as index" on index
 
   Call(e, _): t'
-    where e: FunType(t)
+    where e: Function(Type(_, t), ps)
       and <resolve-typedefs> t => t'
 
   Field(e, Identifier(name)): t'

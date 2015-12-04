@@ -9,7 +9,6 @@ test desugar comma expression [[
       [],
       Type([],Int32),
       _,
-      _,
       Some(Paren(
         Comma(
           Integer("1"),

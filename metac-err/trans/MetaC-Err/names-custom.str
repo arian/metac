@@ -45,7 +45,7 @@ rules
     // set the Use(_) to the resuling fail block
     ; <replace-annotation(?Use(_) | <new-use(|ctx, task)>)> d
 
-  task-rewrite: ("err-error-type", FunType(ErrMaybeError(_, Type(_, err-type), _))) -> err-type
+  task-rewrite: ("err-error-type", Function(Type(_, ErrMaybeError(_, Type(_, err-type), _)), _)) -> err-type
 
   nabl-constraint(|ctx):
     Program(_, decls) -> <fail>

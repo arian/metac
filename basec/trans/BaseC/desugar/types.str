@@ -55,10 +55,22 @@ rules
       t := <merge-types> (Type(mods, Array(type)), ptr, d)
 
   merge-types:
-    (base-type, None(), _) -> base-type
-
-  merge-types:
     (base-type@Type(mods, type), Some(Pointer(qualifiers, ptr)), decl) -> t
     where
       mods* := <conc> (mods, qualifiers)
       ; t := <merge-types> (Type(mods*, Pointer(type)), ptr, decl)
+
+  merge-types:
+    (Type(mods, type), ptr, FuncDecl(d, params)) -> t
+    where
+      ps := <map(?FunDefinitionParameter(<id>, _) <+ ?FunDefinitionParameter(<id>))> params
+      ; t := <merge-types> (Type(mods, Function(type, ps)), ptr, d)
+
+  merge-types:
+    (Type(mods, type), ptr, FuncDeclIDs(d, params)) -> <debug> t
+    where
+      ps := <map(\ p -> Type([], Int32()) \)> params
+      ; t := <merge-types> (Type(mods, Function(type, ps)), ptr, d)
+
+  merge-types:
+    (base-type, None(), _) -> base-type

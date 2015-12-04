@@ -10,10 +10,12 @@ test desugar parameter [[
     FunDefinition(
       Identifier(_),
       [Extern()],
-      Type([Const], UInt32),
+      Type([], Function(
+        Type([Const()], UInt32()),
+        [Type([Volatile()], UInt32())])
+      ),
       [FunDefinitionParameter(
         Type([Volatile], UInt32),
-        Declarator(_, _),
         Decl(Identifier(_))
       )],
       CompoundStatement(_)
@@ -28,10 +30,12 @@ test desugar parameter type with pointer [[
     FunDefinition(
       Identifier(_),
       [],
-      Type([], Int32),
+      Type([], Function(
+        Type([], Int32),
+        [Type([], Pointer(Int32))]
+      )),
       [FunDefinitionParameter(
         Type([], Pointer(Int32)),
-        Declarator(_, _),
         Decl(_)
       )],
       _
@@ -46,7 +50,10 @@ test desugar function with return pointer [[
     FunDefinition(
       _,
       [],
-      Type([], Pointer(Int8)),
+      Type([], Function(
+        Type([], Pointer(Int8)),
+        [Type([], Pointer(Int32))]
+      )),
       _,
       _
     )

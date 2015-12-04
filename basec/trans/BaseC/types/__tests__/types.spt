@@ -22,6 +22,24 @@ test pointer to array type [[
   int32 *b[] = [[a]];
 ]] run get-type to Pointer(Array(Int32))
 
+test function type [[
+  int32 a();
+  int f() { [[a]]; }
+]] run get-type to Function(Int32(), [])
+
+test function type with parameter [[
+  int32 a(int8);
+  int f() { [[a]]; }
+]] run get-type to Function(Int32(), [Type([], Int8())])
+
+test function type with parameters [[
+  int32 a(int8, const uint16 *);
+  int f() { [[a]]; }
+]] run get-type to Function(Int32(), [
+    Type([], Int8()),
+    Type([Const], Pointer(UInt16()))
+  ])
+
 test enum type [[
   enum X {A};
   enum X a = [[A]];

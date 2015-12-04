@@ -29,7 +29,7 @@ rules
     Program(_, [FunDef(_, _, _, CompoundStatement([stmt]))]) -> <strip-annos> stmt
 
   get-init-from-decl:
-    VarDeclaration(_, _, _, _, Some(init)) -> <strip-annos> init
+    VarDeclaration(_, _, _, Some(init)) -> <strip-annos> init
     
   get-init-from-decl:
     Declaration(_, [InitDeclarator(_, init)]) -> <strip-annos> init
@@ -49,10 +49,10 @@ rules
     ; <get-type> x
 
   test-utils-get-modifiers:
-    Program(_, [VarDeclaration(_, _, _, Decl(Identifier(name)), _)]) -> <get-modifiers> name
+    Program(_, [VarDeclaration(_, _, Decl(Identifier(name)), _)]) -> <get-modifiers> name
 
   test-utils-get-storage:
-    Program(_, [VarDeclaration(_, _, _, Decl(Identifier(name)), _)]) -> <get-storage> name
+    Program(_, [VarDeclaration(_, _, Decl(Identifier(name)), _)]) -> <get-storage> name
 
 strategies
 

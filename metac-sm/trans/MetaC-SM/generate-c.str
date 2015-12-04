@@ -9,6 +9,7 @@ imports
   MetaC-SM/constructors
   names/MetaC-SM/names
   BaseC/desugar/-
+  BaseC/generate/functions
   signatures/MetaC-SM-sig
   signatures/BaseC/-
 
@@ -147,7 +148,7 @@ rules
     )
     where
       sa-name := <strip-annos> name
-      ; event-params := <map(?Event(_, _, ParameterList(<id>))) ; concat> events
+      ; event-params := <map(?Event(_, _, <id>)) ; concat ; map(generate-fn-param)> events
       ; let apply(|i) = <gen-sm-state(|name, states, events)> (i, <id>)
           in cases := <nmap(apply | 0)> states
         end

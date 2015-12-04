@@ -13,7 +13,6 @@ binding rules
 
   TypedefDeclaration(
     Type(mod, type),
-    Declarator(_, _),
     Decl(Identifier(name))
   ) :
     defines unique Typedef name of type type

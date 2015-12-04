@@ -8,6 +8,44 @@ imports
 
 strategies
 
+  // generate Declarator from Decl and Type(mods, type)
+  generate-Declarator:
+    (decl, Type(mods, t)) ->
+    Declarator(
+      <generate-Declarator-pointer-type> t,
+      <generate-Declarator-decl> (t, decl)
+    )
+
+  generate-Declarator-pointer-type:
+    Array(t) -> <generate-Declarator-pointer-type> t
+
+  generate-Declarator-pointer-type:
+    Function(t, _) -> <generate-Declarator-pointer-type> t
+
+  generate-Declarator-pointer-type:
+    Pointer(t) -> Some(Pointer([], <generate-Declarator-pointer-type> t))
+
+  generate-Declarator-pointer-type:
+    t -> None()
+
+  generate-Declarator-decl:
+    (Array(t), decl) -> ArrayDecl(<generate-Declarator-decl> (t, decl), /* todo restore size */ None())
+
+  generate-Declarator-decl:
+    (Function(t, ps), decl) -> FuncDecl(
+      <generate-Declarator-decl> (t, decl),
+      ParameterList(<map-with-index(\ (i, pt) -> Parameter(
+        <gen-Type> pt,
+        <generate-Declarator> (Decl(Identifier(<conc-strings> ("p", <int-to-string> i))), pt)
+      ) \)> ps)
+    )
+
+  generate-Declarator-decl:
+    (Pointer(t), decl) -> <generate-Declarator-decl> (t, decl)
+
+  generate-Declarator-decl:
+    (t, decl) -> decl
+
   generate-Initializer:
     (decl, Some(init)) -> InitDeclarator(decl, init)
 
@@ -15,28 +53,22 @@ strategies
     (decl, None()) -> decl
 
   generate:
-    VarDeclaration(storage, type, decl, name, init)
+    VarDeclaration(storage, type, name, init)
     -> Declaration(
       specifiers,
-      [declerator]
+      [declarator]
     )
     where
       specifiers := <conc> (storage, <gen-Type> type)
-      ; declerator := <generate-Initializer> (decl, init)
+      ; declarator := <generate-Initializer> (<generate-Declarator> (name, type), init)
 
   // typedefs
   generate:
-    TypedefDeclaration(type, decl, name)
+    TypedefDeclaration(type, name)
     -> Declaration(specifiers, [decl])
     where
       specifiers := <conc> ([Typedef()], <gen-Type> type)
-
-  // func decls
-  generate:
-    FuncDeclaration(storage, type, decl, name, params)
-    -> Declaration(specifiers, [decl])
-    where
-      specifiers := <conc> (storage, <gen-Type> type)
+      ; decl := <generate-Declarator> (name, type)
 
   // structs
 

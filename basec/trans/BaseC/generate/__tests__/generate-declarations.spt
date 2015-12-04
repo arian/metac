@@ -35,12 +35,16 @@ test typedef declaration of a struct with a size [[
 
 test paren decl [[
   void a(b, c);
-]] build generate-c to "void a(b, c);"
+]] build generate-c to "void a(signed int p1, signed int p2);"
 
 test abstract function declarations [[
   void a(int32,int32 *,const int32);
-]] build generate-c to "void a(signed int, signed int *, const signed int);"
+]] build generate-c to "void a(signed int p1, signed int * p2, const signed int p3);"
 
 test function declarations [[
   void a(int32 b,int32 * c,const int32 d);
-]] build generate-c to "void a(signed int b, signed int *c, const signed int d);"
+]] build generate-c to "void a(signed int p1, signed int * p2, const signed int p3);"
+
+test function declarations with fn pointer [[
+  void a(int32 b,int32 * c(int),const int32 d);
+]] build generate-c to "void a(signed int p1, signed int * p2(signed int p1), const signed int p3);"

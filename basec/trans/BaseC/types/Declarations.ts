@@ -23,7 +23,7 @@ type rules
   BlockInitializer([x | _]): Array(t)
     where x : t
 
-  d@VarDeclaration(_, _, _, _, Some(init)) :-
+  d@VarDeclaration(_, _, _, Some(init)) :-
     where init : it
       and definition of d : t
       and (it <is-assignable: t)

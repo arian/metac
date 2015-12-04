@@ -6,113 +6,113 @@ language MetaC
 test 8 bit int [[
   char x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int8()), _, _, _)
+    VarDeclaration([], Type([], Int8()), _, _)
   ])
 
 test signed 8 bit int [[
   signed char x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int8()), _, _, _)
+    VarDeclaration([], Type([], Int8()), _, _)
   ])
 
 test unsigned 8 bit int [[
   unsigned char x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], UInt8()), _, _, _)
+    VarDeclaration([], Type([], UInt8()), _, _)
   ])
 
 test 16 bit int [[
   short x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int16()), _, _, _)
+    VarDeclaration([], Type([], Int16()), _, _)
   ])
 
 test signed 16 bit int [[
   signed short x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int16()), _, _, _)
+    VarDeclaration([], Type([], Int16()), _, _)
   ])
 
 test unsigned 16 bit int [[
   unsigned short x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], UInt16()), _, _, _)
+    VarDeclaration([], Type([], UInt16()), _, _)
   ])
 
 test 64 bit int [[
   long int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int64()), _, _, _)
+    VarDeclaration([], Type([], Int64()), _, _)
   ])
 
 test signed 64 bit int [[
   signed long int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int64()), _, _, _)
+    VarDeclaration([], Type([], Int64()), _, _)
   ])
 
 test unsigned 64 bit int [[
   unsigned long int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], UInt64()), _, _, _)
+    VarDeclaration([], Type([], UInt64()), _, _)
   ])
 
 test long long [[
   long long x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int64()), _, _, _)
+    VarDeclaration([], Type([], Int64()), _, _)
   ])
 
 test pointer type [[
   int *a;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Pointer(Int32())), _, _, _)
+    VarDeclaration([], Type([], Pointer(Int32())), _, _)
   ])
 
 test array type [[
   int a[];
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Array(Int32())), _, _, _)
+    VarDeclaration([], Type([], Array(Int32())), _, _)
   ])
 
 test pointer of array type [[
   int *a[];
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Pointer(Array(Int32()))), _, _, _)
+    VarDeclaration([], Type([], Pointer(Array(Int32()))), _, _)
   ])
 
 test pointers of arrays type [[
   int ***a[][];
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Pointer(Pointer(Pointer(Array(Array(Int32())))))), _, _, _)
+    VarDeclaration([], Type([], Pointer(Pointer(Pointer(Array(Array(Int32())))))), _, _)
   ])
 
 test const modifier [[
   const int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([Const()], Int32()), _, _, _)
+    VarDeclaration([], Type([Const()], Int32()), _, _)
   ])
 
 test signed with const modifier [[
   signed const int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([Const()], Int32()), _, _, _)
+    VarDeclaration([], Type([Const()], Int32()), _, _)
   ])
 
 test unsigned with const modifier [[
   const unsigned int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([Const()], UInt32()), _, _, _)
+    VarDeclaration([], Type([Const()], UInt32()), _, _)
   ])
 
 test signed with volatile modifier [[
   volatile signed int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([Volatile()], Int32()), _, _, _)
+    VarDeclaration([], Type([Volatile()], Int32()), _, _)
   ])
 
 test unsigned with volatile modifier [[
   unsigned volatile int x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([Volatile()], UInt32()), _, _, _)
+    VarDeclaration([], Type([Volatile()], UInt32()), _, _)
   ])

@@ -9,5 +9,3 @@ signature constructors
   Numeric: TypeKind
   Str: TypeKind
   Char: TypeKind
-
-  FunType: Type -> Type

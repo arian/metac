@@ -11,7 +11,6 @@ rules
   desugar-parameter:
     Parameter(ts, decl@Declarator(ptr, d)) -> FunDefinitionParameter(
       <merge-types> (types, ptr, d),
-      decl,
       <find-decl> decl
     )
     where
@@ -31,11 +30,20 @@ rules
     ) -> FunDefinition(
       name,
       storage,
-      <merge-types> (base-type, ptr, decl),
-      parameters,
+      Type([], Function(
+        <merge-types> (base-type, ptr, decl),
+        ps-types
+      )),
+      ps,
       body
     )
     where
       base-type := <desugar-decl-types> specifiers
       ; storage := <filter(is-storage-class-specifier)> specifiers
-      ; parameters := <map(desugar-parameter)> ps
+      ; ps-types := <map(\ FunDefinitionParameter(t, _) -> t \)> ps
+
+  desugar:
+    ParameterList(ps) -> <map(desugar-parameter)> ps
+
+  // TODO improve this
+  desugar: VarArgs(param-list) -> <desugar> param-list

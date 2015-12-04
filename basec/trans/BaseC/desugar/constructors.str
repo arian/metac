@@ -21,41 +21,32 @@ signature constructors
 
   Pointer: Type -> Pointer
   Array: Type -> Array
+  Function: Type * Params -> Fun
 
   VarDeclaration:
     List(StorageClassSpecifiers) *
     Type *
-    Declarator *
     Decl *
     Some(Initializer) -> VarDeclaration
 
-  FuncDeclaration:
-    List(StorageClassSpecifiers) *
-    Type *
-    Declarator *
-    Decl *
-    List(Parameter) -> FuncDeclaration
-
   TypedefDeclaration:
     Type *
-    Declarator *
     Decl -> TypedefDeclaration
 
   FunDefinition:
     String *
     List(StorageClassSpecifiers) *
-    List(Type) *
-    List(Parameter) *
+    Type *
+    Params *
     CompoundStatement -> FunDef
 
   FunDefinitionParameter:
-    List(Type) *
-    Declarator *
+    Type *
     Decl -> FunDefParameter
 
   // for abstract parameters
   FunDefinitionParameter:
-    List(Type) -> FunDefinitionParameter
+    Type -> FunDefinitionParameter
 
   StructDeclarator:
     Type *
