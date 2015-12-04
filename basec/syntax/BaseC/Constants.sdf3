@@ -63,6 +63,8 @@ context-free syntax
   Constant.False =
     <false>
 
+  Constant.Null =
+    <NULL>
 
 // chars and strings
 lexical syntax

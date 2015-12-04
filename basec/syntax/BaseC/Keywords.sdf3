@@ -53,6 +53,7 @@ lexical syntax
 
   Keyword = "true"
   Keyword = "false"
+  Keyword = "NULL"
 
   // types
 

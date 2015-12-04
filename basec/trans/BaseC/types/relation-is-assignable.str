@@ -17,31 +17,35 @@ rules
   // Assignments type checking
 
   relation-match-custom(|ctx):
-    ("<is-assignable:", t1, t2) -> and1
+    ("<is-assignable:", from, to) -> or2
     where
       // base types, like Int8
-      t1-base := <create-base-type-task(|ctx)> t1;
-      t2-base := <create-base-type-task(|ctx)> t2;
+      from-base := <create-base-type-task(|ctx)> from;
+      to-base := <create-base-type-task(|ctx)> to;
 
       // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
       // becomes Array(Pointer(UInt32))
-      t1-resolved := <create-resolve-typedef-task(|ctx)> t1;
-      t2-resolved := <create-resolve-typedef-task(|ctx)> t2;
+      from-resolved := <create-resolve-typedef-task(|ctx)> from;
+      to-resolved := <create-resolve-typedef-task(|ctx)> to;
 
       // transform the leaf of the structure into Int(), so irregardless of
       // the base type, we can compare the same structure
-      t1-structure := <create-rewrite-type-structure-task(|ctx)> t1-resolved;
-      t2-structure := <create-rewrite-type-structure-task(|ctx)> t2-resolved;
+      from-structure := <create-rewrite-type-structure-task(|ctx)> from-resolved;
+      to-structure := <create-rewrite-type-structure-task(|ctx)> to-resolved;
 
       // are they equal?
-      eq-base := <type-match(|ctx, t2-base)> t1-base;
-      eq-structure := <type-match(|ctx, t2-structure)> t1-structure;
+      eq-base := <type-match(|ctx, to-base)> from-base;
+      eq-structure := <type-match(|ctx, to-structure)> from-structure;
 
       // are both numeric
-      t1-numeric := <relation-create-match(|ctx)> ("<is:", t1-base, Numeric());
-      t2-numeric := <relation-create-match(|ctx); task-create-id(|ctx, [t1-numeric])> ("<is:", t2-base, Numeric());
+      from-numeric := <relation-create-match(|ctx)> ("<is:", from-base, Numeric());
+      to-numeric := <relation-create-match(|ctx); task-create-id(|ctx, [from-numeric])> ("<is:", to-base, Numeric());
+
+      // is null
+      from-is-null := <type-match(|ctx, Null())> from;
 
       // is either numeric or the same
-      or72 := <type-is(|ctx)> <task-create-choice(|ctx)> [eq-base, t2-numeric];
+      or := <type-is(|ctx)> <task-create-choice(|ctx)> [eq-base, to-numeric];
       // and have the same structure
-      and1 := <task-create-id(|ctx, [eq-structure, or72])> t2
+      and := <task-create-id(|ctx, [eq-structure, or])> to;
+      or2 := <type-is(|ctx)> <task-create-choice(|ctx)> [from-is-null, and]

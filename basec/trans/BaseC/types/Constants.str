@@ -36,6 +36,9 @@ rules
     False() -> <type-is(|ctx)> UInt8()
 
   create-type-task(|ctx):
+    Null() -> <type-is(|ctx)> Null()
+
+  create-type-task(|ctx):
     String(s) -> <type-is(|ctx)> Array(UInt8())
 
   string-drop-last(|n) =

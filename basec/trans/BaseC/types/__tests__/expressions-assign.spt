@@ -7,3 +7,19 @@ test assign expression of arrays [[
     float64 d[] = b = c;
   }
 ]] 0 errors
+
+test assign null [[
+  int32 x = NULL;
+]] 0 errors
+
+test assign null to complexer type [[
+  int32 *x[] = NULL;
+]] 0 errors
+
+test assign null to struct [[
+  struct x {int32 a;};
+  struct x y;
+  void f() {
+    y = NULL;
+  }
+]] 0 errors

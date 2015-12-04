@@ -21,5 +21,5 @@ type rules
         or fn : FunType(it)
       )
       and definition of d : t
-      and (t <is-assignable: it)
-        else error $[Incompatible types when initializing type [t] using type [it]]  on fn
+      and (it <is-assignable: t)
+        else error $[Incompatible types when initializing variable of type [t] using an expression of type [it]] on fn

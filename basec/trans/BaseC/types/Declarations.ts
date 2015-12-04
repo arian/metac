@@ -26,5 +26,5 @@ type rules
   d@VarDeclaration(_, _, _, _, Some(init)) :-
     where init : it
       and definition of d : t
-      and (t <is-assignable: it)
-        else error $[Incompatible types when initializing type [t] using type [it]]  on init
+      and (it <is-assignable: t)
+        else error $[Incompatible types when initializing variable of type [t] using an expression of type [it]] on init
