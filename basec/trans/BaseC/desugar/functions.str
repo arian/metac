@@ -24,7 +24,7 @@ rules
   desugar:
     FunDef(
       specifiers,
-      decl@FunDeclarator(ptr, name, ParameterList(ps)),
+      decl@FunDeclarator(ptr, name, ps),
       old-school-declarators,
       body
     ) -> FunDefinition(
