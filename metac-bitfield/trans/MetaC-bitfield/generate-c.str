@@ -73,7 +73,12 @@ rules
           )
         ),
         Paren(
-          ShiftLeft(InclusiveAnd(value, field-mask), Integer(<int-to-string> shift))
+          ShiftLeft(
+            Paren(
+              InclusiveAnd(value, field-mask)
+            ),
+            Integer(<int-to-string> shift)
+          )
         )
       )
     )
