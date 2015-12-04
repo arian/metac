@@ -1,0 +1,21 @@
+module types
+
+language MetaC
+
+test should error when writing some inconsistent type [[
+  chan<int> x;
+  struct y {};
+  int f() {
+    struct y z;
+    x ! z;
+  }
+]] 1 error
+
+test should error when readong some inconsistent type [[
+  chan<int> x;
+  struct y {};
+  int f() {
+    struct y z;
+    x ? z;
+  }
+]] 1 error

@@ -1,0 +1,27 @@
+module names
+
+language MetaC
+
+test initialize a process into a par block [[
+  process [[f]]() {}
+  int f() {
+    par {
+      [[f]]();
+    }
+  }
+]] resolve #2 to #1
+
+test resolve channel variable from a a channel write [[
+  int f() {
+    chan<int> [[c]];
+    [[c]] ! 4;
+  }
+]] resolve #2 to #1
+
+test resolve channel variable from a a channel read [[
+  int f() {
+    chan<int> [[c]];
+    int32 x;
+    [[c]] ? x;
+  }
+]] resolve #2 to #1
