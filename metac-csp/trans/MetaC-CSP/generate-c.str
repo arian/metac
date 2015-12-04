@@ -1,0 +1,27 @@
+module MetaC-CSP/generate-c
+
+imports
+
+  signatures/BaseC-sig
+  signatures/MetaC-CSP-sig
+  BaseC/desugar/constructors
+  BaseC/generate/declarations
+
+rules
+
+  generate01: 
+    VarDeclaration(
+      storage,
+      Type(mods1, CSPChan(Type(mods2, _))),
+      decl,
+      None()
+    ) ->
+    VarDeclaration(
+      storage,
+      type,
+      decl,
+      None()
+    )
+    where
+      merged-mods := <conc ; uniq> (mods1, mods2)
+      ; type := Type(merged-mods, Pointer(TypedefName(Identifier("Channel"))))
