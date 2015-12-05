@@ -67,7 +67,6 @@ rules
   desugar-struct-declarator(|base-type):
     decl@Declarator(ptr, d) -> StructDeclarator(
       <merge-types> (base-type, ptr, d),
-      decl,
       <find-decl> decl,
       None()
     )
@@ -75,7 +74,6 @@ rules
   desugar-struct-declarator(|base-type):
     StructSizedFieldDeclarator(Some(decl@Declarator(ptr, d)), size) -> StructDeclarator(
       <merge-types> (base-type, ptr, d),
-      decl,
       <find-decl> decl,
       Some(size)
     )

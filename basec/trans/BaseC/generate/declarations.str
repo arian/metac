@@ -76,16 +76,18 @@ strategies
   // structs
 
   generate:
-    StructDeclarator(type, decl, name, None())
+    StructDeclarator(type, name, None())
     -> StructDeclaration(specifiers, [decl])
     where
       specifiers := <gen-Type> type
+      ; decl := <generate-Declarator> (name, type)
 
   generate:
-    StructDeclarator(type, decl, name, Some(size))
+    StructDeclarator(type, name, Some(size))
     -> StructDeclaration(specifiers, [StructSizedFieldDeclarator(Some(decl), size)])
     where
       specifiers := <gen-Type> type
+      ; decl := <generate-Declarator> (name, type)
 
   // enums
 

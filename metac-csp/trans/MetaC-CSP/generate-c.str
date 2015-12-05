@@ -9,10 +9,19 @@ imports
 
 rules
 
+  generate-include-headers: CSPChan(_) -> Include("csp.h")
+
+  generate02:
+    Type(mods1, CSPChan(Type(mods2, _)))
+    -> Type(merged-mods, Pointer(TypedefName(Identifier("Channel"))))
+    where
+      merged-mods := <conc ; uniq> (mods1, mods2)
+
+  // Change chan<T> channel variable declarations
   generate01: 
     VarDeclaration(
       storage,
-      Type(mods1, CSPChan(Type(mods2, _))),
+      type@Type(mods1, CSPChan(Type(mods2, _))),
       decl,
       None()
     ) ->
@@ -20,8 +29,56 @@ rules
       storage,
       type,
       decl,
-      None()
+      Some(Call(
+        Var(Identifier("CSP_chanAlloc")),
+        [Var(Identifier("CSP_ONE2ONE")), Integer("0")]
+      ))
     )
-    where
-      merged-mods := <conc ; uniq> (mods1, mods2)
-      ; type := Type(merged-mods, Pointer(TypedefName(Identifier("Channel"))))
+
+  generate01:
+    CSPProcess(Identifier(name), params, body)
+    -> [
+      TypedefDeclaration(
+        Type([], Struct(
+          None(),
+          process-parameters
+        )),
+        Decl(Identifier("g_ProcessArgs"))
+      ),
+      FunDefinition(
+        Identifier(name),
+        [],
+        Type([], Function(
+          Type([], Void()),
+          [Type([], Pointer(TypedefName(Identifier("Process"))))]
+        )),
+        [FunDefinitionParameter(
+          Type([], Pointer(TypedefName(Identifier("Process")))),
+          Decl(Identifier("p"))
+        )],
+        CompoundStatement(function-body)
+      )
+    ]
+  where
+    process-parameters := <map(generate-process-param-struct-field)> params
+    ; process-parameters-variables := <map(generate-process-param-variable)> params
+    ; function-body := <concat> [
+        [VarDeclaration(
+          [],
+          Type([], Pointer(TypedefName(Identifier("g_ProcessArgs")))),
+          Decl(Identifier("args")),
+          Some(PointerField(Var(Identifier("p")), Identifier("args")))
+        )],
+        process-parameters-variables,
+        [body]
+      ]
+
+  generate-process-param-struct-field:
+    FunDefinitionParameter(type, decl)
+    -> StructDeclarator(type, decl, None())
+
+  generate-process-param-variable:
+    FunDefinitionParameter(type, decl@Decl(name))
+    -> VarDeclaration([], type, decl, Some(
+      PointerField(Var(Identifier("args")), name)
+    ))

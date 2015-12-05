@@ -27,7 +27,7 @@ binding rules
   Union(Identifier(name)):
     refers to Union name
 
-  StructDeclarator(Type(mods, type), decl, Decl(Identifier(name)), _):
+  StructDeclarator(Type(mods, type), Decl(Identifier(name)), _):
     defines Field name
       of type type
       of modifiers mods

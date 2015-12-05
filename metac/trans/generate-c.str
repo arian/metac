@@ -2,9 +2,7 @@ module generate-c
 
 imports
 
-  BaseC/generate/-
-  MetaC-bitfield/generate-c
-  MetaC-SM/generate-c
+  signatures/BaseC-sig
   pp
 
 strategies
@@ -14,6 +12,14 @@ strategies
   generate(|t) = fail
   generate = fail
 
+  generate-include-headers = fail
+
+  generate-includes:
+    Program(x, decls)
+    -> Program(x, <conc> (includes, decls))
+    where
+      includes := <collect-all(generate-include-headers)> decls
+
   generate-pp =
     pp-debug // try to pretty print
     <+ debug // or print the AST
@@ -22,7 +28,8 @@ strategies
     where
       file-name := <guarantee-extension(|"c")> path
       ; code := <
-          bottomup(try(generate01)   ; try(flatten-list))
+          try(generate-includes)
+          ; bottomup(try(generate01)   ; try(flatten-list))
           ; bottomup(try(generate02)   ; try(flatten-list))
           ; bottomup(try(generate(|t)) ; try(flatten-list))
           ; bottomup(try(generate)     ; try(flatten-list))
