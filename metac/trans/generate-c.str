@@ -20,6 +20,27 @@ strategies
     where
       includes := <collect-all(generate-include-headers)> decls
 
+  generate-temp-scope-variable = fail
+
+  generate-temp-scope-variables:
+    CompoundStatement(stmts) -> CompoundStatement(
+      <conc> (<vars>, stmts)
+    )
+    where
+      rules(vars := [])
+      ; <rec x(
+        // Only analize this CompoundStatement, not the nested ones
+        not(?CompoundStatement(_))
+        ; (
+          // check if some strategy succeeds
+          generate-temp-scope-variable
+          // add it to the other vars
+          ; rules(vars := <union> (<vars>, [<id>]))
+          // traverse other nodes
+          <+ all(try(x))
+        )
+      )> stmts
+
   generate-pp =
     pp-debug // try to pretty print
     <+ debug // or print the AST
@@ -29,6 +50,7 @@ strategies
       file-name := <guarantee-extension(|"c")> path
       ; code := <
           try(generate-includes)
+          ; bottomup(try(generate-temp-scope-variables))
           ; bottomup(try(generate01)   ; try(flatten-list))
           ; bottomup(try(generate02)   ; try(flatten-list))
           ; bottomup(try(generate(|t)) ; try(flatten-list))

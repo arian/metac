@@ -6,6 +6,7 @@ imports
   signatures/MetaC-CSP-sig
   BaseC/desugar/constructors
   BaseC/generate/declarations
+  runtime/types/-
 
 rules
 
@@ -35,6 +36,8 @@ rules
       ))
     )
 
+  // Change process definitions, into a structure that are used for storing arguments.
+  // and a function with the Process object as argument.
   generate01:
     CSPProcess(Identifier(name), params, body)
     -> [
@@ -43,7 +46,7 @@ rules
           None(),
           process-parameters
         )),
-        Decl(Identifier("g_ProcessArgs"))
+        Decl(Identifier(struct-name))
       ),
       FunDefinition(
         Identifier(name),
@@ -60,12 +63,14 @@ rules
       )
     ]
   where
-    process-parameters := <map(generate-process-param-struct-field)> params
+    s-name := <strip-annos> name
+    ; struct-name := <conc-strings> (s-name, "_ProcessArgs")
+    ; process-parameters := <map(generate-process-param-struct-field)> params
     ; process-parameters-variables := <map(generate-process-param-variable)> params
     ; function-body := <concat> [
         [VarDeclaration(
           [],
-          Type([], Pointer(TypedefName(Identifier("g_ProcessArgs")))),
+          Type([], Pointer(TypedefName(Identifier(struct-name)))),
           Decl(Identifier("args")),
           Some(PointerField(Var(Identifier("p")), Identifier("args")))
         )],
@@ -82,3 +87,40 @@ rules
     -> VarDeclaration([], type, decl, Some(
       PointerField(Var(Identifier("args")), name)
     ))
+
+  // add a temp variable in this scope that can be used by the CSPChanWrite
+  // transformed code
+  generate-temp-scope-variable:
+    CSPChanWrite(_, e)
+    -> VarDeclaration(
+      [],
+      Type([], Pointer(Void())),
+      Decl(Identifier("__csp_chan_write_temp")),
+      None()
+    )
+
+  generate02:
+    CSPChanWrite(Var(chan-name), expr)
+    -> Paren(
+      Comma(
+        Assign(Var(Identifier("__csp_chan_write_temp")), Assign(), expr),
+        [],
+        Call(
+          Var(Identifier("CSP_chanOutCopy")),
+          [
+            Var(chan-name),
+            Var(Identifier("__csp_chan_write_temp")),
+            SizeofExpr(Var(Identifier("__csp_chan_write_temp")))
+          ])))
+
+  generate02:
+    CSPChanRead(Var(chan-name), Var(dest-name))
+    -> Call(
+      Var(Identifier("CSP_chanInCopy")),
+      [
+        Var(chan-name),
+        Var(dest-name),
+        Negative(
+          Cast(TypeName([Int()], None()),
+            SizeofExpr(Var(dest-name))))
+      ])
