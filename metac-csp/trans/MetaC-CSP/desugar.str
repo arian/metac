@@ -1,0 +1,17 @@
+module MetaC-CSP/desugar
+
+imports
+
+  signatures/MetaC-CSP-sig
+
+signature constructors
+
+  CSPChanWrite:
+    Name *
+    Chan *
+    Expr -> CSPChanWrite
+
+rules
+
+  desugar:
+    CSPChanWrite(a, b) -> CSPChanWrite(<newname> "__csp_chan_write_temp_", a, b)

@@ -7,7 +7,7 @@ imports
 
 type rules
 
-  CSPChanWrite(chan, expr):-
+  CSPChanWrite(_, chan, expr):-
     where
           chan: ct
       and ct => CSPChan(Type(_, vt))

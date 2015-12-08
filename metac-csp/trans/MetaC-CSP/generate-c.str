@@ -7,6 +7,7 @@ imports
   BaseC/desugar/constructors
   BaseC/generate/declarations
   runtime/types/-
+  MetaC-CSP/desugar
 
 rules
 
@@ -88,39 +89,63 @@ rules
       PointerField(Var(Identifier("args")), name)
     ))
 
+  // test which chanOutInt* function name we should use
+  generate-csp-numeric-out-fn-name = (?Int64() <+ ?UInt64()) ; !"CSP_chanOutInt64"
+  generate-csp-numeric-out-fn-name = (?Int32() <+ ?UInt32()) ; !"CSP_chanOutInt32"
+  generate-csp-numeric-out-fn-name = (?Int16() <+ ?UInt16()) ; !"CSP_chanOutInt16"
+  generate-csp-numeric-out-fn-name = (?Int8() <+ ?UInt8())   ; !"CSP_chanOutInt8"
+
   // add a temp variable in this scope that can be used by the CSPChanWrite
   // transformed code
   generate-temp-scope-variable:
-    CSPChanWrite(_, e)
-    -> VarDeclaration(
-      [],
-      Type([], Pointer(Void())),
-      Decl(Identifier("__csp_chan_write_temp")),
-      None()
-    )
+    CSPChanWrite(write-var, c@Var(chan-name), e)
+    -> VarDeclaration([], data-type, Decl(Identifier(write-var)), None())
+    where
+      <not(?Var(_))> e // temp not necessary if it's just a var
+      ; CSPChan(data-type@Type(_, data-type')) := <get-type> c
+      ; <not(generate-csp-numeric-out-fn-name)> data-type'
 
+  // chan write int types
   generate02:
-    CSPChanWrite(Var(chan-name), expr)
+    CSPChanWrite(_, c@Var(chan-name), expr)
+    -> Call(Var(Identifier(fn-name)), [Var(chan-name), expr])
+    where
+      CSPChan(data-type@Type(_, data-type')) := <get-type> c
+      ; fn-name := <generate-csp-numeric-out-fn-name> data-type'
+
+  // chan write when using a direct variable expression
+  generate02:
+    CSPChanWrite(_, c@Var(chan-name), expr@Var(_))
+    -> Call(Var(Identifier("CSP_chanOutCopy")), [Var(chan-name), Address(expr), Sizeof(data-type)])
+    where
+      CSPChan(data-type@Type(_, data-type')) := <get-type> c
+
+  // other types, using a complexer expression
+  generate02:
+    CSPChanWrite(temp-var, c@Var(chan-name), expr)
     -> Paren(
       Comma(
-        Assign(Var(Identifier("__csp_chan_write_temp")), Assign(), expr),
+        Assign(
+          Var(Identifier(temp-var)),
+          Assign(),
+          expr),
         [],
         Call(
           Var(Identifier("CSP_chanOutCopy")),
           [
             Var(chan-name),
-            Var(Identifier("__csp_chan_write_temp")),
-            SizeofExpr(Var(Identifier("__csp_chan_write_temp")))
+            Address(Var(Identifier(temp-var))),
+            Sizeof(data-type)
           ])))
+    where
+      CSPChan(data-type@Type(_, data-type')) := <get-type> c
+      ; fn-name := <not(generate-csp-numeric-out-fn-name)> data-type'
 
+  // chan read
   generate02:
-    CSPChanRead(Var(chan-name), Var(dest-name))
+    CSPChanRead(c@Var(chan-name), Var(dest-name))
     -> Call(
       Var(Identifier("CSP_chanInCopy")),
-      [
-        Var(chan-name),
-        Var(dest-name),
-        Negative(
-          Cast(TypeName([Int()], None()),
-            SizeofExpr(Var(dest-name))))
-      ])
+      [Var(chan-name), Address(Var(dest-name)), Sizeof(data-type)])
+    where
+      CSPChan(data-type) := <get-type> c
