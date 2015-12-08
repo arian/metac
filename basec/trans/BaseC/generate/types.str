@@ -5,6 +5,7 @@ imports
   signatures/BaseC/-
   BaseC/desugar/constructors
   BaseC/utils/-
+  BaseC/generate/declarations
 
 strategies
 
@@ -37,3 +38,5 @@ strategies
   generate: Parameter(specifiers, e) -> Parameter(sps, e)
     where
       sps := <map(try(gen-type)) ; flatten-list ; uniq> specifiers
+
+  generate: Sizeof(t@Type(_, t')) -> Sizeof(TypeName(<gen-Type> t, <generate-Declarator-pointer-type> t'))

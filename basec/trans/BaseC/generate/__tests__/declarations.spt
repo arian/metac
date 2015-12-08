@@ -1,4 +1,4 @@
-module generate-declarations
+module declarations
 
 language MetaC
 

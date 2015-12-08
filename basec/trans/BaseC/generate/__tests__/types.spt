@@ -1,0 +1,15 @@
+module types
+
+language MetaC
+
+test sizeof type [[
+  void f() { sizeof(int); }
+]] build generate-c to "void f() { sizeof(signed int); }"
+
+test sizeof pointer type [[
+  void f() { sizeof(int *); }
+]] build generate-c to "void f() { sizeof(signed int *); }"
+
+test sizeof pointer type with const [[
+  void f() { sizeof(int const *); }
+]] build generate-c to "void f() { sizeof(const signed int *); }"

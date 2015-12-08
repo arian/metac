@@ -1,4 +1,4 @@
-module generate-program
+module program
 
 language MetaC
 
