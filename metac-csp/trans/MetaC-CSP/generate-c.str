@@ -7,11 +7,23 @@ imports
   BaseC/desugar/constructors
   BaseC/generate/declarations
   runtime/types/-
+  names/MetaC-CSP/names
   MetaC-CSP/desugar
+  MetaC-CSP/names-custom
 
 rules
 
+  // test strategy that changes the <newname> in CSPChanWrite to something deterministic
+  generate-c = fail
+  generate-c-csp-test: t@(selected, position, ast, path, project-path)
+    -> <generate-c> (new-selected, position, ast, path, project-path)
+    where
+      new-selected := <bottomup(try(
+          \ CSPChanWrite(_, a, b) -> CSPChanWrite("temp_var", a, b) \
+        ))> selected
+
   generate-include-headers: CSPChan(_) -> Include("csp.h")
+  generate-include-headers: CSPProcess(_, _, _) -> Include("process.h")
 
   generate02:
     Type(mods1, CSPChan(Type(mods2, _)))
@@ -33,14 +45,14 @@ rules
       decl,
       Some(Call(
         Var(Identifier("CSP_chanAlloc")),
-        [Var(Identifier("CSP_ONE2ONE")), Integer("0")]
+        [Var(Identifier("CSP_ONE2ONE_CHANNEL")), Integer("0")]
       ))
     )
 
   // Change process definitions, into a structure that are used for storing arguments.
   // and a function with the Process object as argument.
   generate01:
-    CSPProcess(Identifier(name), params, body)
+    CSPProcess(Identifier(name), CSPProcessParameterList(params), body)
     -> [
       TypedefDeclaration(
         Type([], Struct(
@@ -149,3 +161,72 @@ rules
       [Var(chan-name), Address(Var(dest-name)), Sizeof(data-type)])
     where
       CSPChan(data-type) := <get-type> c
+
+  // run parallel processes
+  generate02:
+    CSPPar(processes) -> CompoundStatement(<flatten-list> [proc-inits,
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("ProcPar")),
+          <conc> (
+            proc-adresses,
+            [Null()]
+          )
+        )
+      ))
+    ])
+    where
+      proc-inits := <map(generate-create-init-process)> processes
+      ; proc-adresses := <map(\
+          CSPInvokeProcess(Identifier(name), _)
+          -> Address(Var(Identifier(<conc-strings> (name, "_proc"))))
+        \)> processes
+
+  generate-create-init-process:
+    CSPInvokeProcess(proc-id@Identifier(name), args)
+    -> [
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier("Process"))),
+        Decl(Identifier(proc-name)),
+        None()
+      ),
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier(proc-name-args-type))),
+        Decl(Identifier(proc-name-args)),
+        None()
+      ),
+      arg-assignments,
+      ExpressionStatement(Some(
+        Assign(
+          Field(Var(Identifier(proc-name)), Identifier("args")),
+          Assign(),
+          Address(Var(Identifier(proc-name-args)))
+        )
+      )),
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("ProcInit")),
+          [
+            Address(Var(Identifier(proc-name))),
+            Var(Identifier(name)),
+            Null(),
+            Integer("0"),
+            Integer("0")
+          ]
+        )
+      ))
+    ]
+    where
+      proc-name := <conc-strings> (name, "_proc")
+      ; proc-name-args-type := <conc-strings> (name, "_ProcessArgs")
+      ; proc-name-args := <conc-strings> (proc-name, "_args")
+      ; CSPProcessParameterList(proc-params) := <get-process-params> name
+      ; arg-assignments := <zip ; map(generate-create-init-process-assign-arg(|proc-name-args))> (proc-params, args)
+
+  generate-create-init-process-assign-arg(|var-name):
+    (FunDefinitionParameter(_, Decl(name)), arg)
+    -> ExpressionStatement(Some(
+      Assign(Field(Var(Identifier(var-name)), name), Assign(), arg)
+    ))

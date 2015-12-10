@@ -22,8 +22,10 @@ context-free syntax
   CSPProcess.CSPProcess =
     [
 
-    process [Identifier]([ParameterList]) [CompoundStatement]
+    process [Identifier]([CSPProcessParameterList]) [CompoundStatement]
     ]
+
+  CSPProcessParameterList.CSPProcessParameterList = ParameterList
 
 
   TypeSpecifier.CSPChan =

@@ -1,0 +1,162 @@
+module generate-c
+
+language MetaC
+
+test declare channel variable and include csp.h header [[
+  void f() {
+    chan<int> c;
+  }
+]] build generate-c to "
+  #include <csp.h>
+  void f() {
+    Channel *c = CSP_chanAlloc(CSP_ONE2ONE_CHANNEL, 0);
+  }"
+
+test empty process [[
+  process f() {
+  }
+]] build generate-c to "
+  #include <process.h>
+  typedef struct { } f_ProcessArgs;
+  void f (Process *p) {
+    f_ProcessArgs *args = p->args;
+    {}
+  }"
+
+test process with an int argument [[
+  process f(int a) {
+  }
+]] build generate-c to "
+  #include <process.h>
+  typedef struct {
+    signed int a;
+  } f_ProcessArgs;
+  void f (Process *p) {
+    f_ProcessArgs *args = p->args;
+    signed int a = args->a;
+    {}
+  }"
+
+test process with channels as argument [[
+  process f(chan<uint8> a, chan<uint16> b) {
+  }
+]] build generate-c to "
+  #include <process.h>
+  #include <csp.h>
+  typedef struct {
+    Channel *a;
+    Channel *b;
+  } f_ProcessArgs;
+  void f (Process *p) {
+    f_ProcessArgs *args = p->args;
+    Channel *a = args->a;
+    Channel *b = args->b;
+    {}
+  }"
+
+test write char to a channel [[
+  process f(chan<uint8> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt8(a, 1)"
+
+test write short to a channel [[
+  process f(chan<uint16> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt16(a, 1)"
+
+test write int to a channel [[
+  process f(chan<uint32> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt32(a, 1)"
+
+test write long to a channel [[
+  process f(chan<uint64> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt64(a, 1)"
+
+test write some struct variable to a channel [[
+  struct X {};
+  process f(chan<struct X> a) {
+    struct X b;
+    [[a ! b]];
+  }
+]] build generate-c to "
+  CSP_chanOutCopy(a, &b, sizeof (struct X))"
+
+test write some struct pointer variable to a channel [[
+  struct X {};
+  process f(chan<struct X*> a) {
+    struct X *b;
+    [[a ! b]];
+  }
+]] build generate-c to "
+  CSP_chanOutCopy(a, &b, sizeof (struct X *))"
+
+test write some struct expression to a channel [[
+  struct X {struct X *x; };
+  process f(chan<struct X *> a) {
+    struct X *b;
+    [[{
+      a ! b->x;
+    }]]
+  }
+]] build generate-c-csp-test to "{
+    struct X *temp_var;
+    (temp_var = b->x, CSP_chanOutCopy(a, &temp_var, sizeof (struct X *)));
+  }"
+
+test reading an int from a channel [[
+  process f(chan<int32> a) {
+    [[{
+      int32 b;
+      a ? b;
+    }]]
+  }
+]] build generate-c to "{
+    signed int b;
+    CSP_chanInCopy(a, &b, sizeof (signed int));
+  }"
+
+test reading a struct from a channel [[
+  struct X {};
+  process f(chan<struct X> a) {
+    [[{
+      struct X b;
+      a ? b;
+    }]]
+  }
+]] build generate-c to "{
+    struct X b;
+    CSP_chanInCopy(a, &b, sizeof (struct X));
+  }"
+
+test par run processes [[
+  process P(int32 a) {}
+  process C(int32 c) {}
+  void main () {
+    [[par {
+      P(1);
+      C(4);
+    }]]
+  }
+]] build generate-c to "{
+    Process P_proc;
+    P_ProcessArgs P_proc_args;
+    P_proc_args.a = 1;
+    P_proc.args = &P_proc_args;
+    ProcInit(&P_proc, P, NULL, 0, 0);
+    Process C_proc;
+    C_ProcessArgs C_proc_args;
+    C_proc_args.c = 4;
+    C_proc.args = &C_proc_args;
+    ProcInit(&C_proc, C, NULL, 0, 0);
+    ProcPar(&P_proc, &C_proc, NULL);
+  }"

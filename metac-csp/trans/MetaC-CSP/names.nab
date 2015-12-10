@@ -10,10 +10,15 @@ namespaces
 
   Process
 
+properties
+
+  process-params of Process
+
 binding rules
 
-  CSPProcess(Identifier(name), _, _):
+  CSPProcess(Identifier(name), params, _):
     defines Process name
+    of process-params params
     scopes Parameter
 
   CSPInvokeProcess(Identifier(name), _):
