@@ -5,7 +5,7 @@ language MetaC
 test parsing of a simple process [[
   process f() {}
 ]] parse to Program(_, [
-    CSPProcess(Identifier("f"), ParameterList([]), CompoundStatement([]))
+    CSPProcess(Identifier("f"), CSPProcessParameterList(ParameterList([])), CompoundStatement([]))
   ])
 
 test void channel [[
