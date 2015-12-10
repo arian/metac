@@ -32,22 +32,48 @@ rules
       merged-mods := <conc ; uniq> (mods1, mods2)
 
   // Change chan<T> channel variable declarations
-  generate01: 
+  generate01:
     VarDeclaration(
       storage,
       type@Type(mods1, CSPChan(Type(mods2, _))),
-      decl,
+      decl@Decl(Identifier(name)),
       None()
     ) ->
-    VarDeclaration(
-      storage,
-      type,
-      decl,
-      Some(Call(
-        Var(Identifier("CSP_chanAlloc")),
-        [Var(Identifier("CSP_ONE2ONE_CHANNEL")), Integer("0")]
-      ))
-    )
+    [
+      VarDeclaration(
+        storage,
+        type,
+        decl,
+        None()
+      ),
+      CompoundStatement([
+        VarDeclaration(
+          [],
+          Type([], TypedefName(Identifier("Channel"))),
+          Decl(Identifier(temp-var-name)),
+          None()
+        ),
+        ExpressionStatement(Some(
+          Assign(
+            Var(Identifier(name)),
+            Assign(),
+            Address(Var(Identifier(temp-var-name)))
+          )
+        )),
+        ExpressionStatement(Some(
+          Call(
+            Var(Identifier("CSP_chanInit")),
+            [
+              Var(Identifier(name)),
+              Var(Identifier("CSP_ONE2ONE_CHANNEL")),
+              Integer("0")
+            ]
+          )
+        ))
+      ])
+    ]
+    with
+      temp-var-name := <conc-strings> ("_", name)
 
   // Change process definitions, into a structure that are used for storing arguments.
   // and a function with the Process object as argument.

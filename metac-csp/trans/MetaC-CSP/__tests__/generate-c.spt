@@ -9,7 +9,12 @@ test declare channel variable and include csp.h header [[
 ]] build generate-c to "
   #include <csp.h>
   void f() {
-    Channel *c = CSP_chanAlloc(CSP_ONE2ONE_CHANNEL, 0);
+    Channel *c;
+    {
+      Channel _c;
+      c = &_c;
+      CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
+    }
   }"
 
 test empty process [[
