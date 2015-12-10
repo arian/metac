@@ -34,6 +34,9 @@ rules
   is-type-structure: t@Pointer(_) -> t
   is-type-structure: t@Array(_) -> t
 
+  create-rewrite-type-array-to-pointer(|ctx) = task-create-rewrite(|ctx, "type-array-as-pointer")
+  task-rewrite: ("type-array-as-pointer", t) -> <topdown(try(\ Array(t) -> Pointer(t) \))> t
+
   type-func-resolve-typedefs(|ctx):
     t -> <task-create-id(|ctx, rewrite')> rewrite'
     where

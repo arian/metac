@@ -23,3 +23,18 @@ test assign null to struct [[
     y = NULL;
   }
 ]] 0 errors
+
+test assign Array(t) to Pointer(t) [[
+  void f() {
+    unsigned char str[15] = "hello world";
+    unsigned char *c = str;
+  }
+]] 0 errors
+
+test assign Pointer(t) to Array(t) [[
+  void f() {
+    unsigned char *str = "hello world";
+    unsigned char c[15];
+    c = str;
+  }
+]] 1 errors

@@ -33,9 +33,15 @@ rules
       from-structure := <create-rewrite-type-structure-task(|ctx)> from-resolved;
       to-structure := <create-rewrite-type-structure-task(|ctx)> to-resolved;
 
+      // basically Array(t) is the same as Pointer(t), so rewrite Array(t) to Pointer(t)
+      // that means, you can assign an array to a pointer
+      from-array-structure := <create-rewrite-type-array-to-pointer(|ctx)> from-structure;
+
       // are they equal?
       eq-base := <type-match(|ctx, to-base)> from-base;
-      eq-structure := <type-match(|ctx, to-structure)> from-structure;
+      eq-structure' := <type-match(|ctx, to-structure)> from-structure;
+      eq-array-structure := <type-match(|ctx, to-structure)> from-array-structure;
+      eq-structure := <task-create-choice(|ctx)> [eq-structure', eq-array-structure];
 
       // are both numeric
       from-numeric := <relation-create-match(|ctx)> ("<is:", from-base, Numeric());
