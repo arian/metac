@@ -29,8 +29,8 @@ rules
   pp-debug :
     ast -> result
     with
-       result := <pp-MetaC-string> ast
-    <+ <bottomup(try(not(is-string); not(is-list); not(pp-MetaC-string); debug(!"cannot pp ")))> ast
+       result := <pp-partial-MetaC-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-partial-MetaC-string); debug(!"cannot pp ")))> ast
     ;  result := ""
 
   // For testing, wrap the result in a PPString constructor, so

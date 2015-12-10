@@ -23,7 +23,10 @@ strategies
     where
       file-name := <guarantee-extension(|"c")> path
       ; code := <
-          bottomup(try(generate01)     ; try(flatten-list))
+          try(generate-includes)
+          ; topdown(try(generate-temp-scope-variables))
+          ; bottomup(try(generate01)   ; try(flatten-list))
+          ; bottomup(try(generate02)   ; try(flatten-list))
           ; bottomup(try(generate(|t)) ; try(flatten-list))
           ; bottomup(try(generate)     ; try(flatten-list))
-        ; generate-pp> ast
+        ; generate-pp> selected
