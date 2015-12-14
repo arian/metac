@@ -34,7 +34,7 @@ test typedef pointer of a base type with array [[
   typedef int32 *** a[];
   a y;
   a z = [[(0,y)]];
-]] run get-type to Pointer(Pointer(Pointer(Array(Int32(), None()))))
+]] run get-type to Array(Pointer(Pointer(Pointer(Int32()))), None())
 
 test typedef of another typedef with pointer [[
   typedef int32 a;
