@@ -1,0 +1,18 @@
+module MetaC-CSP/generate-c/chan-read
+
+imports
+
+  signatures/BaseC-sig
+  signatures/MetaC-CSP-sig
+  runtime/types/query
+
+rules
+
+  // chan read
+  generate02:
+    CSPChanRead(c@Var(chan-name), Var(dest-name))
+    -> Call(
+      Var(Identifier("CSP_chanInCopy")),
+      [Var(chan-name), Address(Var(dest-name)), Sizeof(data-type)])
+    where
+      CSPChan(data-type) := <get-type> c

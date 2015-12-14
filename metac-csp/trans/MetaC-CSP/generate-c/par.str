@@ -1,0 +1,79 @@
+module MetaC-CSP/generate-c/par
+
+imports
+
+  signatures/BaseC-sig
+  signatures/MetaC-CSP-sig
+  BaseC/desugar/constructors
+  names/MetaC-CSP/names
+
+rules
+
+  // run parallel processes
+  generate02:
+    CSPPar(processes) -> CompoundStatement(<flatten-list> [proc-inits,
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("ProcPar")),
+          <conc> (
+            proc-adresses,
+            [Null()]
+          )
+        )
+      ))
+    ])
+    where
+      proc-inits := <map(generate-create-init-process)> processes
+      ; proc-adresses := <map(\
+          CSPInvokeProcess(Identifier(name), _)
+          -> Address(Var(Identifier(<conc-strings> (name, "_proc"))))
+        \)> processes
+
+  generate-create-init-process:
+    CSPInvokeProcess(proc-id@Identifier(name), args)
+    -> [
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier("Process"))),
+        Decl(Identifier(proc-name)),
+        None()
+      ),
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier(proc-name-args-type))),
+        Decl(Identifier(proc-name-args)),
+        None()
+      ),
+      arg-assignments,
+      ExpressionStatement(Some(
+        Assign(
+          Field(Var(Identifier(proc-name)), Identifier("args")),
+          Assign(),
+          Address(Var(Identifier(proc-name-args)))
+        )
+      )),
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("ProcInit")),
+          [
+            Address(Var(Identifier(proc-name))),
+            Var(Identifier(name)),
+            Null(),
+            Integer("0"),
+            Integer("0")
+          ]
+        )
+      ))
+    ]
+    where
+      proc-name := <conc-strings> (name, "_proc")
+      ; proc-name-args-type := <conc-strings> (name, "_ProcessArgs")
+      ; proc-name-args := <conc-strings> (proc-name, "_args")
+      ; CSPProcessParameterList(proc-params) := <get-process-params> name
+      ; arg-assignments := <zip ; map(generate-create-init-process-assign-arg(|proc-name-args))> (proc-params, args)
+
+  generate-create-init-process-assign-arg(|var-name):
+    (FunDefinitionParameter(_, Decl(name)), arg)
+    -> ExpressionStatement(Some(
+      Assign(Field(Var(Identifier(var-name)), name), Assign(), arg)
+    ))
