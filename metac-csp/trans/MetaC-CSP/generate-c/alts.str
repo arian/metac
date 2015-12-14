@@ -1,0 +1,12 @@
+module MetaC-CSP/generate-c/alts
+
+imports
+
+  signatures/MetaC-CSP-sig
+  signatures/BaseC-sig
+  
+
+rules
+
+  generate02: CSPAlts(alts) -> CompoundStatement([
+  ])
