@@ -23,31 +23,29 @@ rules
         decl,
         None()
       ),
-      CompoundStatement([
-        VarDeclaration(
-          [],
-          Type([], TypedefName(Identifier("Channel"))),
-          Decl(Identifier(temp-var-name)),
-          None()
-        ),
-        ExpressionStatement(Some(
-          Assign(
+      VarDeclaration(
+        [],
+        Type([], TypedefName(Identifier("Channel"))),
+        Decl(Identifier(temp-var-name)),
+        None()
+      ),
+      ExpressionStatement(Some(
+        Assign(
+          Var(Identifier(name)),
+          Assign(),
+          Address(Var(Identifier(temp-var-name)))
+        )
+      )),
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("CSP_chanInit")),
+          [
             Var(Identifier(name)),
-            Assign(),
-            Address(Var(Identifier(temp-var-name)))
-          )
-        )),
-        ExpressionStatement(Some(
-          Call(
-            Var(Identifier("CSP_chanInit")),
-            [
-              Var(Identifier(name)),
-              Var(Identifier("CSP_ONE2ONE_CHANNEL")),
-              Integer("0")
-            ]
-          )
-        ))
-      ])
+            Var(Identifier("CSP_ONE2ONE_CHANNEL")),
+            Integer("0")
+          ]
+        )
+      ))
     ]
     with
-      temp-var-name := <conc-strings> ("_", name)
+      temp-var-name := <concat-strings> ["__", name, "_csp_channel"]

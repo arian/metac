@@ -23,14 +23,14 @@ rules
       ))
     ])
     where
-      proc-inits := <map(generate-create-init-process)> processes
-      ; proc-adresses := <map(\
-          CSPInvokeProcess(Identifier(name), _)
-          -> Address(Var(Identifier(<conc-strings> (name, "_proc"))))
+      proc-inits := <map-with-index(generate-create-init-process)> processes
+      ; proc-adresses := <map-with-index(\
+          (i, CSPInvokeProcess(Identifier(name), _))
+          -> Address(Var(Identifier(<concat-strings> [name, "_proc_", <int-to-string> i])))
         \)> processes
 
   generate-create-init-process:
-    CSPInvokeProcess(proc-id@Identifier(name), args)
+    (i, CSPInvokeProcess(proc-id@Identifier(name), args))
     -> [
       VarDeclaration(
         [],
@@ -66,7 +66,7 @@ rules
       ))
     ]
     where
-      proc-name := <conc-strings> (name, "_proc")
+      proc-name := <concat-strings> [name, "_proc_", <int-to-string> i]
       ; proc-name-args-type := <conc-strings> (name, "_ProcessArgs")
       ; proc-name-args := <conc-strings> (proc-name, "_args")
       ; CSPProcessParameterList(proc-params) := <get-process-params> name

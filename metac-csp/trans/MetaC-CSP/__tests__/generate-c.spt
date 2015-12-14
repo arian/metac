@@ -10,11 +10,9 @@ test declare channel variable and include csp.h header [[
   #include <csp.h>
   void f() {
     Channel *c;
-    {
-      Channel _c;
-      c = &_c;
-      CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
-    }
+    Channel __c_csp_channel;
+    c = &__c_csp_channel;
+    CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
   }"
 
 test empty process [[
@@ -153,15 +151,53 @@ test par run processes [[
     }]]
   }
 ]] build generate-c to "{
-    Process P_proc;
-    P_ProcessArgs P_proc_args;
-    P_proc_args.a = 1;
-    P_proc.args = &P_proc_args;
-    ProcInit(&P_proc, P, NULL, 0, 0);
-    Process C_proc;
-    C_ProcessArgs C_proc_args;
-    C_proc_args.c = 4;
-    C_proc.args = &C_proc_args;
-    ProcInit(&C_proc, C, NULL, 0, 0);
-    ProcPar(&P_proc, &C_proc, NULL);
+    Process P_proc_1;
+    P_ProcessArgs P_proc_1_args;
+    P_proc_1_args.a = 1;
+    P_proc_1.args = &P_proc_1_args;
+    ProcInit(&P_proc_1, P, NULL, 0, 0);
+    Process C_proc_2;
+    C_ProcessArgs C_proc_2_args;
+    C_proc_2_args.c = 4;
+    C_proc_2.args = &C_proc_2_args;
+    ProcInit(&C_proc_2, C, NULL, 0, 0);
+    ProcPar(&P_proc_1, &C_proc_2, NULL);
+  }"
+
+test alts without cases [[
+  process f() {
+    [[alts { }]]
+  }
+]] build generate-c to "{}"
+
+test alts single channel [[
+  process f(chan<int> c) {
+    int v;
+    [[alts {
+      case c: ;
+      case c ? v: v;
+    }]]
+  }
+]] build generate-c to "{
+    CSP_Alt_t alt;
+    Channel * clist[2];
+    clist[0] = c;
+    clist[1] = c;
+    CSP_altInit(&alt);
+    switch (CSP_priAltSelect(&alt, clist, 2)) {
+      case 0: {
+        {
+          signed int tmp;
+          CSP_chanInCopy(c, &tmp, sizeof (signed int));
+        }
+        ;
+        break;
+      }
+      case 1: {
+        CSP_chanInCopy(c, &v, sizeof (signed int));
+        v;
+        break;
+      }
+    }
+    CSP_altClose(&alt);
   }"

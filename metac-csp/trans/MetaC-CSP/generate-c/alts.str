@@ -4,9 +4,93 @@ imports
 
   signatures/MetaC-CSP-sig
   signatures/BaseC-sig
-  
+  BaseC/desugar/constructors
+  runtime/types/query
 
 rules
 
-  generate02: CSPAlts(alts) -> CompoundStatement([
-  ])
+  // empty alts, do nothing
+  generate01: CSPAlts([]) -> CompoundStatement([])
+
+  generate01:
+    CSPAlts(alts)
+    -> CompoundStatement(<flatten-list> [
+      // alt struct
+      VarDeclaration([],
+        Type([], TypedefName(Identifier("CSP_Alt_t"))),
+        Decl(Identifier("alt")), None()
+      ),
+      // channel list
+      VarDeclaration([],
+        Type([], Array(Pointer(TypedefName(Identifier("Channel"))), Some(num))),
+        Decl(Identifier("clist")), None()
+      ),
+      chan-assignments,
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("CSP_altInit")),
+          [Address(Var(Identifier("alt")))]
+        )
+      )),
+      Switch(
+        Call(
+          Var(Identifier("CSP_priAltSelect")),
+          [
+            Address(Var(Identifier("alt"))),
+            Var(Identifier("clist")),
+            Integer(<int-to-string> num)
+          ]
+        ),
+        CompoundStatement(cases)
+      ),
+      ExpressionStatement(Some(
+        Call(
+          Var(Identifier("CSP_altClose")),
+          [Address(Var(Identifier("alt")))]
+        )
+      ))
+    ])
+    where
+      num := <length> alts
+      ; chan-assignments := <map-with-index(generate-channel-assign)> alts
+      ; cases := <map-with-index(generate-alt-case)> alts
+
+  generate-channel-assign:
+    (i, CSPAlt(chan, _))
+    -> ExpressionStatement(Some(
+      Assign(
+        ArrayField(Var(Identifier("clist")), Integer(<int-dec ; int-to-string> i)),
+        Assign(),
+        <generate-csp-alt-chan> chan
+      )
+    ))
+
+  generate-csp-alt-chan: c@Var(_) -> c
+  generate-csp-alt-chan: CSPChanRead(c, _) -> c
+  generate-csp-alt-chan: CSPChanWrite(c, _) -> c
+
+  generate-alt-case:
+    (i, alt@CSPAlt(c, stmt))
+    -> Case(
+      Integer(<int-dec ; int-to-string> i),
+      CompoundStatement([
+        <generate-alt-chan-read> alt,
+        stmt,
+        Break()
+      ])
+    )
+
+  // write the input channel to some temp dummy variable
+  generate-alt-chan-read:
+    CSPAlt(c@Var(_), _)
+    -> CompoundStatement([
+      VarDeclaration([], type, Decl(Identifier("tmp")), None()),
+      ExpressionStatement(Some(CSPChanRead(c, var)))
+    ])
+    where
+      CSPChan(type@Type(_, data-type)) := <get-type> c
+      ; var := Var(Identifier("tmp")){Type(), data-type}
+
+  // read expression to a expression statement
+  generate-alt-chan-read:
+    CSPAlt(read, _) -> ExpressionStatement(Some(read))
