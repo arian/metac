@@ -28,4 +28,7 @@ strategies
       ; res := <internal-strip-string-first> (xs, ys)
       <+
       res := [y | ys]
-  
+
+  // removes the last n characters from a string
+  string-drop-last(|n) =
+    string-as-chars(reverse ; drop(|n) ; reverse)

@@ -6,6 +6,22 @@ test variable declarations [[
   int32 a,b,c;
 ]] build generate-c to "signed int a; signed int b; signed int c;"
 
+test array variable without an array size [[
+  int32 a[];
+]] build generate-c to "signed int a[];"
+
+test array variable with an array size [[
+  int32 a[10];
+]] build generate-c to "signed int a[10];"
+
+test array variable with an octal array size [[
+  int32 a[010];
+]] build generate-c to "signed int a[8];"
+
+test array variable with an hex array size [[
+  int32 a[0x10];
+]] build generate-c to "signed int a[16];"
+
 test block initializers [[
   static int32 a[] = {1,2,3};
 ]] build generate-c to "static signed int a[] = {1, 2, 3};"

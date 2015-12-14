@@ -1,0 +1,5 @@
+module BaseC/types/type-functions
+
+rules
+
+  type-func-length(|ctx) = length

@@ -20,7 +20,7 @@ signature constructors
     List(Store) -> Storage
 
   Pointer: Type -> Pointer
-  Array: Type -> Array
+  Array: Type * Size -> Array
   Function: Type * Params -> Fun
 
   VarDeclaration:

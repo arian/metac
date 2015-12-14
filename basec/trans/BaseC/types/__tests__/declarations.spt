@@ -10,6 +10,10 @@ test init declaration check [[
   int32 a[] = {1};
 ]] 0 errors
 
+test init declaration block type [[
+  uint8 a[] = [[{'a', 'b'}]];
+]] run get-type to Array(UInt8(), Some(2))
+
 test init declaration check [[
   int32 a = {1};
 ]] 1 errors
@@ -21,3 +25,19 @@ test init declaration check [[
 test init declaration check [[
   int32 a = {{1}};
 ]] 1 errors
+
+test no excess array elements error in init block with an empty block [[
+  int32 a[0] = {};
+]] 0 errors
+
+test excess array elements in init block when init block size is 2 and array size is 1 [[
+  int32 a[1] = {1, 2};
+]] 1 errors
+
+test no excess array elements errors when both sizes are 2 [[
+  int32 a[2] = {1, 2};
+]] 0 errors
+
+test no excess array elements errors when array size > than init block [[
+  int32 a[3] = {1, 2};
+]] 0 errors

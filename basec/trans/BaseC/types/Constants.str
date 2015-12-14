@@ -3,9 +3,11 @@ module BaseC/types/Constants
 imports
 
   signatures/BaseC/-
+  BaseC/desugar/constructors
   BaseC/types/Constructors
   runtime/types/-
   metac-runtime-utils/in-range
+  metac-runtime-utils/string
 
 rules
 
@@ -38,11 +40,9 @@ rules
   create-type-task(|ctx):
     Null() -> <type-is(|ctx)> Null()
 
+  // subtract 2 from the string length, which are the opening/closing quotes "
   create-type-task(|ctx):
-    String(s) -> <type-is(|ctx)> Array(UInt8())
-
-  string-drop-last(|n) =
-    string-as-chars(reverse ; drop(|n) ; reverse)
+    String(s) -> <type-is(|ctx)> Array(UInt8(), Some(<subt> (<string-length> s, 2)))
 
   str-in-range(|min, max): strVal ->
     <try(string-to-int) ; in-range(|min, max)> strVal
@@ -62,9 +62,10 @@ rules
   is-uint32 = str-in-range(|0, 4294967295); !UInt32()
   is-uint64 =
     (
-      string-ends-with(|"LU")
-      <+ string-ends-with(|"LLU")
+      string-ends-with(|"LLU")
       <+ string-ends-with(|"ULL")
+      <+ string-ends-with(|"LU")
+      <+ string-ends-with(|"UL")
     )
     ; !UInt64()
 

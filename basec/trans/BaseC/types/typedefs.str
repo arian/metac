@@ -15,7 +15,7 @@ rules
 
   get-typedef-base-type: t -> <<get-type-transform ; get-typedef-base-type> t <+ !t>
 
-  get-type-transform: Array(t) -> t
+  get-type-transform: Array(t, _) -> t
   get-type-transform: Pointer(t) -> t
   get-type-transform: t@TypedefName(_) -> <get-type> t
 
@@ -32,10 +32,10 @@ rules
   task-rewrite: ("type-structure", t) -> <topdown(try(not(is-type-structure) ; !Int()))> t
 
   is-type-structure: t@Pointer(_) -> t
-  is-type-structure: t@Array(_) -> t
+  is-type-structure: t@Array(_, _) -> t
 
   create-rewrite-type-array-to-pointer(|ctx) = task-create-rewrite(|ctx, "type-array-as-pointer")
-  task-rewrite: ("type-array-as-pointer", t) -> <topdown(try(\ Array(t) -> Pointer(t) \))> t
+  task-rewrite: ("type-array-as-pointer", t) -> <topdown(try(\ Array(t, _) -> Pointer(t) \))> t
 
   type-func-resolve-typedefs(|ctx):
     t -> <task-create-id(|ctx, rewrite')> rewrite'

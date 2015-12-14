@@ -17,7 +17,7 @@ strategies
     )
 
   generate-Declarator-pointer-type:
-    Array(t) -> <generate-Declarator-pointer-type> t
+    Array(t, _) -> <generate-Declarator-pointer-type> t
 
   generate-Declarator-pointer-type:
     Function(t, _) -> <generate-Declarator-pointer-type> t
@@ -29,7 +29,7 @@ strategies
     t -> None()
 
   generate-Declarator-decl:
-    (Array(t), decl) -> ArrayDecl(<generate-Declarator-decl> (t, decl), /* todo restore size */ None())
+    (Array(t, s), decl) -> ArrayDecl(<generate-Declarator-decl> (t, decl), <generate-array-size> s)
 
   generate-Declarator-decl:
     (Function(t, ps), decl) -> FuncDecl(
@@ -51,6 +51,9 @@ strategies
 
   generate-Initializer:
     (decl, None()) -> decl
+
+  generate-array-size: None() -> None()
+  generate-array-size: Some(value) -> Some(Integer(<int-to-string> value))
 
   generate:
     VarDeclaration(storage, type, name, init)

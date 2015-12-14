@@ -1,0 +1,32 @@
+module BaseC/utils/numbers
+
+imports
+
+  signatures/BaseC/Constants-sig
+  metac-runtime-utils/string
+
+rules
+
+  number-to-int:
+    Integer(value)
+    -> <strip-number-suffix ; string-to-int> value
+
+  number-to-int:
+    Octal(value)
+    -> <strip-number-suffix ; explode-string ; oct-chars-to-int> value
+
+  number-to-int:
+    Hexadecimal(value)
+    -> <strip-number-suffix ; explode-string ; drop(|2) ; hex-chars-to-int> value
+
+  strip-number-suffix =
+    ?value
+    ; (
+      string-ends-with(|"ULL") ; <string-drop-last(|3)> value
+      <+ string-ends-with(|"LLU") ; <string-drop-last(|3)> value
+      <+ string-ends-with(|"UL") ; <string-drop-last(|2)> value
+      <+ string-ends-with(|"LU") ; <string-drop-last(|2)> value
+      <+ string-ends-with(|"L") ; <string-drop-last(|1)> value
+      <+ string-ends-with(|"U") ; <string-drop-last(|1)> value
+      <+ !value
+    )

@@ -156,7 +156,7 @@ test function declaration [[
           Type([], Int32()),
           Type([], Pointer(Int32())),
           Type([], Pointer(Pointer(Int32))),
-          Type([], Array(Int32))
+          Type([], Array(Int32, None()))
         ]
       )),
       Decl(Identifier("a")),
