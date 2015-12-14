@@ -4,6 +4,7 @@ imports
 
   signatures/BaseC/-
   BaseC/desugar/constructors
+  BaseC/utils/numbers
 
 rules
 
@@ -49,10 +50,13 @@ rules
   find-decl =
     oncetd(?Decl(_) ; ?d) ; !d
 
+  desugar-array-size: None() -> None()
+  desugar-array-size: Some(value) -> Some(<number-to-int> value)
+
   merge-types:
-    (Type(mods, type), ptr, ArrayDecl(d, _)) -> t
+    (Type(mods, type), ptr, ArrayDecl(d, size)) -> t
     where
-      t := <merge-types> (Type(mods, Array(type)), ptr, d)
+      t := <merge-types> (Type(mods, Array(type, <desugar-array-size> size)), ptr, d)
 
   merge-types:
     (base-type@Type(mods, type), Some(Pointer(qualifiers, ptr)), decl) -> t

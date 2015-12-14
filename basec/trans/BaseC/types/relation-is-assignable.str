@@ -23,8 +23,8 @@ rules
       from-base := <create-base-type-task(|ctx)> from;
       to-base := <create-base-type-task(|ctx)> to;
 
-      // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))})
-      // becomes Array(Pointer(UInt32))
+      // resolve all typedefs, so Array(Typedef(){(Type, Pointer(UInt32))}, _)
+      // becomes Array(Pointer(UInt32), _)
       from-resolved := <create-resolve-typedef-task(|ctx)> from;
       to-resolved := <create-resolve-typedef-task(|ctx)> to;
 
@@ -33,7 +33,7 @@ rules
       from-structure := <create-rewrite-type-structure-task(|ctx)> from-resolved;
       to-structure := <create-rewrite-type-structure-task(|ctx)> to-resolved;
 
-      // basically Array(t) is the same as Pointer(t), so rewrite Array(t) to Pointer(t)
+      // basically Array(t, _) is the same as Pointer(t), so rewrite Array(t, _) to Pointer(t)
       // that means, you can assign an array to a pointer
       from-array-structure := <create-rewrite-type-array-to-pointer(|ctx)> from-structure;
 

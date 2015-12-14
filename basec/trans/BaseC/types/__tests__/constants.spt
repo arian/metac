@@ -19,6 +19,38 @@ test smallest-int-type
     [Int8(), Int16(), UInt8(), UInt64()]
 */
 
+test 1LLU should be UInt64() [[
+  void f() { [[(0,1LLU)]]; }
+]] run get-type to UInt64()
+
+test 1ULL should be UInt64() [[
+  void f() { [[(0,1ULL)]]; }
+]] run get-type to UInt64()
+
+test 1UL should be UInt64() [[
+  void f() { [[(0,1UL)]]; }
+]] run get-type to UInt64()
+
+test 1LU should be UInt64() [[
+  void f() { [[(0,1LU)]]; }
+]] run get-type to UInt64()
+
+test 1U should be UInt8() [[
+  void f() { [[(0,1U)]]; }
+]] run get-type to UInt8()
+
+test 255U should be UInt8 [[
+  void f() { [[(0,255U)]]; }
+]] run get-type to UInt8()
+
+test 256U should be UInt16, as it doesn't fit in uint8 [[
+  void f() { [[(0,256U)]]; }
+]] run get-type to UInt16()
+
+test 255 should be Int16 [[
+  void f() { [[(0,255)]]; }
+]] run get-type to Int16()
+
 test get type of a constant integer [[
   int32 f() { return [[(0,1)]]; }
 ]] run get-type to Int8()
@@ -29,7 +61,7 @@ test get type of a char [[
 
 test get type of a char [[
   uint8 * f() { return [[(0,"ab")]]; }
-]] run get-type to Array(UInt8())
+]] run get-type to Array(UInt8(), Some(2))
 
 test get type or bool [[
   uint8 f() { return [[true]]; }

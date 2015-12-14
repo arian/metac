@@ -1,0 +1,16 @@
+module BaseC/types/type-relations
+
+imports
+
+  runtime/task/tasks
+
+signature constructors
+
+  Lt : Term * Term -> Instruction
+
+rules
+
+  relation-match-custom(|ctx):
+    ("<lt:", lhs, rhs) -> <new-task(|ctx)> Lt(lhs, rhs)
+
+  perform-task(|task-id): Lt(lhs, rhs) -> <lt> (lhs, rhs)

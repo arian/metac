@@ -121,7 +121,7 @@ type rules
 
   ArrayField(e, index): t'
     where (
-        e: Array(t)
+        e: Array(t, _)
         or e: Pointer(t)
       )
       and <resolve-typedefs> t => t'

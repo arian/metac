@@ -10,17 +10,17 @@ test pointer type [[
 test array type [[
   int32 a[];
   int32 b[] = [[a]];
-]] run get-type to Array(Int32)
+]] run get-type to Array(Int32, None())
 
 test multi dimensional array type [[
   int32 a[][];
   int32 b[][] = [[a]];
-]] run get-type to Array(Array(Int32))
+]] run get-type to Array(Array(Int32, None()), None())
 
 test pointer to array type [[
   int32 *a[];
   int32 *b[] = [[a]];
-]] run get-type to Pointer(Array(Int32))
+]] run get-type to Pointer(Array(Int32, None()))
 
 test function type [[
   int32 a();
