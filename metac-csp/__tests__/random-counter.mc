@@ -6,7 +6,7 @@ process counter(chan<int> up, chan<int> down) {
   int counter, v;
   while (1) {
     alts {
-      case up ? v: counter += v;
+      case up: counter++;
       case down ? v: counter -= v;
     }
     printf("counter: %d\n", counter);
