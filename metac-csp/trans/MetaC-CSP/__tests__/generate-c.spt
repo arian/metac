@@ -162,6 +162,8 @@ test par run processes [[
     C_proc_2.args = &C_proc_2_args;
     ProcInit(&C_proc_2, C, NULL, 0, 0);
     ProcPar(&P_proc_1, &C_proc_2, NULL);
+    ProcInitClean(&P_proc_1);
+    ProcInitClean(&C_proc_2);
   }"
 
 test alts without cases [[

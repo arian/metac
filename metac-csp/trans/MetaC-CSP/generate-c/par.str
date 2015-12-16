@@ -11,7 +11,8 @@ rules
 
   // run parallel processes
   generate02:
-    CSPPar(processes) -> CompoundStatement(<flatten-list> [proc-inits,
+    CSPPar(processes) -> CompoundStatement(<flatten-list> [
+      proc-inits,
       ExpressionStatement(Some(
         Call(
           Var(Identifier("ProcPar")),
@@ -20,7 +21,8 @@ rules
             [Null()]
           )
         )
-      ))
+      )),
+      destroys
     ])
     where
       proc-inits := <map-with-index(generate-create-init-process)> processes
@@ -28,6 +30,7 @@ rules
           (i, CSPInvokeProcess(Identifier(name), _))
           -> Address(Var(Identifier(<concat-strings> [name, "_proc_", <int-to-string> i])))
         \)> processes
+      ; destroys := <map-with-index(generate-destroy-process)> processes
 
   generate-create-init-process:
     (i, CSPInvokeProcess(proc-id@Identifier(name), args))
@@ -77,3 +80,12 @@ rules
     -> ExpressionStatement(Some(
       Assign(Field(Var(Identifier(var-name)), name), Assign(), arg)
     ))
+
+  generate-destroy-process:
+    (i, CSPInvokeProcess(Identifier(name), _))
+    -> ExpressionStatement(Some(Call(
+      Var(Identifier("ProcInitClean")),
+      [Address(Var(Identifier(proc-name)))]
+    )))
+    where
+      proc-name := <concat-strings> [name, "_proc_", <int-to-string> i]
