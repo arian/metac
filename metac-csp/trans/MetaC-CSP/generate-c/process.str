@@ -29,7 +29,7 @@ rules
         )),
         [FunDefinitionParameter(
           Type([], Pointer(TypedefName(Identifier("Process")))),
-          Decl(Identifier("p"))
+          Decl(Identifier("__csp_process__"))
         )],
         CompoundStatement(function-body)
       )
@@ -44,7 +44,7 @@ rules
           [],
           Type([], Pointer(TypedefName(Identifier(struct-name)))),
           Decl(Identifier("args")),
-          Some(PointerField(Var(Identifier("p")), Identifier("args")))
+          Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
         )],
         process-parameters-variables,
         [body]
