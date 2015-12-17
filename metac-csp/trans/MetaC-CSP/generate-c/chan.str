@@ -49,3 +49,6 @@ rules
     ]
     with
       temp-var-name := <concat-strings> ["__", name, "_csp_channel"]
+
+  // ignore the buffered storage specifier for now
+  generate02: CSPBuffered(_) -> []

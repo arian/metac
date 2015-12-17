@@ -57,13 +57,13 @@ test alts statement [[
     [[alts {
       case c1: ;
       case c2 ? x: ;
-      case c2 ! 1: ;
+      case [1 > 2] c2 ! 1: ;
     }]]
   }
 ]] run strip-annos to CSPAlts([
-    CSPAlt(Var(Identifier("c1")), ExpressionStatement(_)),
-    CSPAlt(CSPChanRead(Var(Identifier("c2")), Var(Identifier("x"))), ExpressionStatement(_)),
-    CSPAlt(CSPChanWrite(Var(Identifier("c2")), Integer("1")), ExpressionStatement(_))
+    CSPAlt(None(), Var(Identifier("c1")), ExpressionStatement(_)),
+    CSPAlt(None(), CSPChanRead(Var(Identifier("c2")), Var(Identifier("x"))), ExpressionStatement(_)),
+    CSPAlt(CSPAltGuard(Gt(_, _)), CSPChanWrite(Var(Identifier("c2")), Integer("1")), ExpressionStatement(_))
   ])
 
 test alts in par [[

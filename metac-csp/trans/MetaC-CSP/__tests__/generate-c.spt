@@ -21,8 +21,8 @@ test empty process [[
 ]] build generate-c to "
   #include <process.h>
   typedef struct { } f_ProcessArgs;
-  void f (Process *p) {
-    f_ProcessArgs *args = p->args;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
     {}
   }"
 
@@ -34,8 +34,8 @@ test process with an int argument [[
   typedef struct {
     signed int a;
   } f_ProcessArgs;
-  void f (Process *p) {
-    f_ProcessArgs *args = p->args;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
     signed int a = args->a;
     {}
   }"
@@ -50,8 +50,8 @@ test process with channels as argument [[
     Channel *a;
     Channel *b;
   } f_ProcessArgs;
-  void f (Process *p) {
-    f_ProcessArgs *args = p->args;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
     Channel *a = args->a;
     Channel *b = args->b;
     {}
@@ -193,13 +193,13 @@ test alts single channel [[
           CSP_chanInCopy(c, &tmp, sizeof (signed int));
         }
         ;
-        break;
       }
+      break;
       case 1: {
         CSP_chanInCopy(c, &v, sizeof (signed int));
         v;
-        break;
       }
+      break;
     }
     CSP_altClose(&alt);
   }"

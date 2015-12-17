@@ -2,6 +2,7 @@ module MetaC-CSP
 
 imports
 
+  BaseC/Constants
   BaseC/Identifiers
   BaseC/Declarations
   BaseC/Stmt
@@ -10,6 +11,7 @@ imports
 
 lexical syntax
 
+  Keyword = "buffered"
   Keyword = "process"
   Keyword = "chan"
   Keyword = "par"
@@ -26,6 +28,10 @@ context-free syntax
     ]
 
   CSPProcessParameterList.CSPProcessParameterList = ParameterList
+
+
+  StorageClassSpecifierKeyword.CSPBuffered =
+    <buffered[<Integer>]>
 
 
   TypeSpecifier.CSPChan =
@@ -79,7 +85,14 @@ context-free syntax
 
 
   CSPAlt.CSPAlt =
-    [case [CSPAltAction]: [Statement]]
+    [case [CSPAltGuard] [CSPAltAction]: [Statement]]
+
+
+  CSPAltGuard.None = ""
+
+  CSPAltGuard.CSPAltGuard =
+    <[<AExpr>]>
+
 
   CSPAltAction =
     CSPChanWrite

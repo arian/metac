@@ -15,3 +15,6 @@ rules
 
   desugar:
     CSPChanWrite(a, b) -> CSPChanWrite(<newname> "__csp_chan_write_temp_", a, b)
+
+  is-storage-class-specifier =
+    ?CSPBuffered(_)

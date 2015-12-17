@@ -56,7 +56,7 @@ rules
       ; cases := <map-with-index(generate-alt-case)> alts
 
   generate-channel-assign:
-    (i, CSPAlt(chan, _))
+    (i, CSPAlt(guard, chan, _))
     -> ExpressionStatement(Some(
       Assign(
         ArrayField(Var(Identifier("clist")), Integer(<int-dec ; int-to-string> i)),
@@ -70,19 +70,30 @@ rules
   generate-csp-alt-chan: CSPChanWrite(c, _) -> c
 
   generate-alt-case:
-    (i, alt@CSPAlt(c, stmt))
-    -> Case(
-      Integer(<int-dec ; int-to-string> i),
-      CompoundStatement([
-        <generate-alt-chan-read> alt,
-        stmt,
-        Break()
-      ])
-    )
+    (i, alt@CSPAlt(guard, c, stmt))
+    -> [
+      Case(
+        Integer(<int-dec ; int-to-string> i),
+        <generate-alt-case-guard> (
+          guard,
+          CompoundStatement([
+            <generate-alt-chan-read> alt,
+            stmt
+          ])
+        )
+      ),
+      Break()
+    ]
+
+  generate-alt-case-guard:
+    (None(), stmt) -> stmt
+
+  generate-alt-case-guard:
+    (CSPAltGuard(expr), stmt) -> If(expr, stmt)
 
   // write the input channel to some temp dummy variable
   generate-alt-chan-read:
-    CSPAlt(c@Var(_), _)
+    CSPAlt(guard, c@Var(_), _)
     -> CompoundStatement([
       VarDeclaration([], type, Decl(Identifier("tmp")), None()),
       ExpressionStatement(Some(CSPChanRead(c, var)))
@@ -93,4 +104,4 @@ rules
 
   // read expression to a expression statement
   generate-alt-chan-read:
-    CSPAlt(read, _) -> ExpressionStatement(Some(read))
+    CSPAlt(guard, read, _) -> ExpressionStatement(Some(read))

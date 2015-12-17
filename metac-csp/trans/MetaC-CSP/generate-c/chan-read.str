@@ -2,7 +2,7 @@ module MetaC-CSP/generate-c/chan-read
 
 imports
 
-  signatures/BaseC-sig
+  signatures/BaseC/Program-sig
   signatures/MetaC-CSP-sig
   runtime/types/query
 
