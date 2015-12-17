@@ -32,7 +32,7 @@ process C(chan<int> c1, chan<uint8> c2) {
 }
 
 int main() {
-  chan<int> c1;
+  buffered[10] chan<int> c1;
   chan<uint8> c2;
   par {
     P(c1, c2);

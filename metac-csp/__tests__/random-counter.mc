@@ -16,7 +16,7 @@ process counter(chan<int> up, chan<int> down) {
 process random_thing(chan<int> c) {
   while (1) {
     c ! 1;
-    usleep((rand() % 1000) * 1000);
+    usleep((rand() % 1000) * 100);
   }
 }
 
