@@ -2,6 +2,7 @@ module MetaC-CSP/desugar
 
 imports
 
+  signatures/BaseC/Program-sig
   signatures/MetaC-CSP-sig
 
 signature constructors
@@ -11,10 +12,23 @@ signature constructors
     Chan *
     Expr -> CSPChanWrite
 
+  CSPAltGuard:
+    Name *
+    Expr -> CSPAltGuard
+
 rules
 
   desugar:
     CSPChanWrite(a, b) -> CSPChanWrite(<newname> "__csp_chan_write_temp_", a, b)
+
+  get-chan-name: Var(Identifier(name)) -> name
+  get-chan-name: CSPChanWrite(_, Var(Identifier(name)), _) -> name
+  get-chan-name: CSPChanWrite(Var(Identifier(name)), _) -> name
+  get-chan-name: CSPChanRead(Var(Identifier(name)), _) -> name
+
+  desugar:
+    CSPAlt(guard@CSPAltGuard(expr), comm, stmt)
+    -> CSPAlt(CSPAltGuard(<conc-strings ; newname> (<get-chan-name> comm, "_guard_"), expr), comm, stmt)
 
   is-storage-class-specifier =
     ?CSPBuffered(_)

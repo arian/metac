@@ -6,13 +6,68 @@ imports
   signatures/BaseC-sig
   BaseC/desugar/constructors
   runtime/types/query
+  MetaC-CSP/desugar
 
 rules
 
   // empty alts, do nothing
   generate01: CSPAlts([]) -> CompoundStatement([])
 
-  generate01:
+  // top level declarations necessary for alts
+  generate-alts-declarations =
+    collect-all(?CSPAltGuard(_, _)) ; map(generate-alt-guard)
+
+  generate-alt-guard: CSPAltGuard(name, expr) -> [
+      <generate-alt-guard-env-struct(|name)> vars,
+      <generate-alt-guard-callback(|name, vars)> expr
+    ]
+    where
+      vars := <collect-all(?Var(_))> expr
+
+  // generate the struct that holds the variables used in a guard expression
+  generate-alt-guard-env-struct(|name): [] -> []
+  generate-alt-guard-env-struct(|name): vars
+    -> TypedefDeclaration(
+      Type([], Struct(
+        None(),
+        <map(generate-alt-guard-var-to-field)> vars
+      )),
+      Decl(Identifier(<conc-strings> (name, "_env")))
+    )
+
+  generate-alt-guard-var-to-field:
+    v@Var(Identifier(name))
+    -> StructDeclarator(Type([], Pointer(<get-type> v)), Decl(Identifier(name)), None())
+
+  // generate the function that uses the environment (variables) of the guard
+  // expression and returns the result
+  generate-alt-guard-callback(|name, vars): expr
+    -> FunDefinition(
+      Identifier(<conc-strings> (name, "_callback")),
+      [],
+      Type([], Function(Type([], Int()), [Type([], Pointer(Void()))])),
+      [FunDefinitionParameter(Type([], Pointer(Void())), Decl(Identifier("__env__")))],
+      CompoundStatement(<flatten-list> [
+        <generate-alt-guard-var-cast(|name)> vars,
+        Return(Some(<bottomup(try(generate-alt-guard-var-from-env))> expr))
+      ])
+    )
+
+  // have to cast the void pointer to the correct env struct pointer
+  generate-alt-guard-var-cast(|name): [] -> []
+  generate-alt-guard-var-cast(|name):
+    vars
+    -> VarDeclaration([],
+      Type([], Pointer(TypedefName(Identifier(<conc-strings> (name, "_env"))))),
+      Decl(Identifier("__env2__")),
+      Some(Cast(Type([], Pointer(TypedefName(Identifier(<conc-strings> (name, "_env"))))), Var(Identifier("__env__"))))
+    )
+
+  // turn "a + 1" into "*__env2__->a"
+  generate-alt-guard-var-from-env:
+    Var(Identifier(name)) -> Deref(PointerField(Var(Identifier("__env2__")), Identifier(name)))
+
+  generate02:
     CSPAlts(alts)
     -> CompoundStatement(<flatten-list> [
       // alt struct
@@ -52,48 +107,85 @@ rules
     ])
     where
       num := <length> alts
-      ; chan-assignments := <map-with-index(generate-channel-assign)> alts
+      ; chan-assignments := <map-with-index(generate-channel-assign) ; flatten-list> alts
       ; cases := <map-with-index(generate-alt-case)> alts
 
   generate-channel-assign:
     (i, CSPAlt(guard, chan, _))
-    -> ExpressionStatement(Some(
-      Assign(
-        ArrayField(Var(Identifier("clist")), Integer(<int-dec ; int-to-string> i)),
-        Assign(),
-        <generate-csp-alt-chan> chan
-      )
-    ))
+    -> <flatten-list> [
+      <generate-alt-guard-init(|chan-var)> guard,
+      ExpressionStatement(Some(
+        Assign(
+          ArrayField(Var(Identifier("clist")), Integer(<int-dec ; int-to-string> i)),
+          Assign(),
+          chan-var
+        )
+      ))
+    ]
+    where
+      chan-var := <generate-csp-alt-chan> chan
 
   generate-csp-alt-chan: c@Var(_) -> c
   generate-csp-alt-chan: CSPChanRead(c, _) -> c
   generate-csp-alt-chan: CSPChanWrite(c, _) -> c
 
+  // generate the CSP_Alt_Guard variable, with the env struct and function pointer
+  generate-alt-guard-init(|chan-var): None() -> []
+  generate-alt-guard-init(|chan-var): CSPAltGuard(name, expr)
+    -> [
+      <collect-all(?Var(_)) ; generate-alt-guard-env-init(|name)> expr,
+      VarDeclaration([],
+        Type([], Struct(Identifier("CSP_Alt_Guard"))),
+        Decl(Identifier(name)),
+        Some(BlockInitializer([
+          Address(Var(Identifier(<conc-strings> (name, "_callback")))),
+          Address(Var(Identifier(<conc-strings> (name, "_env_var"))))
+        ]))
+      ),
+      ExpressionStatement(Some(
+        Assign(
+          PointerField(chan-var, Identifier("altGuard")),
+          Assign(),
+          Address(Var(Identifier(name)))
+        )
+      ))
+    ]
+
+  // just void * x = 0; when no variables are used inside the guard
+  generate-alt-guard-env-init(|name):
+    [] -> VarDeclaration([],
+      Type([], Pointer(Void())),
+      Decl(Identifier(<conc-strings> (name, "_env_var"))),
+      Some(Integer("0"))
+    )
+
+  generate-alt-guard-env-init(|name):
+    vars -> VarDeclaration([],
+      Type([], env-type),
+      Decl(Identifier(<conc-strings> (name, "_env_var"))),
+      Some(BlockInitializer(var-addresses))
+    )
+    where
+      env-type := TypedefName(Identifier(<conc-strings> (name, "_env")))
+      ; var-addresses := <map(\ x -> Address(x) \)> vars
+
+  // the case statements inside the switch statement
   generate-alt-case:
-    (i, alt@CSPAlt(guard, c, stmt))
+    (i, alt@CSPAlt(_, c, stmt))
     -> [
       Case(
         Integer(<int-dec ; int-to-string> i),
-        <generate-alt-case-guard> (
-          guard,
-          CompoundStatement([
-            <generate-alt-chan-read> alt,
-            stmt
-          ])
-        )
-      ),
-      Break()
+        CompoundStatement([
+          <generate-alt-chan-read> alt,
+          stmt,
+          Break()
+        ])
+      )
     ]
-
-  generate-alt-case-guard:
-    (None(), stmt) -> stmt
-
-  generate-alt-case-guard:
-    (CSPAltGuard(expr), stmt) -> If(expr, stmt)
 
   // write the input channel to some temp dummy variable
   generate-alt-chan-read:
-    CSPAlt(guard, c@Var(_), _)
+    CSPAlt(_, c@Var(_), _)
     -> CompoundStatement([
       VarDeclaration([], type, Decl(Identifier("tmp")), None()),
       ExpressionStatement(Some(CSPChanRead(c, var)))
@@ -104,4 +196,4 @@ rules
 
   // read expression to a expression statement
   generate-alt-chan-read:
-    CSPAlt(guard, read, _) -> ExpressionStatement(Some(read))
+    CSPAlt(_, read, _) -> ExpressionStatement(Some(read))

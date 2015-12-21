@@ -9,7 +9,7 @@ imports
 rules
 
   // chan read
-  generate02:
+  generate03:
     CSPChanRead(c@Var(chan-name), Var(dest-name))
     -> Call(
       Var(Identifier("CSP_chanInCopy")),

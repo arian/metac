@@ -5,6 +5,7 @@ imports
   BaseC/desugar/constructors
   signatures/MetaC-CSP-sig
   signatures/BaseC-sig
+  MetaC-CSP/generate-c/alts
 
 rules
 
@@ -20,6 +21,7 @@ rules
         )),
         Decl(Identifier(struct-name))
       ),
+      <generate-alts-declarations> body,
       FunDefinition(
         Identifier(name),
         [],

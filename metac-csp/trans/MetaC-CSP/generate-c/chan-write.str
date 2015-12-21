@@ -27,7 +27,7 @@ rules
       ; <not(generate-csp-numeric-out-fn-name)> data-type'
 
   // chan write int types
-  generate02:
+  generate03:
     CSPChanWrite(_, c@Var(chan-name), expr)
     -> Call(Var(Identifier(fn-name)), [Var(chan-name), expr])
     where
@@ -35,14 +35,14 @@ rules
       ; fn-name := <generate-csp-numeric-out-fn-name> data-type'
 
   // chan write when using a direct variable expression
-  generate02:
+  generate03:
     CSPChanWrite(_, c@Var(chan-name), expr@Var(_))
     -> Call(Var(Identifier("CSP_chanOutCopy")), [Var(chan-name), Address(expr), Sizeof(data-type)])
     where
       CSPChan(data-type@Type(_, data-type')) := <get-type> c
 
   // other types, using a complexer expression
-  generate02:
+  generate03:
     CSPChanWrite(temp-var, c@Var(chan-name), expr)
     -> Paren(
       Comma(

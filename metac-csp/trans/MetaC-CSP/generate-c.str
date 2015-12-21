@@ -15,9 +15,10 @@ rules
   generate-c-csp-test: t@(selected, position, ast, path, project-path)
     -> <generate-c> (new-selected, position, ast, path, project-path)
     where
-      new-selected := <bottomup(try(
-          \ CSPChanWrite(_, a, b) -> CSPChanWrite("temp_var", a, b) \
-        ))> selected
+      new-selected := <bottomup(
+          try(\ CSPChanWrite(_, a, b) -> CSPChanWrite("temp_var", a, b) \)
+          ; try(\ CSPAltGuard(name, expr) -> CSPAltGuard("guard", expr) \)
+        )> selected
 
   generate-include-headers: CSPChan(_) -> Include("csp.h")
   generate-include-headers: CSPProcess(_, _, _) -> Include("process.h")

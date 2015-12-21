@@ -9,6 +9,7 @@ strategies
 
   generate01 = fail
   generate02 = fail
+  generate03 = fail
   generate(|t) = fail
   generate = fail
 
@@ -53,6 +54,7 @@ strategies
           ; bottomup(try(generate-temp-scope-variables))
           ; bottomup(try(generate01)   ; try(flatten-list))
           ; bottomup(try(generate02)   ; try(flatten-list))
+          ; bottomup(try(generate03)   ; try(flatten-list))
           ; bottomup(try(generate(|t)) ; try(flatten-list))
           ; bottomup(try(generate)     ; try(flatten-list))
         ; generate-pp> selected
