@@ -27,7 +27,7 @@ process print_fib_to(chan<int> fib, chan<int> quit, int n) {
 }
 
 int main() {
-  buffered[10] chan<int> fib_chan;
+  chan<int> fib_chan;
   chan<int> quit;
   par {
     print_fib_to(fib_chan, quit, 3000);
