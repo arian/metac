@@ -24,7 +24,4 @@ rules
   generate-include-headers: CSPProcess(_, _, _) -> Include("process.h")
 
   generate02:
-    Type(mods1, CSPChan(Type(mods2, _)))
-    -> Type(merged-mods, Pointer(TypedefName(Identifier("Channel"))))
-    where
-      merged-mods := <conc ; uniq> (mods1, mods2)
+    CSPChan(_) -> Pointer(TypedefName(Identifier("Channel")))

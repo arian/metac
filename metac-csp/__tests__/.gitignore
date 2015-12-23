@@ -3,6 +3,8 @@ libcsp-master/
 libcsp.tar.gz
 
 # executables
+fan-in
+fan-out
 fib
 fifo-buffer
 random-counter
