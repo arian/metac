@@ -1,0 +1,9 @@
+# library
+libcsp-master/
+libcsp.tar.gz
+
+# executables
+fib
+fifo-buffer
+random-counter
+sending-a-string
