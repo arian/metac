@@ -1,11 +1,11 @@
 
 LIBCSP_DIR = libcsp-master
 LIBCSP_SRCDIR = $(LIBCSP_DIR)/src
-LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a $(LIBCSP_SRCDIR)/libimscsp.a
+LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
 
 CC = gcc -I$(LIBCSP_SRCDIR) -Wall -pthread
-LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a $(LIBCSP_SRCDIR)/libimscsp.a
-LIBOPT = -L$(LIBCSP_SRCDIR) -limscsp -lcsp
+LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
+LIBOPT = -L$(LIBCSP_SRCDIR) -lcsp
 
 SOURCES = $(wildcard *.c)
 TARGETS = $(SOURCES:.c=)
