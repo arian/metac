@@ -9,3 +9,8 @@ test comma expression [[
 test desugar cast types [[
   uint64 **a = (unsigned long * const *) 1;
 ]] build generate-c to "unsigned long** a = (const unsigned long **) 1;"
+
+// See: https://github.com/arian/metac/issues/25
+test should add parenthesis back [[
+  void f() { [[(1 + 3) % 2]]; }
+]] build generate-c to "(1 + 3) % 2"

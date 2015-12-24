@@ -1,0 +1,26 @@
+module BaseC/utils/scope-variable-creator
+
+imports
+
+  signatures/BaseC/Stmt-sig
+
+rules
+
+  create-scope-variables(var-creator):
+    CompoundStatement(stmts) -> CompoundStatement(
+      <conc> (<vars>, stmts)
+    )
+    where
+      rules(vars := [])
+      ; <rec x(
+        // Only analize this CompoundStatement, not the nested ones
+        not(?CompoundStatement(_))
+        ; (
+          // check if some strategy succeeds
+          var-creator
+          // add it to the other vars
+          ; rules(vars := <union> (<vars>, [<id>]))
+          // traverse other nodes
+          <+ all(try(x))
+        )
+      )> stmts

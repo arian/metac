@@ -54,6 +54,8 @@ context-free syntax
   AExpr =
     CSPChanRead
 
+  PostFixExpr.CSPAnonChanRead =
+    [[VarExpr]?]
 
   Statement.CSPPar =
     [

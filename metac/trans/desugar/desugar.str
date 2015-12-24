@@ -4,6 +4,7 @@ imports
 
   signatures/-
   BaseC/desugar/-
+  BaseC/utils/scope-variable-creator
 
 rules
 
@@ -19,9 +20,14 @@ rules
   desugar =
     fail
 
+  desugar-temp-scope-variable = fail
+  desugar-temp-scope-variables =
+    create-scope-variables(desugar-temp-scope-variable)
+
   desugar-all =
     ?Program(f, _)
     ; bottomup(try(desugar01))
+    ; bottomup(try(desugar-temp-scope-variables))
     ; bottomup(
       try(desugar(|f))
       ; try(desugar)

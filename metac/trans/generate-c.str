@@ -2,6 +2,7 @@ module generate-c
 
 imports
 
+  BaseC/utils/scope-variable-creator
   signatures/BaseC-sig
   pp
 
@@ -22,25 +23,8 @@ strategies
       includes := <collect-all(generate-include-headers)> decls
 
   generate-temp-scope-variable = fail
-
-  generate-temp-scope-variables:
-    CompoundStatement(stmts) -> CompoundStatement(
-      <conc> (<vars>, stmts)
-    )
-    where
-      rules(vars := [])
-      ; <rec x(
-        // Only analize this CompoundStatement, not the nested ones
-        not(?CompoundStatement(_))
-        ; (
-          // check if some strategy succeeds
-          generate-temp-scope-variable
-          // add it to the other vars
-          ; rules(vars := <union> (<vars>, [<id>]))
-          // traverse other nodes
-          <+ all(try(x))
-        )
-      )> stmts
+  generate-temp-scope-variables =
+    create-scope-variables(generate-temp-scope-variable)
 
   generate-pp =
     pp-debug // try to pretty print

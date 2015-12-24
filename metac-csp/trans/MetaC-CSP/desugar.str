@@ -4,6 +4,8 @@ imports
 
   signatures/BaseC/Program-sig
   signatures/MetaC-CSP-sig
+  BaseC/desugar/declarations
+  runtime/types/query
 
 signature constructors
 
@@ -12,12 +14,21 @@ signature constructors
     Chan *
     Expr -> CSPChanWrite
 
+  CSPAnonChanRead:
+    Chan *
+    Name -> CSPAnonChanRead
+
   CSPAltGuard:
     Name *
     Expr -> CSPAltGuard
 
 rules
 
+  // un-anonymize the anonymous read
+  desugar01:
+    CSPAnonChanRead(chan) -> CSPAnonChanRead(chan, <newname> "__csp_chan_read_temp_")
+
+  // add a name to the write
   desugar:
     CSPChanWrite(a, b) -> CSPChanWrite(<newname> "__csp_chan_write_temp_", a, b)
 
