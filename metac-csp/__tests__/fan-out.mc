@@ -17,11 +17,7 @@ process fanout(chan<int> c, chan<int> *outs) {
 }
 
 process print(chan<int> c) {
-  while (1) {
-    int x;
-    c ? x;
-    printf("%d\n", x);
-  }
+  while (1) printf("%d\n", c?);
 }
 
 process counter(chan<int> c) {

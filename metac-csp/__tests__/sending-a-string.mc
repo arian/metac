@@ -17,11 +17,9 @@ process P(chan<int> c1, chan<uint8> c2) {
 
 process C(chan<int> c1, chan<uint8> c2) {
   while (1) {
-    int x;
-    uint8 c;
-    c1 ? x;
+    int x = c1?;
     while (1) {
-      c2 ? c;
+      int8 c = c2?;
       if (c == '\0') {
         break;
       }

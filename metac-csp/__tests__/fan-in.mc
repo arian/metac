@@ -14,11 +14,7 @@ process fanin4(chan<int> out, chan<int> a, chan<int> b, chan<int> c, chan<int> d
 }
 
 process print(chan<int> c) {
-  while (1) {
-    int x;
-    c ? x;
-    printf("%d\n", x);
-  }
+  while (1) printf("%d\n", c?);
 }
 
 process counter(chan<int> c, int delay) {

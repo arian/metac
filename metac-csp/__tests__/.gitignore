@@ -9,3 +9,4 @@ fib
 fifo-buffer
 random-counter
 sending-a-string
+two-readers
