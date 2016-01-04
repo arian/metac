@@ -7,6 +7,7 @@ fan-in
 fan-out
 fib
 fifo-buffer
+multi-readers
+multi-writers
 random-counter
 sending-a-string
-two-readers
