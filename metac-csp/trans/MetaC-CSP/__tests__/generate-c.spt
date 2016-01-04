@@ -125,7 +125,7 @@ test reading an int from a channel [[
   }
 ]] build generate-c to "{
     signed int b;
-    CSP_chanInCopy(a, &b, sizeof (signed int));
+    (CSP_chanInCopy(a, &b, sizeof (signed int)), b);
   }"
 
 test reading a struct from a channel [[
@@ -138,7 +138,7 @@ test reading a struct from a channel [[
   }
 ]] build generate-c to "{
     struct X b;
-    CSP_chanInCopy(a, &b, sizeof (struct X));
+    (CSP_chanInCopy(a, &b, sizeof (struct X)), b);
   }"
 
 test par run processes [[
@@ -190,13 +190,13 @@ test alts single channel [[
       case 0: {
         {
           signed int tmp;
-          CSP_chanInCopy(c, &tmp, sizeof (signed int));
+          (CSP_chanInCopy(c, &tmp, sizeof (signed int)), tmp);
         }
         ;
         break;
       }
       case 1: {
-        CSP_chanInCopy(c, &v, sizeof (signed int));
+        (CSP_chanInCopy(c, &v, sizeof (signed int)), v);
         v;
         break;
       }
@@ -248,9 +248,9 @@ test alt with a guard [[
         clist[2] = e;
         CSP_altInit(&alt);
         switch (CSP_priAltSelect(&alt, clist, 3)) {
-          case 0: { CSP_chanInCopy(c, &x, sizeof (signed int)); ; break ; }
-          case 1: { { signed int tmp; CSP_chanInCopy(d, &tmp, sizeof (signed int)); } ; break ; }
-          case 2: { { signed int tmp; CSP_chanInCopy(e, &tmp, sizeof (signed int)); } ; break ; }
+          case 0: { (CSP_chanInCopy(c, &x, sizeof (signed int)), x); ; break ; }
+          case 1: { { signed int tmp; (CSP_chanInCopy(d, &tmp, sizeof (signed int)), tmp); } ; break ; }
+          case 2: { { signed int tmp; (CSP_chanInCopy(e, &tmp, sizeof (signed int)), tmp); } ; break ; }
         }
         CSP_altClose(&alt);
       }
