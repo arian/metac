@@ -17,7 +17,7 @@ imports
   names/names
   generate-c
   generate-dot
-  generate-cspm
+  generate-csp
   pp
   test-utils
   desugar/-

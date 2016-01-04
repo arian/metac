@@ -32,4 +32,4 @@ menus
 
     action: "Generate C"             = generate-c
     action: "Generate DOT"           = generate-dot
-    action: "Generate CSPm"          = generate-cspm
+    action: "Generate CSP#"          = generate-csp-transform

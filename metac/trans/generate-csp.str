@@ -1,0 +1,27 @@
+module generate-csp
+
+imports
+
+  metac-runtime-utils/string
+
+strategies
+
+  generate-csp = fail
+
+  generate-csp-register = fail
+  generate-csp-register-type(|type): types -> [type | types]
+    where <not(fetch-elem(?type))> types
+
+  generate-csp-collect-types = <rec x(try(generate-csp-register ; x))> []
+
+  generate-csp-transform: t@(selected, position, ast, path, project-path) -> (file-name, csp)
+    where
+      file-name := <guarantee-extension(|"csp")> path
+      ; csp :=
+        <
+          generate-csp-collect-types
+          ; map(\ type -> <generate-csp> (type, selected) \)
+          ; flatten-list
+          ; filter(?Some(<id>))
+          ; join-strings(|"\n")
+        > selected

@@ -6,3 +6,4 @@ imports
   MetaC-CSP/names-custom
   types/MetaC-CSP/types
   MetaC-CSP/generate-c
+  MetaC-CSP/generate-csp
