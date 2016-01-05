@@ -3,6 +3,7 @@ module MetaC-bitfield/names-custom
 imports
 
   BaseC/names/-
+  BaseC/desugar/constructors
   MetaC-bitfield/trans
   names/BaseC/names/-
   names/MetaC-bitfield/names
@@ -10,5 +11,7 @@ imports
 rules
 
   field-lookup = register-field-lookup(|"match-bitfields", NablNsTypedef(), NablNsBitfield())
-
   task-rewrite: ("match-bitfields", Bitfields(name, _)) -> name
+
+  pointer-field-lookup = register-field-lookup(|"match-pointer-bitfields", NablNsTypedef(), NablNsBitfield())
+  task-rewrite: ("match-pointer-bitfields", Pointer(Bitfields(name, _))) -> name

@@ -39,8 +39,8 @@ binding rules
   //   otherwise refers to Field field in Union s
   //     where e has type Union(Identifier(s))
 
-  PointerField(e, Identifier(field)):
-    refers to Field field in Struct s
-      where e has type Pointer(Struct(Identifier(s)))
-    otherwise refers to Field field in Union s
-      where e has type Pointer(Union(Identifier(s)))
+  // PointerField(e, Identifier(field)):
+  //   refers to Field field in Struct s
+  //     where e has type Pointer(Struct(Identifier(s)))
+  //   otherwise refers to Field field in Union s
+  //     where e has type Pointer(Union(Identifier(s)))
