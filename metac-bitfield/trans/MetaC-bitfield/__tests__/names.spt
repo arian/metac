@@ -28,3 +28,12 @@ test usage of bitfield as pointer [[
     (*a).[[x]];
   }
 ]] resolve #2 to #1
+
+test usage of bitfield with pointer field [[
+  bitfields X {[[x]]: 1;};
+  void main() {
+    uint32 b = 0;
+    X *a = &b;
+    a->[[x]];
+  }
+]] resolve #2 to #1

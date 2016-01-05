@@ -14,21 +14,6 @@ imports
 
 rules
 
-  nabl-get-name :
-    Field(e, Identifier(field)) -> field
-
-  nabl-name-apply(s) =
-    Field(id, Identifier(s))
-
-  nabl-use-site(|lang__, ctx, uniques__, uris__, states__) =
-    ?expr@Field(e, Identifier(field))
-    ; candidates := <collect-all-field-lookups ; map(field-lookup-to-candiatate(|ctx, e))> []
-    ; <origin-track-forced(
-        Field(id, origin-track-forced(
-          Identifier(nabl-use(|lang__, ctx, uniques__, uris__, candidates))
-        ))
-      )> expr
-
   field-lookup-to-candiatate(|ctx, e): (rewrite-name, scope-namespace, field-namespace) ->
     <{s, p:
       {p:
@@ -45,12 +30,28 @@ rules
         )
     }>
 
+  collect-all-lookups(s) = <rec x(try(s ; x))> []
+
+  register-field-lookup(|name, scope-ns, field-ns): names -> [(name, scope-ns, field-ns) | names]
+    where <not(fetch-elem(?(name, _, _)))> names
+
+  // fields: expr.foo
+
+  nabl-get-name: Field(e, Identifier(field)) -> field
+  nabl-name-apply(s) = Field(id, Identifier(s))
+
+  nabl-use-site(|lang__, ctx, uniques__, uris__, states__) =
+    ?expr@Field(e, Identifier(field))
+    ; candidates := <collect-all-field-lookups ; map(field-lookup-to-candiatate(|ctx, e))> []
+    ; <origin-track-forced(
+        Field(id, origin-track-forced(
+          Identifier(nabl-use(|lang__, ctx, uniques__, uris__, candidates))
+        ))
+      )> expr
+
   // call field-lookup with the list of collected field-lookups until
   // all field-lookups are in the accumulator list
-  collect-all-field-lookups = <rec x(try(field-lookup ; x))> []
-
-  register-field-lookup(|name, s, f): names -> [(name, s, f) | names]
-    where <not(fetch-elem(?(name, _, _)))> names
+  collect-all-field-lookups = collect-all-lookups(field-lookup)
 
   // register struct and unions
   field-lookup = register-field-lookup(|"rewrite-struct-name", NablNsStruct(), NablNsField())
@@ -58,3 +59,26 @@ rules
 
   field-lookup = register-field-lookup(|"rewrite-union-name", NablNsUnion(), NablNsField())
   task-rewrite: ("rewrite-union-name", Union(Identifier(s))) -> s
+
+  // pointer field: expr->foo
+
+  nabl-get-name: PointerField(e, Identifier(field)) -> field
+  nabl-name-apply(s) = PointerField(id, Identifier(s))
+
+  nabl-use-site(|lang__, ctx, uniques__, uris__, states__) =
+    ?expr@PointerField(e, Identifier(field))
+    ; candidates := <collect-all-pointer-field-lookups ; map(field-lookup-to-candiatate(|ctx, e))> []
+    ; <origin-track-forced(
+        PointerField(id, origin-track-forced(
+          Identifier(nabl-use(|lang__, ctx, uniques__, uris__, candidates))
+        ))
+      )> expr
+
+  collect-all-pointer-field-lookups = collect-all-lookups(pointer-field-lookup)
+
+  // register struct and unions
+  pointer-field-lookup = register-field-lookup(|"rewrite-pointer-struct-name", NablNsStruct(), NablNsField())
+  task-rewrite: ("rewrite-pointer-struct-name", Pointer(Struct(Identifier(s)))) -> s
+
+  pointer-field-lookup = register-field-lookup(|"rewrite-pointer-union-name", NablNsUnion(), NablNsField())
+  task-rewrite: ("rewrite-pointer-union-name", Pointer(Union(Identifier(s)))) -> s
