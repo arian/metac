@@ -51,17 +51,6 @@ rules
       <find-decl> decl
     )
 
-  // typedef unions
-  desugar:
-    Declaration(specifiers, declarators) -> [Declaration([union], []) | decls]
-    where
-      <some(?Typedef())> specifiers
-      ; union := <fetch-elem(?Union(_, _))> specifiers
-      ; specifiers' := <map(try(?Union(Some(name), _) ; !Union(name)))> specifiers
-      ; type := <desugar-decl-types> specifiers'
-      ; decls := <map(desugar-typedef-declarator(|type))> declarators
-
-  // other typedefs
   desugar:
     Declaration(
       specifiers,
