@@ -59,3 +59,8 @@ test double typedef cast [[
   typedef int32 x;
   int32 y = ((x) 1) + 2;
 ]] 0 errors
+
+test typedef struct [[
+  typedef struct x {int32 a;} X;
+  void f(X g) { [[g.a]]; }
+]] run get-type to Int32()
