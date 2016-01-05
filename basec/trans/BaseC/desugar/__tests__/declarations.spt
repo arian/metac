@@ -73,7 +73,6 @@ test struct declaration [[
         [
           StructDeclarator(
             Type([Const], UInt32()),
-            Declarator(_, _),
             Decl(Identifier("x")),
             None()
           )
@@ -92,7 +91,6 @@ test union declaration [[
         [
           StructDeclarator(
             Type([Volatile], Function(UInt8(), [Type([], Int32())])),
-            Declarator(_, _),
             Decl(Identifier("x")),
             Some(Integer("3"))
           )
