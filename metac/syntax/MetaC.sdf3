@@ -6,7 +6,10 @@ imports
   MetaC-bitfield
   MetaC-SM
   MetaC-Err
+  MetaC-CSP
 
 context-free start-symbols
 
   Program
+
+context-free syntax

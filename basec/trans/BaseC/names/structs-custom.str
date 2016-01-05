@@ -47,17 +47,10 @@ rules
 
   // call field-lookup with the list of collected field-lookups until
   // all field-lookups are in the accumulator list
-  collect-all-field-lookups: acc -> new-acc
-    where
-      if field := <field-lookup> acc then
-        new-acc := <collect-all-field-lookups> <conc> (acc, [field])
-      else
-        new-acc := acc
-      end
+  collect-all-field-lookups = <rec x(try(field-lookup ; x))> []
 
-  register-field-lookup(|name, s, f): names -> (name, s, f)
-    where
-      <not(fetch-elem(?(name, _, _)))> names
+  register-field-lookup(|name, s, f): names -> [(name, s, f) | names]
+    where <not(fetch-elem(?(name, _, _)))> names
 
   // register struct and unions
   field-lookup = register-field-lookup(|"rewrite-struct-name", NablNsStruct(), NablNsField())

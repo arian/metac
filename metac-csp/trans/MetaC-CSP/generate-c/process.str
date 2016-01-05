@@ -1,0 +1,63 @@
+module MetaC-CSP/generate-c/process
+
+imports
+
+  BaseC/desugar/constructors
+  signatures/MetaC-CSP-sig
+  signatures/BaseC-sig
+  MetaC-CSP/generate-c/alts
+
+rules
+
+  // Change process definitions, into a structure that are used for storing arguments.
+  // and a function with the Process object as argument.
+  generate01:
+    CSPProcess(Identifier(name), CSPProcessParameterList(params), body)
+    -> [
+      TypedefDeclaration(
+        Type([], Struct(
+          None(),
+          process-parameters
+        )),
+        Decl(Identifier(struct-name))
+      ),
+      <generate-alts-declarations> body,
+      FunDefinition(
+        Identifier(name),
+        [],
+        Type([], Function(
+          Type([], Void()),
+          [Type([], Pointer(TypedefName(Identifier("Process"))))]
+        )),
+        [FunDefinitionParameter(
+          Type([], Pointer(TypedefName(Identifier("Process")))),
+          Decl(Identifier("__csp_process__"))
+        )],
+        CompoundStatement(function-body)
+      )
+    ]
+  where
+    s-name := <strip-annos> name
+    ; struct-name := <conc-strings> (s-name, "_ProcessArgs")
+    ; process-parameters := <map(generate-process-param-struct-field)> params
+    ; process-parameters-variables := <map(generate-process-param-variable)> params
+    ; function-body := <concat> [
+        [VarDeclaration(
+          [],
+          Type([], Pointer(TypedefName(Identifier(struct-name)))),
+          Decl(Identifier("args")),
+          Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
+        )],
+        process-parameters-variables,
+        [body]
+      ]
+
+  generate-process-param-struct-field:
+    FunDefinitionParameter(type, decl)
+    -> StructDeclarator(type, decl, None())
+
+  generate-process-param-variable:
+    FunDefinitionParameter(type, decl@Decl(name))
+    -> VarDeclaration([], type, decl, Some(
+      PointerField(Var(Identifier("args")), name)
+    ))

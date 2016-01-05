@@ -1,0 +1,11 @@
+module MetaC-CSP/names-custom
+
+imports
+
+  signatures/MetaC-CSP-sig
+  names/MetaC-CSP/names
+
+rules
+
+  get-program-scope-nabl-namespace:
+    CSPProcess(_, _, _) -> NablNsProcess()

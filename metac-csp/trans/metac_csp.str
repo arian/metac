@@ -1,0 +1,5 @@
+module metac_csp
+
+imports
+
+  MetaC-CSP/trans

@@ -1,0 +1,45 @@
+module MetaC-CSP/desugar
+
+imports
+
+  signatures/BaseC/Program-sig
+  signatures/MetaC-CSP-sig
+  BaseC/desugar/declarations
+  runtime/types/query
+
+signature constructors
+
+  CSPChanWrite:
+    Name *
+    Chan *
+    Expr -> CSPChanWrite
+
+  CSPAnonChanRead:
+    Chan *
+    Name -> CSPAnonChanRead
+
+  CSPAltGuard:
+    Name *
+    Expr -> CSPAltGuard
+
+rules
+
+  // un-anonymize the anonymous read
+  desugar01:
+    CSPAnonChanRead(chan) -> CSPAnonChanRead(chan, <newname> "__csp_chan_read_temp_")
+
+  // add a name to the write
+  desugar:
+    CSPChanWrite(a, b) -> CSPChanWrite(<newname> "__csp_chan_write_temp_", a, b)
+
+  get-chan-name: Var(Identifier(name)) -> name
+  get-chan-name: CSPChanWrite(_, Var(Identifier(name)), _) -> name
+  get-chan-name: CSPChanWrite(Var(Identifier(name)), _) -> name
+  get-chan-name: CSPChanRead(Var(Identifier(name)), _) -> name
+
+  desugar:
+    CSPAlt(guard@CSPAltGuard(expr), comm, stmt)
+    -> CSPAlt(CSPAltGuard(<conc-strings ; newname> (<get-chan-name> comm, "_guard_"), expr), comm, stmt)
+
+  is-storage-class-specifier =
+    ?CSPBuffered(_)

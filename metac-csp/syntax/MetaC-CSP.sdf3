@@ -1,0 +1,106 @@
+module MetaC-CSP
+
+imports
+
+  BaseC/Constants
+  BaseC/Identifiers
+  BaseC/Declarations
+  BaseC/Stmt
+  BaseC/Expr
+  BaseC/Program // Importing start symbol to make sdf2rtg work
+
+lexical syntax
+
+  Keyword = "buffered"
+  Keyword = "process"
+  Keyword = "chan"
+  Keyword = "par"
+  Keyword = "alts"
+
+context-free syntax
+
+  Declaration = CSPProcess
+
+  CSPProcess.CSPProcess =
+    [
+
+    process [Identifier]([CSPProcessParameterList]) [CompoundStatement]
+    ]
+
+  CSPProcessParameterList.CSPProcessParameterList = ParameterList
+
+
+  StorageClassSpecifierKeyword.CSPBuffered =
+    <buffered[<Integer>]>
+
+
+  TypeSpecifier.CSPChan =
+    [chan<[TypeName]>]
+
+  TypeSpecifier.CSPVoidChan =
+    [chan]
+
+
+  CSPChanWrite.CSPChanWrite =
+    [[VarExpr] ! [CastExpr]] {right}
+
+  AExpr =
+    CSPChanWrite
+
+
+  CSPChanRead.CSPChanRead =
+    [[VarExpr] ? [VarExpr]]
+
+  AExpr =
+    CSPChanRead
+
+  PostFixExpr.CSPAnonChanRead =
+    [[VarExpr]?]
+
+  Statement.CSPPar =
+    [
+    par {
+      [{CSPProcessInvocation "\n"}*]
+    }
+    ]
+
+
+  CSPProcessInvocation.CSPInvokeProcess =
+    [[Identifier]([{AExpr ", "}*]);]
+
+  CSPProcessInvocation.CSPInvokeInlineProcess =
+    CompoundStatement
+
+  CSPProcessInvocation =
+    CSPAlts
+
+
+  CSPAlts.CSPAlts =
+    [
+    alts {
+      [{CSPAlt "\n"}*]
+    }
+    ]
+
+  Statement =
+    CSPAlts
+
+
+  CSPAlt.CSPAlt =
+    [case [CSPAltGuard] [CSPAltAction]: [Statement]]
+
+
+  CSPAltGuard.None = ""
+
+  CSPAltGuard.CSPAltGuard =
+    <[<AExpr>]>
+
+
+  CSPAltAction =
+    CSPChanWrite
+
+  CSPAltAction =
+    CSPChanRead
+
+  CSPAltAction =
+    VarExpr

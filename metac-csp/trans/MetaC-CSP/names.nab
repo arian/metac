@@ -1,0 +1,25 @@
+module MetaC-CSP/names
+
+imports
+
+  signatures/BaseC/Identifiers-sig
+  signatures/MetaC-CSP-sig
+  names/BaseC/names/functions
+
+namespaces
+
+  Process
+
+properties
+
+  process-params of Process
+
+binding rules
+
+  CSPProcess(Identifier(name), params, _):
+    defines Process name
+    of process-params params
+    scopes Parameter
+
+  CSPInvokeProcess(Identifier(name), _):
+    refers to Process name

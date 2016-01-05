@@ -1,0 +1,27 @@
+module MetaC-CSP/generate-c
+
+imports
+
+  signatures/MetaC-CSP-sig
+  signatures/BaseC-sig
+  BaseC/desugar/constructors
+  MetaC-CSP/desugar
+  MetaC-CSP/generate-c/-
+
+rules
+
+  // test strategy that changes the <newname> in CSPChanWrite to something deterministic
+  generate-c = fail
+  generate-c-csp-test: t@(selected, position, ast, path, project-path)
+    -> <generate-c> (new-selected, position, ast, path, project-path)
+    where
+      new-selected := <bottomup(
+          try(\ CSPChanWrite(_, a, b) -> CSPChanWrite("temp_var", a, b) \)
+          ; try(\ CSPAltGuard(name, expr) -> CSPAltGuard("guard", expr) \)
+        )> selected
+
+  generate-include-headers: CSPChan(_) -> Include("csp.h")
+  generate-include-headers: CSPProcess(_, _, _) -> Include("process.h")
+
+  generate02:
+    CSPChan(_) -> Pointer(TypedefName(Identifier("Channel")))

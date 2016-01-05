@@ -1,0 +1,29 @@
+module types
+
+language MetaC
+
+test should error when writing some inconsistent type [[
+  chan<int> x;
+  struct y {};
+  void f() {
+    struct y z;
+    x ! z;
+  }
+]] 1 error
+
+test should error when readong some inconsistent type [[
+  chan<int> x;
+  struct y {};
+  void f() {
+    struct y z;
+    x ? z;
+  }
+]] 1 error
+
+test chan read should result into the type of the channel [[
+  void f(chan<uint8> x, int y) { [[x ? y]]; }
+]] run get-type to UInt8()
+
+test chan anon read should result into the type of the channel [[
+  void f(chan<uint8> x) { [[x?]]; }
+]] run get-type to UInt8()

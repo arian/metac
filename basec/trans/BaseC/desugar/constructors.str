@@ -50,7 +50,6 @@ signature constructors
 
   StructDeclarator:
     Type *
-    Declerator *
     Decl *
     Option -> StructDeclarator
 

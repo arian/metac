@@ -1,0 +1,32 @@
+module MetaC-CSP/generate-c/chan-read
+
+imports
+
+  signatures/BaseC/Program-sig
+  signatures/MetaC-CSP-sig
+  runtime/types/query
+  BaseC/desugar/constructors
+  MetaC-CSP/desugar
+
+rules
+
+  // create temp variable for the anonymous channel read to write to
+  generate-temp-scope-variable:
+    CSPAnonChanRead(chan, name)
+    -> VarDeclaration([], <get-type ; ?CSPChan(<id>)> chan, Decl(Identifier(name)), None())
+
+  // anon chan read to normal chan read
+  generate02:
+    CSPAnonChanRead(chan, name) -> CSPChanRead(chan, Var(Identifier(name)))
+
+  // chan read
+  generate03:
+    CSPChanRead(c@Var(chan-name), Var(dest-name))
+    -> Paren(Comma(Call(
+      Var(Identifier("CSP_chanInCopy")),
+      [Var(chan-name), Address(Var(dest-name)), Sizeof(data-type)]),
+      [],
+      Var(dest-name)
+    ))
+    where
+      CSPChan(data-type) := <get-type> c

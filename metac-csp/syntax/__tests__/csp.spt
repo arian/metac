@@ -1,0 +1,80 @@
+module csp
+
+language MetaC
+
+test parsing of a simple process [[
+  process f() {}
+]] parse to Program(_, [
+    CSPProcess(Identifier("f"), CSPProcessParameterList(ParameterList([])), CompoundStatement([]))
+  ])
+
+test void channel [[
+  [[chan]] x;
+]] run strip-annos to CSPVoidChan()
+
+test declaration of a channel of ints [[
+  void f() {
+    [[chan<int> c;]]
+  }
+]] run strip-annos to Declaration(
+    [CSPChan(TypeName([Int],None))],
+    [Declarator(None,Decl(Identifier("c")))
+  ])
+
+test channel write [[
+  int f(){
+    chan<int> c;
+    [[c ! 5]];
+  }
+]] run strip-annos to CSPChanWrite(Var(Identifier("c")), Integer("5"))
+
+test channel read [[
+  int f(){
+    chan<int> c;
+    int x;
+    [[c ? x]];
+  }
+]] run strip-annos to CSPChanRead(Var(Identifier("c")), Var(Identifier("x")))
+
+test parallel statement [[
+  process F() {}
+  int f(){
+    [[par {
+      {}
+      F();
+    }]]
+  }
+]] run strip-annos to CSPPar([
+    CSPInvokeInlineProcess(CompoundStatement([])),
+    CSPInvokeProcess(Identifier("F"), [])
+  ])
+
+test alts statement [[
+  int f(){
+    chan c1;
+    chan<int> c2;
+    int x;
+    [[alts {
+      case c1: ;
+      case c2 ? x: ;
+      case [1 > 2] c2 ! 1: ;
+    }]]
+  }
+]] run strip-annos to CSPAlts([
+    CSPAlt(None(), Var(Identifier("c1")), ExpressionStatement(_)),
+    CSPAlt(None(), CSPChanRead(Var(Identifier("c2")), Var(Identifier("x"))), ExpressionStatement(_)),
+    CSPAlt(CSPAltGuard(Gt(_, _)), CSPChanWrite(Var(Identifier("c2")), Integer("1")), ExpressionStatement(_))
+  ])
+
+test alts in par [[
+  int f() {
+    chan c;
+    [[par {
+      alts {
+        case c: ;
+      }
+    }]]
+  }
+]] run strip-annos to CSPPar([
+    CSPAlts(_)
+  ])

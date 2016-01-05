@@ -1,0 +1,14 @@
+# library
+libcsp-master/
+libcsp.tar.gz
+
+# executables
+fan-in
+fan-out
+fib
+fifo-buffer
+multi-readers
+multi-writers
+random-counter
+sending-a-string
+simple

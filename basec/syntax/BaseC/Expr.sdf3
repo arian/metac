@@ -197,8 +197,11 @@ context-free syntax
 
 
   // primary-expression
-  PrimaryExpr.Var =
+  VarExpr.Var =
     Identifier
+
+  PrimaryExpr =
+    VarExpr
 
   PrimaryExpr =
     Constant {prefer}
