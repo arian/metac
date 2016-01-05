@@ -35,3 +35,49 @@ test resolve union field via pointer [[
   union X *a;
   int32 c = a->[[x]];
 ]] resolve #2 to #1
+
+test typedef'd struct [[
+  typedef struct {int32 [[a]]; } A;
+  A x;
+  int32 y = x.[[a]];
+]] resolve #2 to #1
+
+test typedef'd pointer struct [[
+  typedef struct {int32 [[a]]; } * A;
+  A x;
+  int32 y = x->[[a]];
+]] resolve #2 to #1
+
+test typedef'd pointer struct alternative [[
+  typedef struct {int32 [[a]]; } _A;
+  typedef _A * A;
+  A x;
+  int32 y = x->[[a]];
+]] resolve #2 to #1
+
+test typedef'd union [[
+  typedef struct {int32 [[a]]; } A;
+  A x;
+  int32 y = x.[[a]];
+]] resolve #2 to #1
+
+test struct in declaration [[
+  void f() {
+    struct { int [[a]]; } b;
+    b.[[a]];
+  }
+]] resolve #2 to #1
+
+test struct in pointer declaration [[
+  void f() {
+    struct { int [[a]]; } *b;
+    b->[[a]];
+  }
+]] resolve #2 to #1
+
+test union in pointer declaration [[
+  void f() {
+    union { int [[a]]; } *b;
+    b->[[a]];
+  }
+]] resolve #2 to #1

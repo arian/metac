@@ -61,8 +61,28 @@ rules
       ; type := <desugar-decl-types> specifiers
       ; decls := <map(desugar-typedef-declarator(|type))> declarators
 
-// structs
+// structs and unions
 rules
+
+  // struct in specifiers (either of a variable or typedef)
+  desugar01:
+    Declaration(specifiers, declarators)
+    -> [Declaration([struct], []), Declaration(specifiers', declarators)]
+    where
+      struct@Struct(Some(name), _) := <fetch-elem(?Struct(_, _)) ; try(desugar-anon-struct)> specifiers
+      ; specifiers' := <map(try(?Struct(_, _) ; !Struct(name)))> specifiers
+
+  desugar-anon-struct: Struct(None(), fields) -> Struct(Some(Identifier(<newname> "anon_struct_")), fields)
+
+  // unions in specifiers
+  desugar01:
+    Declaration(specifiers, declarators)
+    -> [Declaration([union], []), Declaration(specifiers', declarators)]
+    where
+      union@Union(Some(name), _) := <fetch-elem(?Union(_, _)) ; try(desugar-anon-union)> specifiers
+      ; specifiers' := <map(try(?Union(_, _) ; !Union(name)))> specifiers
+
+  desugar-anon-union: Union(None(), fields) -> Union(Some(Identifier(<newname> "anon_union_")), fields)
 
   desugar-struct-declarator(|base-type):
     decl@Declarator(ptr, d) -> StructDeclarator(

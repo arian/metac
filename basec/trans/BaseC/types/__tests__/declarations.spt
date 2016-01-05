@@ -41,3 +41,13 @@ test no excess array elements errors when both sizes are 2 [[
 test no excess array elements errors when array size > than init block [[
   int32 a[3] = {1, 2};
 ]] 0 errors
+
+test struct declaration [[
+  struct X {};
+  void f() { struct X a; [[a]]; }
+]] run get-type to Struct(Identifier("X"{_}))
+
+test union declaration [[
+  union X {};
+  void f() { union X a; [[a]]; }
+]] run get-type to Union(Identifier("X"{_}))
