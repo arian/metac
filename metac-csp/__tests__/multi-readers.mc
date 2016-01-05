@@ -3,7 +3,10 @@
 
 process print(char *label, int delay, chan<int> c) {
   while (1) {
-    printf("%s %d\n", label, c?);
+    int x;
+    /*alts {
+      case c ? x: */c ? x; printf("%s %d\n", label, x);
+    //}
     usleep(delay);
   }
 }

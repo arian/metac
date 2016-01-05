@@ -7,11 +7,10 @@ process fanout(chan<int> c, chan<int> *outs) {
     c ? x;
     while (1) {
       chan<int> out = outs[i++];
-      if (out != NULL) {
-        out ! x;
-      } else {
+      if (out == NULL) {
         break;
       }
+      out ! x;
     }
   }
 }
