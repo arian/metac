@@ -22,6 +22,7 @@ relations
          t <is: Int()
       or t <is: Float()
 
+  Char() <is: Int()
   Int8() <is: Int()
   Int16() <is: Int()
   Int32() <is: Int()
@@ -42,6 +43,10 @@ relations
     where
        t1 == t2
     or t1 <widens-prim: t2
+
+  // Char should be treated equally to Int8()
+  Int8() <widens-prim: Char()
+  Char() <widens-prim: Int8()
 
   Int8() <widens-prim: Int16()
   Int8() <widens-prim: Int32()
