@@ -86,3 +86,17 @@ test using variables in expressions [[
 test subtract [[
   int32 f() { [[10 - 3]]; }
 ]] run get-type to UInt8()
+
+test promote int8 to int32 [[
+  void f(int8 a, int32 b) { [[a + b]]; }
+]] run get-type to Int32()
+
+test promote char to int16 [[
+  void f(char a, int16 b) { [[a + b]]; }
+]] run get-type to Int16()
+
+test promote uint8 to int16 [[
+  void f(uint8 a, int16 b) { [[a + b]]; }
+]] run get-type to Int16()
+
+

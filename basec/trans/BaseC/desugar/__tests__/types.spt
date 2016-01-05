@@ -2,10 +2,10 @@ module types
 
 language MetaC
 
-test 8 bit int [[
+test char should stay char [[
   char x;
 ]] run strip-annos to Program(_, [
-    VarDeclaration([], Type([], Int8()), _, _)
+    VarDeclaration([], Type([], Char()), _, _)
   ])
 
 test signed 8 bit int [[

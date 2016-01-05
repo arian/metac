@@ -62,3 +62,17 @@ test union type [[
   union X a;
   union X b = [[a]];
 ]] run get-type to Union(Identifier("X"{_}))
+
+test char type [[
+  char a;
+  char b = [[a]];
+]] run get-type to Char()
+
+test char type is assignable with int8 [[
+  char a;
+  int8 b = a;
+]] 0 errors
+
+test char variable can have a char [[
+  char a = 'a';
+]] 0 errors

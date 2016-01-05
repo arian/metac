@@ -6,6 +6,20 @@ test variable declarations [[
   int32 a,b,c;
 ]] build generate-c to "signed int a; signed int b; signed int c;"
 
+test char variable should not get signed/unsigned as it's different [[
+  char a;
+]] build generate-c to "char a;"
+
+test char variable should keep signed specifier [[
+  signed char a;
+  int8 b;
+]] build generate-c to "signed char a; signed char b;"
+
+test char variable should keep unsigned specifier [[
+  unsigned char a;
+  uint8 b;
+]] build generate-c to "unsigned char a; unsigned char b;"
+
 test array variable without an array size [[
   int32 a[];
 ]] build generate-c to "signed int a[];"
