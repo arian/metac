@@ -24,11 +24,13 @@ context-free syntax
   CSPProcess.CSPProcess =
     [
 
-    process [Identifier]([CSPProcessParameterList]) [CompoundStatement]
+    process [Identifier]([CSPProcessParameterList][CSPStateParameterList]) [CompoundStatement]
     ]
 
   CSPProcessParameterList.CSPProcessParameterList = ParameterList
 
+  CSPStateParameterList.None = ""
+  CSPStateParameterList.CSPStateParameterList = [ @ [ParameterList]]
 
   StorageClassSpecifierKeyword.CSPBuffered =
     <buffered[<Integer>]>
@@ -66,7 +68,9 @@ context-free syntax
 
 
   CSPProcessInvocation.CSPInvokeProcess =
-    [[Identifier]([{AExpr ", "}*]);]
+    [[Identifier]([{AExpr ", "}*][CSPInvokeState?]);]
+
+  CSPInvokeState.CSPInvokeState = [ @ [{AExpr ", "}*]]
 
   CSPProcessInvocation.CSPInvokeInlineProcess =
     CompoundStatement

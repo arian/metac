@@ -21,7 +21,7 @@ rules
         )> selected
 
   generate-include-headers: CSPChan(_) -> Include("csp.h")
-  generate-include-headers: CSPProcess(_, _, _) -> Include("process.h")
+  generate-include-headers: CSPProcess(_, _, _, _) -> Include("process.h")
 
   generate02:
     CSPChan(_) -> Pointer(TypedefName(Identifier("Channel")))

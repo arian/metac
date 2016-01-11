@@ -116,7 +116,7 @@ rules
 
   desugar:
     Enum(None(), enums) ->
-    <desugar-enums> (<newname>, enums)
+    <desugar-enums> (Identifier(<newname>), enums)
 
   desugar-enums: (name, enums) ->
     Enum(name, <map(\ Enumerator(e, i) -> Enumerator(e, i, <strip-annos> name) \)> enums)

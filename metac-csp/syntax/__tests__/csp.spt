@@ -5,7 +5,52 @@ language MetaC
 test parsing of a simple process [[
   process f() {}
 ]] parse to Program(_, [
-    CSPProcess(Identifier("f"), CSPProcessParameterList(ParameterList([])), CompoundStatement([]))
+    CSPProcess(Identifier("f"), CSPProcessParameterList(ParameterList([])), None(), CompoundStatement([]))
+  ])
+
+test parsing of a simple process with separate parameters and state parameters [[
+  process f(@) {}
+]] parse to Program(_, [
+    CSPProcess(
+      Identifier("f"),
+      CSPProcessParameterList(ParameterList([])),
+      CSPStateParameterList(ParameterList([])),
+      CompoundStatement([])
+    )
+  ])
+
+test parsing of a simple process with separate parameters [[
+  process f(int x@) {}
+]] parse succeeds
+
+test parsing of a simple process with only some state parameter [[
+  process f(@int x) {}
+]] parse succeeds
+
+test parsing of a simple process with separate parameters and state parameters [[
+  process f(int x @ int y, int z) {}
+]] run disamb to Program(_, [
+    CSPProcess(
+      Identifier("f"),
+      CSPProcessParameterList(ParameterList([_])),
+      CSPStateParameterList(ParameterList([_, _])),
+      CompoundStatement([])
+    )
+  ])
+
+test parse recursive process [[
+  process p() {
+    p();
+  }
+]] parse to Program(_, [
+    CSPProcess(
+      Identifier("p"),
+      CSPProcessParameterList(_),
+      None(),
+      CompoundStatement([
+        ExpressionStatement(Some(Call(Var(Identifier("p")), [])))
+      ])
+    )
   ])
 
 test void channel [[
@@ -46,7 +91,18 @@ test parallel statement [[
   }
 ]] run strip-annos to CSPPar([
     CSPInvokeInlineProcess(CompoundStatement([])),
-    CSPInvokeProcess(Identifier("F"), [])
+    CSPInvokeProcess(Identifier("F"), [], None())
+  ])
+
+test parallel statement with state [[
+  process F() {}
+  int f(){
+    [[par {
+      F(1, 2 @ 4, 5);
+    }]]
+  }
+]] run strip-annos to CSPPar([
+    CSPInvokeProcess(Identifier("F"), [_, _], Some(CSPInvokeState([_, _])))
   ])
 
 test alts statement [[

@@ -23,7 +23,7 @@ test empty process [[
   typedef struct { } f_ProcessArgs;
   void f (Process *__csp_process__) {
     f_ProcessArgs *args = __csp_process__->args;
-    {}
+    do { unsigned char __csp_process_recurse = 0; {} } while (__csp_process_recurse);
   }"
 
 test process with an int argument [[
@@ -37,7 +37,34 @@ test process with an int argument [[
   void f (Process *__csp_process__) {
     f_ProcessArgs *args = __csp_process__->args;
     signed int a = args->a;
-    {}
+    do {
+      unsigned char __csp_process_recurse = 0;
+      {}
+    } while (__csp_process_recurse);
+  }"
+
+test process recursive process [[
+  process f(int a @ int b) {
+    f(31);
+  }
+]] build generate-c to "
+  #include <process.h>
+  typedef struct {
+    signed int a;
+    signed int b;
+  } f_ProcessArgs;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
+    signed int a = args->a;
+    signed int b = args->b;
+    do {
+      unsigned char __csp_process_recurse = 0;
+      {
+        b = 31;
+        __csp_process_recurse = 1;
+        continue;
+      }
+    } while (__csp_process_recurse);
   }"
 
 test process with channels as argument [[
@@ -54,7 +81,7 @@ test process with channels as argument [[
     f_ProcessArgs *args = __csp_process__->args;
     Channel *a = args->a;
     Channel *b = args->b;
-    {}
+    do { unsigned char __csp_process_recurse = 0; {} } while (__csp_process_recurse);
   }"
 
 test write char to a channel [[
@@ -230,29 +257,32 @@ test alt with a guard [[
     Channel *c = args->c;
     Channel *d = args->d;
     Channel *e = args->e;
-    {
-      signed int a = 1;
-      signed int b = 2;
-      signed int x;
+    do {
+      unsigned char __csp_process_recurse = 0;
       {
-        CSP_Alt_t alt;
-        Channel *clist[3];
-        guard_env guard_env_var = {&a, &b};
-        struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
-        c->altGuard = &guard;
-        clist[0] = c;
-        clist[1] = d;
-        void * guard_env_var = 0;
-        struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
-        e->altGuard = &guard;
-        clist[2] = e;
-        CSP_altInit(&alt);
-        switch (CSP_priAltSelect(&alt, clist, 3)) {
-          case 0: { (CSP_chanInCopy(c, &x, sizeof (signed int)), x); ; break ; }
-          case 1: { { signed int tmp; (CSP_chanInCopy(d, &tmp, sizeof (signed int)), tmp); } ; break ; }
-          case 2: { { signed int tmp; (CSP_chanInCopy(e, &tmp, sizeof (signed int)), tmp); } ; break ; }
+        signed int a = 1;
+        signed int b = 2;
+        signed int x;
+        {
+          CSP_Alt_t alt;
+          Channel *clist[3];
+          guard_env guard_env_var = {&a, &b};
+          struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
+          c->altGuard = &guard;
+          clist[0] = c;
+          clist[1] = d;
+          void * guard_env_var = 0;
+          struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
+          e->altGuard = &guard;
+          clist[2] = e;
+          CSP_altInit(&alt);
+          switch (CSP_priAltSelect(&alt, clist, 3)) {
+            case 0: { (CSP_chanInCopy(c, &x, sizeof (signed int)), x); ; break ; }
+            case 1: { { signed int tmp; (CSP_chanInCopy(d, &tmp, sizeof (signed int)), tmp); } ; break ; }
+            case 2: { { signed int tmp; (CSP_chanInCopy(e, &tmp, sizeof (signed int)), tmp); } ; break ; }
+          }
+          CSP_altClose(&alt);
         }
-        CSP_altClose(&alt);
       }
-    }
+    } while (__csp_process_recurse);
   }"

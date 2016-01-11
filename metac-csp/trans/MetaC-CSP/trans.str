@@ -7,3 +7,22 @@ imports
   types/MetaC-CSP/types
   MetaC-CSP/generate-c
   MetaC-CSP/generate-csp
+  BaseC/analysis/disamb
+
+rules
+
+  // hack to fix the parse result when there is extra space between the
+  // process arguments and the state variables
+  disamb-parameters(|names):
+    amb([
+      a@CSPProcess(name, CSPProcessParameterList(ParameterList(params-a)), CSPStateParameterList(ParameterList(states-a)), body),
+      b@CSPProcess(_, CSPProcessParameterList(ParameterList(params-b)), CSPStateParameterList(ParameterList(states-b)), _)
+    ]) -> CSPProcess(
+      name,
+      CSPProcessParameterList(<disamb-parameters(|names)> ParameterList(params)),
+      CSPStateParameterList(<disamb-parameters(|names)> ParameterList(states)),
+      body
+    )
+    where
+      params := <zip(\(a, b) -> amb([a, b]) \)> (params-a, params-b)
+      ; states := <zip(\(a, b) -> amb([a, b]) \)> (states-a, states-b)

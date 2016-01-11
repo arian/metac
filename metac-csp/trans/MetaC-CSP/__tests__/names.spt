@@ -11,6 +11,24 @@ test initialize a process into a par block [[
   }
 ]] resolve #2 to #1
 
+test recursive process [[
+  process [[f]]() {
+    [[f]]();
+  }
+]] resolve #2 to #1
+
+test process parameter [[
+  process f(int [[x]]) {
+    [[x]];
+  }
+]] resolve #2 to #1
+
+test process state [[
+  process f(|int [[x]]) {
+    [[x]];
+  }
+]] resolve #2 to #1
+
 test resolve channel variable from a channel write [[
   int f() {
     chan<int> [[c]];

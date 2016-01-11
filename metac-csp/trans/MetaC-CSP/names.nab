@@ -9,17 +9,20 @@ imports
 namespaces
 
   Process
+  State
 
 properties
 
   process-params of Process
+  process-state of State
 
 binding rules
 
-  CSPProcess(Identifier(name), params, _):
+  CSPProcess(Identifier(name), params, state, _):
     defines Process name
     of process-params params
+    of process-state state
     scopes Parameter
 
-  CSPInvokeProcess(Identifier(name), _):
+  CSPInvokeProcess(Identifier(name), _, _):
     refers to Process name

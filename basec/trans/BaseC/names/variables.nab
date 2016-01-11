@@ -25,8 +25,9 @@ binding rules
     of modifiers Modifiers(mods)
     of storage Storage(store)
 
-  Var(Identifier(name)):
-    refers to Function name
-    otherwise refers to Parameter name
-    otherwise refers to Variable name
-    otherwise refers to Enumerator name
+// See names-custom.str
+//  Var(Identifier(name)):
+//    refers to Function name
+//    otherwise refers to Parameter name
+//    otherwise refers to Variable name
+//    otherwise refers to Enumerator name

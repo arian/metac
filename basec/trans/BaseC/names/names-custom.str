@@ -30,35 +30,42 @@ rules
        <filter(get-program-scope-nabl-namespace)> decls
      ]
 
-  nabl-get-name :
-    Program(file, _) -> file
-
-  nabl-name-apply(s) =
-    Program(s, id)
+  nabl-get-name: Program(file, _) -> file
+  nabl-name-apply(s) = Program(s, id)
 
   nabl-def-site(child-uris__, sibl-uris__, implicits__|lang__, ctx__, uniques__, uri__, states__) =
-    ?Program(file, _)
-    ; ?p
-    ; origin-track-forced(
-        Program(
-          nabl-def(
-            ?c-uri1__
-          , ?s-uri1__
-          | lang__
-          , ctx__
-          , uniques__
-          , uri__
-          , uri__
-          , NablNsModule()
-          , Unique()
-          , Current()
-          , <nabl-get-scope> p
-          , []
-          )
-        , id
-        )
-      |
-      )
+    ?p@Program(file, _)
+    ; origin-track-forced(Program(
+        nabl-def(
+          ?c-uri1__, ?s-uri1__| lang__, ctx__, uniques__, uri__, uri__, NablNsModule(),
+          Unique(), Current(), <nabl-get-scope> p, []
+        ),
+        id
+      ))
     ; match(child-uris__|c-uri1__)
     ; match(sibl-uris__|s-uri1__)
     ; match(implicits__|[])
+
+  // variable usages
+
+  nabl-get-name: Var(Identifier(name)) -> name
+  nabl-name-apply(s) = Var(Identifier(s))
+
+  nabl-use-site(|lang__, ctx__, uniques__, uris__, states__) =
+    ?Var(Identifier(name))
+    ; origin-track-forced(
+        Var(origin-track-forced(Identifier(
+          nabl-use(| lang__, ctx__, uniques__, uris__, <get-variable-candiates>)
+        )))
+      )
+
+  get-variable-candiate: ns -> <{:id; !UseCandidate(ns, [], Current(), True(), [])}>
+
+  get-variable-candiates = <conc ; map(get-variable-candiate)> (
+      [NablNsFunction(), NablNsParameter(), NablNsVariable(), NablNsEnumerator()],
+      <collect-var-lookups>
+    )
+
+  define-variable-ns = fail
+  collect-var-lookups = <rec x(try(define-variable-ns ; x))> []
+  register-variable-ns(|ns): names -> [ns | names] where <not(fetch-elem(?ns))> names

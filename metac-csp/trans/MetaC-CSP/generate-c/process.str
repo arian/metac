@@ -6,13 +6,14 @@ imports
   signatures/MetaC-CSP-sig
   signatures/BaseC-sig
   MetaC-CSP/generate-c/alts
+  names/MetaC-CSP/names
 
 rules
 
   // Change process definitions, into a structure that are used for storing arguments.
   // and a function with the Process object as argument.
   generate01:
-    CSPProcess(Identifier(name), CSPProcessParameterList(params), body)
+    CSPProcess(Identifier(name), CSPProcessParameterList(params), state, body)
     -> [
       TypedefDeclaration(
         Type([], Struct(
@@ -39,8 +40,10 @@ rules
   where
     s-name := <strip-annos> name
     ; struct-name := <conc-strings> (s-name, "_ProcessArgs")
-    ; process-parameters := <map(generate-process-param-struct-field)> params
-    ; process-parameters-variables := <map(generate-process-param-variable)> params
+    ; states := <?CSPStateParameterList(<id>) <+ ![]> state
+    ; all-params := <debug ; conc> (params, states)
+    ; process-parameters := <map(generate-process-param-struct-field)> all-params
+    ; process-parameters-variables := <map(generate-process-param-variable)> all-params
     ; function-body := <concat> [
         [VarDeclaration(
           [],
@@ -49,7 +52,16 @@ rules
           Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
         )],
         process-parameters-variables,
-        [body]
+        [Do(
+          CompoundStatement([
+            VarDeclaration(
+              [], Type([], UInt8()),
+              Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
+            ),
+            body
+          ]),
+          Var(Identifier("__csp_process_recurse"))
+        )]
       ]
 
   generate-process-param-struct-field:
@@ -61,3 +73,19 @@ rules
     -> VarDeclaration([], type, decl, Some(
       PointerField(Var(Identifier("args")), name)
     ))
+
+  generate: ExpressionStatement(Some(Call(var@Var(Identifier(_)), args))) ->
+    <conc> (
+      new-states,
+      [
+        ExpressionStatement(Some(Assign(Var(Identifier("__csp_process_recurse")), Assign(), Integer("1")))),
+        Continue()
+      ]
+    )
+    where
+      CSPStateParameterList(states) := <get-process-state> var
+      ; new-states := <zip(generate-assign-state)> (states, args)
+
+  generate-assign-state:
+    (FunDefinitionParameter(_, Decl(name)), arg)
+    -> ExpressionStatement(Some(Assign(Var(name), Assign(), arg)))

@@ -4,8 +4,11 @@ imports
 
   signatures/MetaC-CSP-sig
   names/MetaC-CSP/names
+  BaseC/names/names-custom
 
 rules
 
   get-program-scope-nabl-namespace:
-    CSPProcess(_, _, _) -> NablNsProcess()
+    CSPProcess(_, _, _, _) -> NablNsProcess()
+
+  define-variable-ns = register-variable-ns(|NablNsProcess())

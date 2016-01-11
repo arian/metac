@@ -27,13 +27,13 @@ rules
     where
       proc-inits := <map-with-index(generate-create-init-process)> processes
       ; proc-adresses := <map-with-index(\
-          (i, CSPInvokeProcess(Identifier(name), _))
+          (i, CSPInvokeProcess(Identifier(name), _, state))
           -> Address(Var(Identifier(<concat-strings> [name, "_proc_", <int-to-string> i])))
         \)> processes
       ; destroys := <map-with-index(generate-destroy-process)> processes
 
   generate-create-init-process:
-    (i, CSPInvokeProcess(proc-id@Identifier(name), args))
+    (i, CSPInvokeProcess(proc-id@Identifier(name), args, states'))
     -> [
       VarDeclaration(
         [],
@@ -73,7 +73,12 @@ rules
       ; proc-name-args-type := <conc-strings> (name, "_ProcessArgs")
       ; proc-name-args := <conc-strings> (proc-name, "_args")
       ; CSPProcessParameterList(proc-params) := <get-process-params> name
-      ; arg-assignments := <zip ; map(generate-create-init-process-assign-arg(|proc-name-args))> (proc-params, args)
+      ; CSPStateParameterList(proc-states) := <get-process-state> name
+      ; states := <?Some(CSPInvokeState(<id>)) <+ ![]> states'
+      ; arg-assignments := <zip ; map(generate-create-init-process-assign-arg(|proc-name-args))> (
+          <conc> (proc-params, proc-states),
+          <conc> (args, states)
+        )
 
   generate-create-init-process-assign-arg(|var-name):
     (FunDefinitionParameter(_, Decl(name)), arg)
@@ -82,7 +87,7 @@ rules
     ))
 
   generate-destroy-process:
-    (i, CSPInvokeProcess(Identifier(name), _))
+    (i, CSPInvokeProcess(Identifier(name), _, state))
     -> ExpressionStatement(Some(Call(
       Var(Identifier("ProcInitClean")),
       [Address(Var(Identifier(proc-name)))]
