@@ -1,0 +1,36 @@
+module generate-csp
+
+language MetaC
+
+test one process [[
+  process p(chan<int> a) {}
+  void f() {
+    chan<int> a;
+    par { p(a); }
+  }
+]] build generate-csp-test to SpecBody([
+    Channel(_),
+    Definition(_, [], Skip()),
+    Definition(_, [], InterleaveExpr([Process(_, [])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])
+
+test process with read and write [[
+  process p(chan<int> a) {
+    int x;
+    a ? x;
+    a ! x;
+  }
+  void f() {
+    chan<int> a;
+    par { p(a); }
+  }
+]] build generate-csp-test to SpecBody([
+    Channel(_),
+    Definition(_, [], 
+      ChannelExprRead(_, _, 
+        ChannelExprWrite(_, _, 
+          Skip()))),
+    Definition(_, [], InterleaveExpr([Process(_, [])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])

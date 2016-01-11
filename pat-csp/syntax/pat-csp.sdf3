@@ -1,0 +1,60 @@
+module pat-csp
+
+imports
+
+  pat-csp/Common
+
+context-free start-symbols
+
+  Start
+
+context-free syntax
+
+  Start.SpecBody = [[{SpecBody "\n"}*]]
+
+  SpecBody = Definition
+  SpecBody = LetDefinition
+  SpecBody = Channel
+  SpecBody = Assert
+
+  Definition.Definition = [[ID]([{Parameter ","}*]) = [InterleaveExpr];]
+
+  Parameter.Parameter = ID
+
+  InterleaveExpr.InterleaveExpr = [[{ChannelExpr " ||| "}+]]
+  InterleaveExpr = ChannelExpr
+
+  ChannelExpr.ChannelExprWrite = [[ID] ! [Expression] -> [ChannelExpr]]
+  ChannelExpr.ChannelExprRead = [[ID] ? [Expression] -> [ChannelExpr]]
+  ChannelExpr = EventExpr
+
+  EventExpr = CaseExpr
+
+  CaseExpr = IfExpr
+
+  IfExpr = AtomicExpr
+  
+  AtomicExpr.Process = [[ID] ([{Expression ","}*])]
+  AtomicExpr.Skip = "Skip"
+  AtomicExpr.Stop = "Stop"
+
+  Expression.Identifier = ID
+  Expression.Integer = INT
+  Expression.True = "true"
+  Expression.False = "false"
+
+  LetDefinition.Var = [var [ID];]
+
+  Channel.Channel = [channel [ID] 0;]
+
+  Assert.Assert = [#assert [DefinitionRef] [Assertion];]
+
+  Assertion.AssertDeadlockFree = "deadlockfree"
+
+  DefinitionRef.DefinitionRef = [[ID]([{ArgumentExpression ","}*])]
+
+  // argumentExpression
+  //  : conditionalOrExpression
+  //  | recordExpression
+  //  ;
+  ArgumentExpression.ArgumentExpression = Expression

@@ -10,6 +10,7 @@ imports
   runtime/analysis/resolve
   runtime/types/query
   editor-common.generated
+  signatures/pat-csp-sig
 
 rules
 
@@ -19,27 +20,25 @@ rules
   generate-csp-register = generate-csp-register-type(|"CSP")
 
   generate-csp: ("CSP", ast@Program(_, decls)) ->
-    <collect-all(generate-csp(|ast)) ; map(!Some(<id>))> decls
+    <collect-all(can-generate-csp) ; map(generate-csp(|ast))> decls
 
-  generate-csp(|ast): CSPPar(ps) ->
-    $[
-    [channels]
-    [processes]
-    [par-name]() = [par];
-    #assert [par-name] deadlockfree;
+  can-generate-csp = ?CSPPar(_)
+  generate-csp(|ast): CSPPar(ps) -> <concat> [
+      channels,
+      processes,
+      [
+        Definition(par-name, [], InterleaveExpr(par)),
+        Assert(DefinitionRef(par-name, []), AssertDeadlockFree())
+      ]
     ]
     where
-      all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>))> ps
+      all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> ps
       ; chan-table := <foldr(!<new-hashtable>, generate-csp-chan-table-put)> all-arguments
-      ; channels := <
-          hashtable-values
-          ; map(\chan -> $[channel [chan] 0;] \)
-          ; join-strings(|"\n")
-        > chan-table
+      ; channels := <hashtable-values; map(\chan -> Channel(chan) \)> chan-table
       ; invocations := <map(generate-csp-process(|ast, chan-table))> ps
-      ; par := <map(?(<id>, _)) ; join-strings(|" ||| ")> invocations
+      ; par := <map(?(process, _) ; !Process(process, []))> invocations
       ; par-name := <newname> "PAR_"
-      ; processes := <map(?(_, <id>)) ; join-strings(|"\n")> invocations
+      ; processes := <map(?(_, <id>))> invocations
 
   // creator of the chan-names table
   generate-csp-chan-table-put:
@@ -50,15 +49,15 @@ rules
   generate-csp-chan-table-put: (arg, table) -> table
 
   generate-csp-process(|ast, chan-table):
-    CSPInvokeProcess(Identifier(name), arguments) -> (name', process-string)
+    CSPInvokeProcess(Identifier(name), arguments, state) -> (name', process-string)
     where
       name' := <newname> name
       // hack to get the original AST declaration of this process
       ; definition := <generate-csp-resolve> name
-      ; process := <collect-one(?CSPProcess(Identifier(_{definition}), _, _))> ast
+      ; process := <collect-one(?CSPProcess(Identifier(_{definition}), _, _, _))> ast
       // create local instances of channels
       ; chan-args := <map-with-index(generate-csp-argument(|chan-table))> arguments
-      ; process-string := <generate-csp-process-string(|name', chan-args)> process
+      ; process-string := <generate-csp-process-ast(|name', chan-args)> process
 
   // lookup the names in the chan-table
   generate-csp-argument(|chan-table):
@@ -67,13 +66,13 @@ rules
   generate-csp-argument(|chan-table): (i, _) -> (i, None())
 
   // generate the process CSP definition
-  generate-csp-process-string(|name, chan-args):
-    CSPProcess(_, CSPProcessParameterList(params), body)
-    -> $[[name]() = [comms] -> Skip;]
+  generate-csp-process-ast(|name, chan-args):
+    CSPProcess(_, CSPProcessParameterList(params), _, body)
+    -> Definition(name, [], process)
     where
       param-defs := <map-with-index(generate-csp-param-lookup(|chan-args))> params
       ; communications := <collect-all(?CSPChanWrite(_, _, _) <+ ?CSPAnonChanRead(_, _) <+ ?CSPChanRead(_, _))> body
-      ; comms := <map(generate-csp-comm-string(|param-defs)) ; join-strings(|" -> ")> communications
+      ; process := <foldr(!Skip(), generate-csp-comm-ast(|param-defs))> communications
 
   // associate the process param defs with the linked global channel names
   generate-csp-param-lookup(|chans):
@@ -87,14 +86,14 @@ rules
       def' := <generate-csp-resolve> c
       ; Some((_, Some(chan))) := <fetch-elem(?Some((def', _)))> param-defs
 
-  generate-csp-comm-string(|p-defs):
-    CSPChanWrite(_, Var(Identifier(c)), _)
-    -> $[[<generate-csp-comm-chan-name(|p-defs)> c] ! 1]
+  generate-csp-comm-ast(|p-defs):
+    (CSPChanWrite(_, Var(Identifier(c)), _), p)
+    -> ChannelExprWrite(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-string(|p-defs):
-    CSPChanRead(Var(Identifier(c)), _)
-    -> $[[<generate-csp-comm-chan-name(|p-defs)> c] ? 1]
+  generate-csp-comm-ast(|p-defs):
+    (CSPChanRead(Var(Identifier(c)), _), p)
+    -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-string(|p-defs):
-    CSPAnonChanRead(Var(Identifier(c)), _)
-    -> $[[<generate-csp-comm-chan-name(|p-defs)> c] ? 1]
+  generate-csp-comm-ast(|p-defs):
+    (CSPAnonChanRead(Var(Identifier(c)), _), p)
+    -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)

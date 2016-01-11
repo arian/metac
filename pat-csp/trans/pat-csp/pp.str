@@ -1,0 +1,15 @@
+module pat-csp/pp
+
+imports
+
+  libstratego-gpp
+  runtime/refactoring/-
+  // include/pat-csp-parenthesize
+  pp/pat-csp-pp
+
+rules
+
+  pp-pat-csp-string =
+    debug ; prettyprint-Start
+    ; !V([], <id>)
+    ; box2text-string(|120)

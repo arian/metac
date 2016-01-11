@@ -33,6 +33,13 @@
     </dependency>
 
     <dependency>
+      <groupId>nl.tudelft.metac</groupId>
+      <artifactId>pat-csp</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <type>spoofax-language</type>
+    </dependency>
+
+    <dependency>
       <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.meta.lib.analysis</artifactId>
       <version>${metaborg-version}</version>

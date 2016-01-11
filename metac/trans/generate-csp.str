@@ -3,6 +3,7 @@ module generate-csp
 imports
 
   metac-runtime-utils/string
+  pat-csp/pp
 
 strategies
 
@@ -14,7 +15,11 @@ strategies
 
   generate-csp-collect-types = <rec x(try(generate-csp-register ; x))> []
 
-  generate-csp-transform: t@(selected, position, ast, path, project-path) -> (file-name, csp)
+  generate-csp-test = generate-csp-transform-t(id)
+
+  generate-csp-transform = generate-csp-transform-t(pp-pat-csp-string)
+
+  generate-csp-transform-t(s): t@(selected, position, ast, path, project-path) -> (file-name, csp)
     where
       file-name := <guarantee-extension(|"csp")> path
       ; csp :=
@@ -22,6 +27,6 @@ strategies
           generate-csp-collect-types
           ; map(\ type -> <generate-csp> (type, selected) \)
           ; flatten-list
-          ; filter(?Some(<id>))
-          ; join-strings(|"\n")
+          ; !SpecBody(<id>)
+          ; s
         > selected
