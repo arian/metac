@@ -27,10 +27,45 @@ test process with read and write [[
   }
 ]] build generate-csp-test to SpecBody([
     Channel(_),
-    Definition(_, [], 
-      ChannelExprRead(_, _, 
-        ChannelExprWrite(_, _, 
+    Definition(_, [],
+      ChannelExprRead(_, _,
+        ChannelExprWrite(_, _,
           Skip()))),
     Definition(_, [], InterleaveExpr([Process(_, [])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])
+
+test process with read and write [[
+  process p(chan<int> a) {
+    int x;
+    a ? x;
+    a ! x;
+    p();
+  }
+  void f() {
+    chan<int> a;
+    par { p(a); }
+  }
+]] build generate-csp-test to SpecBody([
+    Channel(_),
+    Definition(_, [],
+      ChannelExprRead(_, _,
+        ChannelExprWrite(_, _,
+          Process(_, [])))),
+    Definition(_, [], InterleaveExpr([Process(_, [])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])
+
+test process with read and write [[
+  process p(@ int b) {
+    p(1);
+  }
+  void f() {
+    par { p(@0); }
+  }
+]] build generate-csp-test to SpecBody([
+    Definition(_, [Parameter("b")],
+      Process(_, [Integer("1")])),
+    Definition(_, [], InterleaveExpr([Process(_, [Integer("0")])])),
     Assert(DefinitionRef(_, []), AssertDeadlockFree())
   ])

@@ -1,0 +1,13 @@
+module MetaC-CSP/generate-csp/expr
+
+imports
+
+  signatures/BaseC/Program-sig
+  signatures/pat-csp-sig
+
+rules
+
+  generate-csp-expr: Integer(a) -> Integer(a)
+
+  // default to just "0" if the C expr can't be transformed
+  generate-csp-expr: _ -> Integer("0")

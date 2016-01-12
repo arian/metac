@@ -6,6 +6,7 @@ imports
   signatures/MetaC-CSP-sig
   BaseC/desugar/constructors
   MetaC-CSP/desugar
+  MetaC-CSP/generate-csp/expr
   metac-runtime-utils/string
   runtime/analysis/resolve
   runtime/types/query
@@ -36,9 +37,9 @@ rules
       ; chan-table := <foldr(!<new-hashtable>, generate-csp-chan-table-put)> all-arguments
       ; channels := <hashtable-values; map(\chan -> Channel(chan) \)> chan-table
       ; invocations := <map(generate-csp-process(|ast, chan-table))> ps
-      ; par := <map(?(process, _) ; !Process(process, []))> invocations
+      ; par := <map(Fst)> invocations
       ; par-name := <newname> "PAR_"
-      ; processes := <map(?(_, <id>))> invocations
+      ; processes := <map(Snd)> invocations
 
   // creator of the chan-names table
   generate-csp-chan-table-put:
@@ -49,15 +50,17 @@ rules
   generate-csp-chan-table-put: (arg, table) -> table
 
   generate-csp-process(|ast, chan-table):
-    CSPInvokeProcess(Identifier(name), arguments, state) -> (name', process-string)
+    CSPInvokeProcess(Identifier(name), arguments, init-state)
+    -> (Process(csp-name, csp-init-state), csp-process)
     where
-      name' := <newname> name
+      csp-name := <newname> name
+      ; csp-init-state := <(?Some(CSPInvokeState(<id>)) <+ ![]) ; map(generate-csp-expr)> init-state
       // hack to get the original AST declaration of this process
       ; definition := <generate-csp-resolve> name
       ; process := <collect-one(?CSPProcess(Identifier(_{definition}), _, _, _))> ast
       // create local instances of channels
       ; chan-args := <map-with-index(generate-csp-argument(|chan-table))> arguments
-      ; process-string := <generate-csp-process-ast(|name', chan-args)> process
+      ; csp-process := <generate-csp-process-ast(|csp-name, chan-args)> process
 
   // lookup the names in the chan-table
   generate-csp-argument(|chan-table):
@@ -67,12 +70,15 @@ rules
 
   // generate the process CSP definition
   generate-csp-process-ast(|name, chan-args):
-    CSPProcess(_, CSPProcessParameterList(params), _, body)
-    -> Definition(name, [], process)
+    CSPProcess(_, CSPProcessParameterList(params), state, CompoundStatement(body))
+    -> Definition(name, state-vars, process)
     where
-      param-defs := <map-with-index(generate-csp-param-lookup(|chan-args))> params
-      ; communications := <collect-all(?CSPChanWrite(_, _, _) <+ ?CSPAnonChanRead(_, _) <+ ?CSPChanRead(_, _))> body
-      ; process := <foldr(!Skip(), generate-csp-comm-ast(|param-defs))> communications
+      state-vars := <
+          (?CSPStateParameterList(<id>) <+ ![])
+          ; map(\ FunDefinitionParameter(_, Decl(Identifier(name))) -> Parameter(<strip-annos> name) \)
+        > state
+      ; param-defs := <map-with-index(generate-csp-param-lookup(|chan-args))> params
+      ; process := <foldr(!Skip(), generate-csp-comm-ast(|name, param-defs))> body
 
   // associate the process param defs with the linked global channel names
   generate-csp-param-lookup(|chans):
@@ -86,14 +92,23 @@ rules
       def' := <generate-csp-resolve> c
       ; Some((_, Some(chan))) := <fetch-elem(?Some((def', _)))> param-defs
 
-  generate-csp-comm-ast(|p-defs):
+  generate-csp-comm-ast(|name, p-defs):
+    (ExpressionStatement(Some(e)), p) -> <generate-csp-comm-ast(|name, p-defs)> (e, p)
+
+  generate-csp-comm-ast(|name, p-defs):
     (CSPChanWrite(_, Var(Identifier(c)), _), p)
     -> ChannelExprWrite(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-ast(|p-defs):
+  generate-csp-comm-ast(|name, p-defs):
     (CSPChanRead(Var(Identifier(c)), _), p)
     -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-ast(|p-defs):
+  generate-csp-comm-ast(|name, p-defs):
     (CSPAnonChanRead(Var(Identifier(c)), _), p)
     -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
+
+  generate-csp-comm-ast(|name, p-defs):
+    (Call(v@Var(_), args), p)
+    -> Process(name, <map(generate-csp-expr)> args)
+
+  generate-csp-comm-ast(|name, d): (stmt, p) -> p
