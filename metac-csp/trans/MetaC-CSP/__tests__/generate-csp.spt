@@ -56,7 +56,7 @@ test process with read and write [[
     Assert(DefinitionRef(_, []), AssertDeadlockFree())
   ])
 
-test process with read and write [[
+test recursive process with state [[
   process p(@ int b) {
     p(1);
   }
@@ -66,6 +66,48 @@ test process with read and write [[
 ]] build generate-csp-test to SpecBody([
     Definition(_, [Parameter("b")],
       Process(_, [Integer("1")])),
+    Definition(_, [], InterleaveExpr([Process(_, [Integer("0")])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])
+
+test process an if [[
+  process p(chan<int> a @ int b) {
+    if (1) a ! 1;
+    p(1);
+  }
+  void f() {
+    chan<int> a;
+    par { p(a @0); }
+  }
+]] build generate-csp-test to SpecBody([
+    Channel(_),
+    Definition(_, [Parameter("b")],
+      Parens(InternalChoiceExpr([
+        ChannelExprWrite(_, _, Skip()),
+        Process(_, [Integer("1")])
+      ]))),
+    Definition(_, [], InterleaveExpr([Process(_, [Integer("0")])])),
+    Assert(DefinitionRef(_, []), AssertDeadlockFree())
+  ])
+
+test process an if-else [[
+  process p(chan<int> a @ int b) {
+    if (1) a ! 1;
+    else {
+      p(1);
+    }
+  }
+  void f() {
+    chan<int> a;
+    par { p(a @0); }
+  }
+]] build generate-csp-test to SpecBody([
+    Channel(_),
+    Definition(_, [Parameter("b")],
+      Parens(InternalChoiceExpr([
+        ChannelExprWrite(_, _, Skip()),
+        Process(_, [Integer("1")])
+      ]))),
     Definition(_, [], InterleaveExpr([Process(_, [Integer("0")])])),
     Assert(DefinitionRef(_, []), AssertDeadlockFree())
   ])

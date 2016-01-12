@@ -70,7 +70,7 @@ rules
 
   // generate the process CSP definition
   generate-csp-process-ast(|name, chan-args):
-    CSPProcess(_, CSPProcessParameterList(params), state, CompoundStatement(body))
+    CSPProcess(_, CSPProcessParameterList(params), state, body)
     -> Definition(name, state-vars, process)
     where
       state-vars := <
@@ -78,7 +78,7 @@ rules
           ; map(\ FunDefinitionParameter(_, Decl(Identifier(name))) -> Parameter(<strip-annos> name) \)
         > state
       ; param-defs := <map-with-index(generate-csp-param-lookup(|chan-args))> params
-      ; process := <foldr(!Skip(), generate-csp-comm-ast(|name, param-defs))> body
+      ; process := <generate-csp-def-expr(|name, param-defs)> (body, Skip())
 
   // associate the process param defs with the linked global channel names
   generate-csp-param-lookup(|chans):
@@ -92,23 +92,41 @@ rules
       def' := <generate-csp-resolve> c
       ; Some((_, Some(chan))) := <fetch-elem(?Some((def', _)))> param-defs
 
-  generate-csp-comm-ast(|name, p-defs):
-    (ExpressionStatement(Some(e)), p) -> <generate-csp-comm-ast(|name, p-defs)> (e, p)
+  generate-csp-def-expr(|name, p-defs):
+    (CompoundStatement(stmt), p)
+    -> <foldr(!Skip(), generate-csp-def-expr(|name, p-defs))> stmt
 
-  generate-csp-comm-ast(|name, p-defs):
+  generate-csp-def-expr(|name, p-defs):
+    (ExpressionStatement(Some(e)), p) -> <generate-csp-def-expr(|name, p-defs)> (e, p)
+
+  generate-csp-def-expr(|name, p-defs):
     (CSPChanWrite(_, Var(Identifier(c)), _), p)
     -> ChannelExprWrite(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-ast(|name, p-defs):
+  generate-csp-def-expr(|name, p-defs):
     (CSPChanRead(Var(Identifier(c)), _), p)
     -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-ast(|name, p-defs):
+  generate-csp-def-expr(|name, p-defs):
     (CSPAnonChanRead(Var(Identifier(c)), _), p)
     -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
-  generate-csp-comm-ast(|name, p-defs):
+  generate-csp-def-expr(|name, p-defs):
     (Call(v@Var(_), args), p)
     -> Process(name, <map(generate-csp-expr)> args)
 
-  generate-csp-comm-ast(|name, d): (stmt, p) -> p
+  generate-csp-def-expr(|name, p-defs):
+    (If(_, stmt), p)
+    -> Parens(InternalChoiceExpr([
+        <generate-csp-def-expr(|name, p-defs)> (stmt, Skip()),
+        p
+      ]))
+
+  generate-csp-def-expr(|name, p-defs):
+    (IfElse(_, t-branch, f-branch), p)
+    -> Parens(InternalChoiceExpr([
+        <generate-csp-def-expr(|name, p-defs)> (t-branch, Skip()),
+        <generate-csp-def-expr(|name, p-defs)> (f-branch, Skip())
+      ]))
+
+  generate-csp-def-expr(|name, d): (stmt, p) -> p

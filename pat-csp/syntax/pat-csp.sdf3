@@ -17,12 +17,15 @@ context-free syntax
   SpecBody = Channel
   SpecBody = Assert
 
-  Definition.Definition = [[ID]([{Parameter ","}*]) = [InterleaveExpr];]
+  Definition.Definition = [[ID]([{Parameter ", "}*]) = [InterleaveExpr];]
 
   Parameter.Parameter = ID
 
   InterleaveExpr.InterleaveExpr = [[{ChannelExpr " ||| "}+]]
-  InterleaveExpr = ChannelExpr
+  InterleaveExpr = InternalChoiceExpr
+
+  InternalChoiceExpr.InternalChoiceExpr = [[{ChannelExpr " <> "}+]]
+  InternalChoiceExpr = ChannelExpr {prefer}
 
   ChannelExpr.ChannelExprWrite = [[ID] ! [Expression] -> [ChannelExpr]]
   ChannelExpr.ChannelExprRead = [[ID] ? [Expression] -> [ChannelExpr]]
@@ -33,10 +36,11 @@ context-free syntax
   CaseExpr = IfExpr
 
   IfExpr = AtomicExpr
-  
-  AtomicExpr.Process = [[ID] ([{Expression ","}*])]
+
+  AtomicExpr.Process = [[ID]([{Expression ", "}*])]
   AtomicExpr.Skip = "Skip"
   AtomicExpr.Stop = "Stop"
+  AtomicExpr.Parens = [([InterleaveExpr])]
 
   Expression.Identifier = ID
   Expression.Integer = INT
