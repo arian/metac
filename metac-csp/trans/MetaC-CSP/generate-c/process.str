@@ -52,16 +52,16 @@ rules
           Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
         )],
         process-parameters-variables,
-        [Do(
-          CompoundStatement([
-            VarDeclaration(
-              [], Type([], UInt8()),
-              Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
-            ),
-            body
-          ]),
-          Var(Identifier("__csp_process_recurse"))
-        )]
+        [
+          VarDeclaration(
+            [], Type([], UInt8()),
+            Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
+          ),
+          Do(
+            body,
+            Var(Identifier("__csp_process_recurse"))
+          )
+        ]
       ]
 
   generate-process-param-struct-field:

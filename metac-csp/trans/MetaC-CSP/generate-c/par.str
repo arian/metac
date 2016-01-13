@@ -73,7 +73,7 @@ rules
       ; proc-name-args-type := <conc-strings> (name, "_ProcessArgs")
       ; proc-name-args := <conc-strings> (proc-name, "_args")
       ; CSPProcessParameterList(proc-params) := <get-process-params> name
-      ; CSPStateParameterList(proc-states) := <get-process-state> name
+      ; proc-states := <get-process-state ; ?CSPStateParameterList(<id>) <+ ![]> name
       ; states := <?Some(CSPInvokeState(<id>)) <+ ![]> states'
       ; arg-assignments := <zip ; map(generate-create-init-process-assign-arg(|proc-name-args))> (
           <conc> (proc-params, proc-states),
