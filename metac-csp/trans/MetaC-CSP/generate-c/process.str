@@ -47,12 +47,8 @@ rules
           )],
           process-parameters-variables,
           static-variables,
-          [VarDeclaration(
-            [], Type([], UInt8()),
-            Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
-          )],
           init-stmt,
-          [Do(body'', Var(Identifier("__csp_process_recurse")) )]
+          [Label(Identifier("__csp_process_recurse"), body'')]
         ])
       )
     ]
@@ -77,18 +73,11 @@ rules
       PointerField(Var(Identifier("args")), name)
     ))
 
-  // generate recursive call into a "recurse = 1; continue;"
+  // generate recursive call into a "goto recurse;"
   generate: ExpressionStatement(Some(Call(var@Var(Identifier(_)), args))) ->
     <conc> (
       new-states,
-      [
-        ExpressionStatement(Some(Assign(
-          Var(Identifier("__csp_process_recurse")),
-          Assign(),
-          Integer("1")
-        ))),
-        Continue()
-      ]
+      [Goto(Identifier("__csp_process_recurse"))]
     )
     where
       states := <get-process-state ; ?CSPStateParameterList(<id>) <+ ![]> var

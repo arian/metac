@@ -23,8 +23,7 @@ test empty process [[
   typedef struct { } f_ProcessArgs;
   void f (Process *__csp_process__) {
     f_ProcessArgs *args = __csp_process__->args;
-    unsigned char __csp_process_recurse = 0;
-    do { } while (__csp_process_recurse);
+    __csp_process_recurse: { }
   }"
 
 test process with an int argument [[
@@ -38,9 +37,7 @@ test process with an int argument [[
   void f (Process *__csp_process__) {
     f_ProcessArgs *args = __csp_process__->args;
     signed int a = args->a;
-    unsigned char __csp_process_recurse = 0;
-    do {
-    } while (__csp_process_recurse);
+    __csp_process_recurse: {}
   }"
 
 test process recursive process [[
@@ -57,12 +54,10 @@ test process recursive process [[
     f_ProcessArgs *args = __csp_process__->args;
     signed int a = args->a;
     signed int b = args->b;
-    unsigned char __csp_process_recurse = 0;
-    do {
+    __csp_process_recurse: {
       b = 31;
-      __csp_process_recurse = 1;
-      continue;
-    } while (__csp_process_recurse);
+      goto __csp_process_recurse;
+    }
   }"
 
 test process recursive process without state [[
@@ -77,11 +72,9 @@ test process recursive process without state [[
   void f (Process *__csp_process__) {
     f_ProcessArgs *args = __csp_process__->args;
     signed int a = args->a;
-    unsigned char __csp_process_recurse = 0;
-    do {
-      __csp_process_recurse = 1;
-      continue;
-    } while (__csp_process_recurse);
+    __csp_process_recurse: {
+      goto __csp_process_recurse;
+    }
   }"
 
 test process with static variables and an init block [[
@@ -102,16 +95,14 @@ test process with static variables and an init block [[
     f_ProcessArgs *args = __csp_process__->args;
     signed int renamed_x123;
     signed int renamed_y123;
-    unsigned char __csp_process_recurse = 0;
     {
       renamed_x123 = 0;
       renamed_y123 = 0;
     }
-    do {
+    __csp_process_recurse: {
       renamed_x123++;
-      __csp_process_recurse = 1;
-      continue;
-    } while (__csp_process_recurse);
+      goto __csp_process_recurse;
+    }
   }"
 
 test process with channels as argument [[
@@ -128,8 +119,7 @@ test process with channels as argument [[
     f_ProcessArgs *args = __csp_process__->args;
     Channel *a = args->a;
     Channel *b = args->b;
-    unsigned char __csp_process_recurse = 0;
-    do { } while (__csp_process_recurse);
+    __csp_process_recurse: { }
   }"
 
 test write char to a channel [[
@@ -287,7 +277,9 @@ test alts single channel [[
     clist[0] = c;
     clist[1] = c;
     CSP_altInit(&alt);
-    switch (CSP_priAltSelect(&alt, clist, 2)) {
+    unsigned char selected = CSP_priAltSelect(&alt, clist, 2);
+    CSP_altClose(&alt);
+    switch (selected) {
       case 0: {
         {
           signed int tmp;
@@ -302,7 +294,6 @@ test alts single channel [[
         break;
       }
     }
-    CSP_altClose(&alt);
   }"
 
 test alt with a guard [[
@@ -330,8 +321,7 @@ test alt with a guard [[
     Channel *c = args->c;
     Channel *d = args->d;
     Channel *e = args->e;
-    unsigned char __csp_process_recurse = 0;
-    do {
+    __csp_process_recurse: {
       signed int a = 1;
       signed int b = 2;
       signed int x;
@@ -348,12 +338,13 @@ test alt with a guard [[
         e->altGuard = &guard;
         clist[2] = e;
         CSP_altInit(&alt);
-        switch (CSP_priAltSelect(&alt, clist, 3)) {
+        unsigned char selected = CSP_priAltSelect(&alt, clist, 3);
+        CSP_altClose(&alt);
+        switch (selected) {
           case 0: { (CSP_chanInCopy(c, &x, sizeof (signed int)), x); ; break ; }
           case 1: { { signed int tmp; (CSP_chanInCopy(d, &tmp, sizeof (signed int)), tmp); } ; break ; }
           case 2: { { signed int tmp; (CSP_chanInCopy(e, &tmp, sizeof (signed int)), tmp); } ; break ; }
         }
-        CSP_altClose(&alt);
       }
-    } while (__csp_process_recurse);
+    }
   }"

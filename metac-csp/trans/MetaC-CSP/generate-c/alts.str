@@ -87,23 +87,27 @@ rules
           [Address(Var(Identifier("alt")))]
         )
       )),
-      Switch(
-        Call(
+      VarDeclaration([],
+        Type([], UInt8()), Decl(Identifier("selected")),
+        Some(Call(
           Var(Identifier("CSP_priAltSelect")),
           [
             Address(Var(Identifier("alt"))),
             Var(Identifier("clist")),
             Integer(<int-to-string> num)
           ]
-        ),
-        CompoundStatement(cases)
+        ))
       ),
       ExpressionStatement(Some(
         Call(
           Var(Identifier("CSP_altClose")),
           [Address(Var(Identifier("alt")))]
         )
-      ))
+      )),
+      Switch(
+        Var(Identifier("selected")),
+        CompoundStatement(cases)
+      )
     ])
     where
       num := <length> alts
