@@ -1,0 +1,10 @@
+module MetaC-CSP/utils
+
+imports
+
+  runtime/analysis/resolve
+  editor-common.generated
+
+rules
+
+  generate-csp-resolve = analysis-resolve(|<language>, <project-path>)

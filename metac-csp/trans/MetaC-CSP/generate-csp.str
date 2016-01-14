@@ -7,15 +7,12 @@ imports
   BaseC/desugar/constructors
   MetaC-CSP/desugar
   MetaC-CSP/generate-csp/expr
+  MetaC-CSP/utils
   metac-runtime-utils/string
-  runtime/analysis/resolve
   runtime/types/query
-  editor-common.generated
   signatures/pat-csp-sig
 
 rules
-
-  generate-csp-resolve = analysis-resolve(|<language>, <project-path>)
 
   generate-csp-register-type(|x) = fail
   generate-csp-register = generate-csp-register-type(|"CSP")

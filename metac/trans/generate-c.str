@@ -33,12 +33,13 @@ strategies
   generate-c: t@(selected, position, ast, path, project-path) -> (file-name, code)
     where
       file-name := <guarantee-extension(|"c")> path
-      ; code := <
-          try(generate-includes)
-          ; bottomup(try(generate-temp-scope-variables))
-          ; bottomup(try(generate01)   ; try(flatten-list))
-          ; bottomup(try(generate02)   ; try(flatten-list))
-          ; bottomup(try(generate03)   ; try(flatten-list))
-          ; bottomup(try(generate(|t)) ; try(flatten-list))
-          ; bottomup(try(generate)     ; try(flatten-list))
-        ; generate-pp> selected
+      ; code := <generate-c-ast(|t) ; generate-pp> selected
+
+  generate-c-ast(|t) =
+    try(generate-includes)
+    ; bottomup(try(generate-temp-scope-variables))
+    ; bottomup(try(generate01)   ; try(flatten-list))
+    ; bottomup(try(generate02)   ; try(flatten-list))
+    ; bottomup(try(generate03)   ; try(flatten-list))
+    ; bottomup(try(generate(|t)) ; try(flatten-list))
+    ; bottomup(try(generate)     ; try(flatten-list))

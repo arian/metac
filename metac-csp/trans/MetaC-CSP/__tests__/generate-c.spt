@@ -65,6 +65,55 @@ test process recursive process [[
     } while (__csp_process_recurse);
   }"
 
+test process recursive process without state [[
+  process f(int a) {
+    f();
+  }
+]] build generate-c to "
+  #include <process.h>
+  typedef struct {
+    signed int a;
+  } f_ProcessArgs;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
+    signed int a = args->a;
+    unsigned char __csp_process_recurse = 0;
+    do {
+      __csp_process_recurse = 1;
+      continue;
+    } while (__csp_process_recurse);
+  }"
+
+test process with static variables and an init block [[
+  process f() {
+    static int x123;
+    static int y123;
+    process_init: {
+      x123 = 0;
+      y123 = 0;
+    }
+    x123++;
+    f();
+  }
+]] build generate-c-csp-test to "
+  typedef struct {
+  } f_ProcessArgs;
+  void f (Process *__csp_process__) {
+    f_ProcessArgs *args = __csp_process__->args;
+    signed int renamed_x123;
+    signed int renamed_y123;
+    unsigned char __csp_process_recurse = 0;
+    {
+      renamed_x123 = 0;
+      renamed_y123 = 0;
+    }
+    do {
+      renamed_x123++;
+      __csp_process_recurse = 1;
+      continue;
+    } while (__csp_process_recurse);
+  }"
+
 test process with channels as argument [[
   process f(chan<uint8> a, chan<uint16> b) {
   }
@@ -266,7 +315,6 @@ test alt with a guard [[
     }
   }
 ]] build generate-c-csp-test to "
-  #include <process.h>
   #include <csp.h>
   typedef struct { Channel *c; Channel *d; Channel *e; } P_ProcessArgs;
   typedef struct { signed int *a; signed int *b; } guard_env;

@@ -6,7 +6,11 @@ imports
   signatures/MetaC-CSP-sig
   signatures/BaseC-sig
   MetaC-CSP/generate-c/alts
+  MetaC-CSP/utils
   names/MetaC-CSP/names
+
+signature constructors
+  RenamedVar: Name -> RenamedVar
 
 rules
 
@@ -22,7 +26,7 @@ rules
         )),
         Decl(Identifier(struct-name))
       ),
-      <generate-alts-declarations> body,
+      alts-structures,
       FunDefinition(
         Identifier(name),
         [],
@@ -34,35 +38,34 @@ rules
           Type([], Pointer(TypedefName(Identifier("Process")))),
           Decl(Identifier("__csp_process__"))
         )],
-        CompoundStatement(function-body)
+        CompoundStatement(<concat> [
+          [VarDeclaration(
+            [],
+            Type([], Pointer(TypedefName(Identifier(struct-name)))),
+            Decl(Identifier("args")),
+            Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
+          )],
+          process-parameters-variables,
+          static-variables,
+          [VarDeclaration(
+            [], Type([], UInt8()),
+            Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
+          )],
+          init-stmt,
+          [Do(body'', Var(Identifier("__csp_process_recurse")) )]
+        ])
       )
     ]
   where
     s-name := <strip-annos> name
     ; struct-name := <conc-strings> (s-name, "_ProcessArgs")
     ; states := <?CSPStateParameterList(<id>) <+ ![]> state
-    ; all-params := <debug ; conc> (params, states)
+    ; all-params := <conc> (params, states)
     ; process-parameters := <map(generate-process-param-struct-field)> all-params
     ; process-parameters-variables := <map(generate-process-param-variable)> all-params
-    ; function-body := <concat> [
-        [VarDeclaration(
-          [],
-          Type([], Pointer(TypedefName(Identifier(struct-name)))),
-          Decl(Identifier("args")),
-          Some(PointerField(Var(Identifier("__csp_process__")), Identifier("args")))
-        )],
-        process-parameters-variables,
-        [
-          VarDeclaration(
-            [], Type([], UInt8()),
-            Decl(Identifier("__csp_process_recurse")), Some(Integer("0"))
-          ),
-          Do(
-            body,
-            Var(Identifier("__csp_process_recurse"))
-          )
-        ]
-      ]
+    ; (body', static-variables) := <generate-process-static-variables> body
+    ; (body'', init-stmt) := <generate-process-init> body'
+    ; alts-structures := <generate-alts-declarations> body''
 
   generate-process-param-struct-field:
     FunDefinitionParameter(type, decl)
@@ -74,18 +77,67 @@ rules
       PointerField(Var(Identifier("args")), name)
     ))
 
+  // generate recursive call into a "recurse = 1; continue;"
   generate: ExpressionStatement(Some(Call(var@Var(Identifier(_)), args))) ->
     <conc> (
       new-states,
       [
-        ExpressionStatement(Some(Assign(Var(Identifier("__csp_process_recurse")), Assign(), Integer("1")))),
+        ExpressionStatement(Some(Assign(
+          Var(Identifier("__csp_process_recurse")),
+          Assign(),
+          Integer("1")
+        ))),
         Continue()
       ]
     )
     where
-      CSPStateParameterList(states) := <get-process-state> var
+      states := <get-process-state ; ?CSPStateParameterList(<id>) <+ ![]> var
       ; new-states := <zip(generate-assign-state)> (states, args)
 
+  // assign new state variables from the recursive process call
   generate-assign-state:
     (FunDefinitionParameter(_, Decl(name)), arg)
     -> ExpressionStatement(Some(Assign(Var(name), Assign(), arg)))
+
+  // static variables into a process need to be declared as variables at the top
+  // of the function. These variables need to be changed into unique variable names
+  generate-process-static-variables: body -> (body', variables')
+    where
+      variables := <collect-all(generate-process-collect-static-var)> body
+      ; var-table := <foldr(!<new-hashtable>, generate-process-var-table-put)> variables
+      ; body' := <bottomup(try(generate-process-var-rename(|var-table)) ; try(flatten-list))> body
+      ; variables' := <map(generate-process-var-rename-decl(|var-table))> variables
+
+  generate-process-collect-static-var:
+    var@VarDeclaration(storage, _, _, _) -> var
+    where <fetch-elem(?Static())> storage
+
+  generate-process-var-table-put:
+    (VarDeclaration(_, _, Decl(Identifier(name{def'})), _), table)
+    -> <hashtable-put(|def', <newname> name)> table
+
+  generate-process-var-rename-decl(|table):
+    VarDeclaration(storage, type, Decl(Identifier(name{def'})), init)
+    -> VarDeclaration(storage', type, Decl(Identifier(name'{def'})), init){RenamedVar(name)}
+    where
+      name' := <hashtable-get(|def')> table
+      ; storage' := <filter(not(?Static()))> storage
+
+  generate-process-var-rename(|table):
+    VarDeclaration(_, _, Decl(Identifier(_{def'})), _) -> []
+    where <hashtable-get(|def')> table
+
+  generate-process-var-rename(|table):
+    Var(Identifier(name{a*}))
+    -> Var(Identifier(name'{a*})){RenamedVar(name)}
+    where name' := <hashtable-get(|<generate-csp-resolve> name)> table
+
+  // hoist the statement with label process_init outside the loop
+  generate-process-init:
+    body -> (body', [init])
+    where
+      <oncetd(?label@Label(Identifier("process_init"), init))> body
+      ; body' := <bottomup(try(\ Label(Identifier("process_init"), _) -> [] \) ; try(flatten-list))> body
+
+  generate-process-init:
+    body -> (body, [])
