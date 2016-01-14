@@ -58,8 +58,8 @@ rules
   find-decl =
     oncetd(?Decl(_) ; ?d) ; !d
 
+  desugar-array-size: Some(value) -> Some(<try(number-to-int)> value)
   desugar-array-size: None() -> None()
-  desugar-array-size: Some(value) -> Some(<number-to-int> value)
 
   merge-types:
     (base-type@Type(mods, type), Some(Pointer(qualifiers, ptr)), decl) -> t

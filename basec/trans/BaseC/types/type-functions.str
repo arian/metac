@@ -1,5 +1,13 @@
 module BaseC/types/type-functions
 
+imports
+
+  runtime/types/-
+  names/BaseC/names/variables
+
 rules
 
   type-func-length(|ctx) = length
+
+  type-func-resolve-define-type(|ctx) =
+    define-value-lookup(|ctx); type-task(|ctx)

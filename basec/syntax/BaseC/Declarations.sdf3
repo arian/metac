@@ -119,7 +119,7 @@ context-free syntax
     <(<Declarator>)>
 
   DirectDeclarator.ArrayDecl =
-    <<DirectDeclarator>[<Constant?>]>
+    <<DirectDeclarator>[<Expr?>]>
 
   DirectDeclarator.FuncDecl =
     <<DirectDeclarator>(<ParameterTypeList>)>
@@ -172,7 +172,7 @@ context-free syntax
     <(<AbstractDeclarator>)>
 
   DirectAbstractDeclarator.ArrayDecl =
-    <<DirectAbstractDeclarator?>[<Constant?>]>
+    <<DirectAbstractDeclarator?>[<Expr?>]>
 
   DirectAbstractDeclarator.FuncDecl =
     <<DirectAbstractDeclarator?>(<ParameterTypeList?>)>

@@ -7,6 +7,11 @@ test var lookup [[
   int32 b = [[a]];
 ]] run get-type to Int32()
 
+test get define type [[
+  #define FOO 4
+  void f() { [[(0,FOO)]]; }
+]] run get-type to Int8()
+
 test type cast [[
   void f() { [[(unsigned long *) 1]]; }
 ]] run get-type to Pointer(UInt64())

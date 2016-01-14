@@ -3,6 +3,7 @@ module BaseC/Macros
 imports
 
   BaseC/Constants
+  BaseC/Identifiers
 
 lexical syntax
 
@@ -22,3 +23,6 @@ context-free syntax
 
   Macro.IncludeLocal =
     [#include "[GlobalFileName]"]
+
+  Macro.Define =
+    [#define [Identifier] [Constant]]

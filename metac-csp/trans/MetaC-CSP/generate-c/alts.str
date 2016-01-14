@@ -7,6 +7,7 @@ imports
   BaseC/desugar/constructors
   runtime/types/query
   MetaC-CSP/desugar
+  names/BaseC/names/variables
 
 rules
 
@@ -22,7 +23,7 @@ rules
       <generate-alt-guard-callback(|name, vars)> expr
     ]
     where
-      vars := <collect-all(?Var(_))> expr
+      vars := <collect-all(?Var(_)) ; filter(not(get-define-value))> expr
 
   // generate the struct that holds the variables used in a guard expression
   generate-alt-guard-env-struct(|name): [] -> []
@@ -66,6 +67,7 @@ rules
   // turn "a + 1" into "*__env2__->a"
   generate-alt-guard-var-from-env:
     Var(Identifier(name)) -> Deref(PointerField(Var(Identifier("__env2__")), Identifier(name)))
+    where <not(get-define-value)> name
 
   generate02:
     CSPAlts(alts)
@@ -137,7 +139,7 @@ rules
   generate-alt-guard-init(|chan-var): None() -> []
   generate-alt-guard-init(|chan-var): CSPAltGuard(name, expr)
     -> [
-      <collect-all(?Var(_)) ; generate-alt-guard-env-init(|name)> expr,
+      <collect-all(?Var(_)) ; filter(not(get-define-value)) ; generate-alt-guard-env-init(|name)> expr,
       VarDeclaration([],
         Type([], Struct(Identifier("CSP_Alt_Guard"))),
         Decl(Identifier(name)),

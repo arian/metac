@@ -29,7 +29,7 @@ strategies
     t -> None()
 
   generate-Declarator-decl:
-    (Array(t, s), decl) -> ArrayDecl(<generate-Declarator-decl> (t, decl), <generate-array-size> s)
+    (Array(t, s), decl) -> ArrayDecl(<generate-Declarator-decl> (t, decl), <try(generate-array-size)> s)
 
   generate-Declarator-decl:
     (Function(t, ps), decl) -> FuncDecl(

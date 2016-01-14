@@ -54,3 +54,13 @@ test refer to enum [[
   enum { [[a]] };
   void f() { [[a]]; }
 ]] resolve #2 to #1
+
+test refer to define [[
+  #define [[FOO]] 4
+  void f() { [[FOO]]; }
+]] resolve #2 to #1
+
+test get define value [[
+  #define FOO 4
+  void f() { [[FOO]]; }
+]] run get-value to Integer("4"){_}

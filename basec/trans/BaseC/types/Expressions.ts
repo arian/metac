@@ -70,6 +70,7 @@ type rules
     where
       definition of e: t
       and <resolve-typedefs> t => t'
+      or <resolve-define-type> e => t'
 
 type rules
 
@@ -149,6 +150,8 @@ type functions
   // define dummy typedef function, it is actually implemented
   // in typedefs.str
   resolve-typedefs: None() -> None()
+
+  resolve-define-type: None() -> None()
 
  // See section A6.1/A6.5 of "The C programming language"
  // TODO improve this

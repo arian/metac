@@ -39,3 +39,9 @@ test includes between other decls [[
     _,
     Include("stdio.h")
   ])
+
+test simple define [[
+  #define x 3
+]] parse to Program(_, [
+    Define(Identifier("x"), Integer("3"))
+  ])

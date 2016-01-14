@@ -62,7 +62,7 @@ rules
   get-variable-candiate: ns -> <{:id; !UseCandidate(ns, [], Current(), True(), [])}>
 
   get-variable-candiates = <conc ; map(get-variable-candiate)> (
-      [NablNsFunction(), NablNsParameter(), NablNsVariable(), NablNsEnumerator()],
+      [NablNsDefine(), NablNsFunction(), NablNsParameter(), NablNsVariable(), NablNsEnumerator()],
       <collect-var-lookups>
     )
 
