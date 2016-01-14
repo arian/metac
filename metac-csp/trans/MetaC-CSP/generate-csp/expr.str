@@ -2,12 +2,21 @@ module MetaC-CSP/generate-csp/expr
 
 imports
 
-  signatures/BaseC/Program-sig
+  signatures/BaseC/Expr-sig
+  signatures/BaseC/Constants-sig
+  signatures/BaseC/Identifiers-sig
   signatures/pat-csp-sig
+  MetaC-CSP/utils
 
 rules
 
-  generate-csp-expr: Integer(a) -> Integer(a)
+  generate-csp-expr(|s-defs): Integer(a) -> PAT_Integer(a)
+
+  generate-csp-expr(|s-defs): Subtract(l, r) -> PAT_Subtract(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Add(l, r) -> PAT_Plus(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Mult(l, r) -> PAT_Multiply(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Var(Identifier(name)) -> PAT_Identifier(name)
+    where <fetch-elem(!<generate-csp-resolve> name)> s-defs
 
   // default to just "0" if the C expr can't be transformed
-  generate-csp-expr: _ -> Integer("0")
+  generate-csp-expr(|s-defs): _ -> PAT_Integer("0")

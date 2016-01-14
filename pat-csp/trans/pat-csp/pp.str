@@ -4,12 +4,13 @@ imports
 
   libstratego-gpp
   runtime/refactoring/-
-  // include/pat-csp-parenthesize
+  pat-csp/pat-csp-parenthesize
   pp/pat-csp-pp
 
 rules
 
   pp-pat-csp-string =
-    prettyprint-Start
+    parenthesize-pat-csp
+    ; prettyprint-Start
     ; !V([], <id>)
     ; box2text-string(|120)

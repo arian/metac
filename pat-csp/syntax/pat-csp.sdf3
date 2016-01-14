@@ -10,25 +10,25 @@ context-free start-symbols
 
 context-free syntax
 
-  Start.SpecBody = [[{SpecBody "\n"}*]]
+  Start.PAT_SpecBody = [[{SpecBody "\n"}*]]
 
   SpecBody = Definition
   SpecBody = LetDefinition
   SpecBody = Channel
   SpecBody = Assert
 
-  Definition.Definition = [[ID]([{Parameter ", "}*]) = [InterleaveExpr];]
+  Definition.PAT_Definition = [[ID]([{Parameter ", "}*]) = [InterleaveExpr];]
 
-  Parameter.Parameter = ID
+  Parameter.PAT_Parameter = ID
 
-  InterleaveExpr.InterleaveExpr = [[{ChannelExpr " ||| "}+]]
+  InterleaveExpr.PAT_InterleaveExpr = [[{ChannelExpr " ||| "}+]]
   InterleaveExpr = InternalChoiceExpr
 
-  InternalChoiceExpr.InternalChoiceExpr = [[{ChannelExpr " <> "}+]]
+  InternalChoiceExpr.PAT_InternalChoiceExpr = [[{ChannelExpr " <> "}+]]
   InternalChoiceExpr = ChannelExpr {prefer}
 
-  ChannelExpr.ChannelExprWrite = [[ID] ! [Expression] -> [ChannelExpr]]
-  ChannelExpr.ChannelExprRead = [[ID] ? [Expression] -> [ChannelExpr]]
+  ChannelExpr.PAT_ChannelExprWrite = [[ID] ! [Expression] -> [ChannelExpr]]
+  ChannelExpr.PAT_ChannelExprRead = [[ID] ? [Expression] -> [ChannelExpr]]
   ChannelExpr = EventExpr
 
   EventExpr = CaseExpr
@@ -37,28 +37,36 @@ context-free syntax
 
   IfExpr = AtomicExpr
 
-  AtomicExpr.Process = [[ID]([{Expression ", "}*])]
-  AtomicExpr.Skip = "Skip"
-  AtomicExpr.Stop = "Stop"
-  AtomicExpr.Parens = [([InterleaveExpr])]
+  AtomicExpr.PAT_Process = [[ID]([{Expression ", "}*])]
+  AtomicExpr.PAT_Skip = "Skip"
+  AtomicExpr.PAT_Stop = "Stop"
+  AtomicExpr.PAT_Parens = [([InterleaveExpr])]
 
-  Expression.Identifier = ID
-  Expression.Integer = INT
-  Expression.True = "true"
-  Expression.False = "false"
+  Expression.PAT_Identifier = ID
+  Expression.PAT_Integer = INT
+  Expression.PAT_True = "true"
+  Expression.PAT_False = "false"
+  Expression.PAT_Subtract = [[Expression] - [Expression]] {left}
+  Expression.PAT_Plus = [[Expression] + [Expression]] {left}
+  Expression.PAT_Multiply = [[Expression] * [Expression]] {left}
+  Expression = [([Expression])] {bracket}
 
-  LetDefinition.Var = [var [ID];]
+  LetDefinition.PAT_VarDef = [var [ID];]
 
-  Channel.Channel = [channel [ID] 0;]
+  Channel.PAT_Channel = [channel [ID] 0;]
 
-  Assert.Assert = [#assert [DefinitionRef] [Assertion];]
+  Assert.PAT_Assert = [#assert [DefinitionRef] [Assertion];]
 
-  Assertion.AssertDeadlockFree = "deadlockfree"
+  Assertion.PAT_AssertDeadlockFree = "deadlockfree"
 
-  DefinitionRef.DefinitionRef = [[ID]([{ArgumentExpression ","}*])]
+  DefinitionRef.PAT_DefinitionRef = [[ID]([{ArgumentExpression ","}*])]
 
   // argumentExpression
   //  : conditionalOrExpression
   //  | recordExpression
   //  ;
-  ArgumentExpression.ArgumentExpression = Expression
+  ArgumentExpression.PAT_ArgumentExpression = Expression
+
+context-free priorities
+  {left: Expression.PAT_Multiply }
+  > {left: Expression.PAT_Subtract Expression.PAT_Plus }

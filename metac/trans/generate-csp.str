@@ -4,6 +4,7 @@ imports
 
   metac-runtime-utils/string
   pat-csp/pp
+  signatures/pat-csp-sig
 
 strategies
 
@@ -27,6 +28,6 @@ strategies
           generate-csp-collect-types
           ; map(\ type -> <generate-csp> (type, selected) \)
           ; flatten-list
-          ; !SpecBody(<id>)
+          ; !PAT_SpecBody(<id>)
           ; s
         > selected

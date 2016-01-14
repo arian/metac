@@ -2,7 +2,8 @@ module MetaC-CSP/desugar
 
 imports
 
-  signatures/BaseC/Program-sig
+  signatures/BaseC/Expr-sig
+  signatures/BaseC/Identifiers-sig
   signatures/MetaC-CSP-sig
   BaseC/desugar/declarations
   runtime/types/query

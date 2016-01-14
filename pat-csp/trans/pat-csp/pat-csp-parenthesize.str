@@ -1,0 +1,45 @@
+module pat-csp/pat-csp-parenthesize
+
+imports
+  libstratego-lib
+  signatures/pat-csp-sig
+
+strategies
+  io-pat-csp-parenthesize =
+    io-wrap(parenthesize-pat-csp)
+
+  parenthesize-pat-csp =
+    innermost(pat-cspParenthesize)
+
+
+rules
+
+  pat-cspParenthesize :
+    PAT_Multiply(t_0, t_1) -> PAT_Multiply(Parenthetical(t_0), t_1)
+    where <(?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Multiply(t_0, t_1) -> PAT_Multiply(t_0, Parenthetical(t_1))
+    where <(?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + ?PAT_Multiply(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Plus(t_0, t_1) -> PAT_Plus(t_0, Parenthetical(t_1))
+    where <(?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Subtract(t_0, t_1) -> PAT_Subtract(t_0, Parenthetical(t_1))
+    where <(?PAT_Subtract(_, _)
+            + ?PAT_Plus(_, _)
+            + fail)> t_1
+
+
+signature
+  constructors
+    Parenthetical : Unknown -> Unknown
