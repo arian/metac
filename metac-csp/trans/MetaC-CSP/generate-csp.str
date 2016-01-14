@@ -11,6 +11,7 @@ imports
   metac-runtime-utils/string
   runtime/types/query
   signatures/pat-csp-sig
+  names/MetaC-CSP/names
 
 rules
 
@@ -108,9 +109,11 @@ rules
     (CSPAnonChanRead(Var(Identifier(c)), _), p)
     -> ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, Integer("1"), p)
 
+  // The recursive process call, need to refer to the process
   generate-csp-def-expr(|name, p-defs):
     (Call(v@Var(_), args), p)
     -> Process(name, <map(generate-csp-expr)> args)
+    where <get-process-state> v
 
   generate-csp-def-expr(|name, p-defs):
     (If(_, stmt), p)

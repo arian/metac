@@ -57,7 +57,9 @@ test process with read and write [[
   ])
 
 test recursive process with state [[
+  void g() {}
   process p(@ int b) {
+    g();
     p(1);
   }
   void f() {

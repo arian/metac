@@ -10,6 +10,6 @@ imports
 rules
 
   pp-pat-csp-string =
-    debug ; prettyprint-Start
+    prettyprint-Start
     ; !V([], <id>)
     ; box2text-string(|120)
