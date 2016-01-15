@@ -20,12 +20,16 @@ rules
   generate-csp-register-type(|x) = fail
   generate-csp-register = generate-csp-register-type(|"CSP")
 
-  generate-csp: ("CSP", ast@Program(_, decls)) ->
-    <collect-all(can-generate-csp) ; map(generate-csp(|ast))> decls
+  generate-csp: ("CSP", ast@Program(_, decls)) -> [
+      defines,
+      processes
+    ]
+    where
+      defines := <generate-csp-defines> ast
+      ; processes := <collect-all(can-generate-csp) ; map(generate-csp(|ast))> decls
 
   can-generate-csp = ?CSPPar(_)
   generate-csp(|ast): CSPPar(ps) -> <concat> [
-      defines,
       channels,
       processes,
       [
@@ -34,8 +38,7 @@ rules
       ]
     ]
     where
-      defines := <generate-csp-defines> ast
-      ; all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> ps
+      all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> ps
       ; chan-table := <foldr(!<new-hashtable>, generate-csp-chan-table-put)> all-arguments
       ; channels := <hashtable-values; map(\chan -> PAT_Channel(chan) \)> chan-table
       ; invocations := <map(generate-csp-process(|ast, chan-table))> ps
@@ -46,7 +49,7 @@ rules
   generate-csp-defines =
     ?Program(_, <id>)
     ; filter(?Define(_, Integer(_)))
-    ; map(\ Define(Identifier(name), Integer(value)) -> PAT_Define(name, value) \)
+    ; map(\ Define(Identifier(name), Integer(value)) -> <strip-annos> PAT_Define(name, value) \)
 
   // creator of the chan-names table
   generate-csp-chan-table-put:
@@ -139,10 +142,13 @@ rules
   // an InternalChoice only
   generate-csp-def-expr(|name, p-defs, s-defs):
     (If(predicate, stmt), p)
-    -> PAT_Parens(PAT_InternalChoiceExpr([
+    -> PAT_Parens(PAT_SequentialExpr([
+      PAT_Parens(PAT_InternalChoiceExpr([
         <generate-csp-def-expr(|name, p-defs, s-defs)> (stmt, PAT_Skip()),
-        p
-      ]))
+        PAT_Skip()
+      ])),
+      p
+    ]))
 
   generate-csp-def-expr(|name, p-defs, s-defs):
     (IfElse(predicate, t-branch, f-branch), p)
@@ -168,6 +174,6 @@ rules
 
   generate-csp-test-state-vars(|s-defs) =
     collect-all(?Var(Identifier(<id>)))
-    ; all(generate-csp-resolve ; ?d ; <fetch-elem(!d)> s-defs <+ get-define-value)
+    ; all(generate-csp-resolve ; ?d ; <elem> (d, s-defs) <+ (get-define-value ; ?Integer(_)))
 
   generate-csp-def-expr(|name, d, s-defs): (stmt, p) -> p

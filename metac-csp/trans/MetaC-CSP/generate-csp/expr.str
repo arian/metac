@@ -13,7 +13,7 @@ rules
 
   generate-csp-expr(|s-defs): Integer(a) -> PAT_Integer(a)
 
-  generate-csp-expr(|s-defs): Var(Identifier(name)) -> PAT_Identifier(name)
+  generate-csp-expr(|s-defs): Var(Identifier(name)) -> PAT_Identifier(<strip-annos> name)
     where
       <fetch-elem(!<generate-csp-resolve> name)> s-defs
       <+ <get-define-value> name
