@@ -15,30 +15,238 @@ strategies
 rules
 
   pat-cspParenthesize :
+    PAT_Divide(t_0, t_1) -> PAT_Divide(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Divide(t_0, t_1) -> PAT_Divide(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + ?PAT_Divide(_, _)
+            + ?PAT_Modulo(_, _)
+            + ?PAT_Multiply(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Modulo(t_0, t_1) -> PAT_Modulo(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Modulo(t_0, t_1) -> PAT_Modulo(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
+            + ?PAT_Subtract(_, _)
+            + ?PAT_Modulo(_, _)
+            + ?PAT_Divide(_, _)
+            + ?PAT_Multiply(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
     PAT_Multiply(t_0, t_1) -> PAT_Multiply(Parenthetical(t_0), t_1)
-    where <(?PAT_Plus(_, _)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
             + ?PAT_Subtract(_, _)
             + fail)> t_0
 
   pat-cspParenthesize :
     PAT_Multiply(t_0, t_1) -> PAT_Multiply(t_0, Parenthetical(t_1))
-    where <(?PAT_Plus(_, _)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
             + ?PAT_Subtract(_, _)
             + ?PAT_Multiply(_, _)
+            + ?PAT_Divide(_, _)
+            + ?PAT_Modulo(_, _)
             + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Gte(t_0, t_1) -> PAT_Gte(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Gte(t_0, t_1) -> PAT_Gte(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Gt(t_0, t_1) -> PAT_Gt(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Gt(t_0, t_1) -> PAT_Gt(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Lte(t_0, t_1) -> PAT_Lte(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Lte(t_0, t_1) -> PAT_Lte(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lt(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Lt(t_0, t_1) -> PAT_Lt(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_Lt(t_0, t_1) -> PAT_Lt(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Plus(t_0, t_1) -> PAT_Plus(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + fail)> t_0
 
   pat-cspParenthesize :
     PAT_Plus(t_0, t_1) -> PAT_Plus(t_0, Parenthetical(t_1))
-    where <(?PAT_Plus(_, _)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Plus(_, _)
             + ?PAT_Subtract(_, _)
             + fail)> t_1
 
   pat-cspParenthesize :
+    PAT_Subtract(t_0, t_1) -> PAT_Subtract(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
     PAT_Subtract(t_0, t_1) -> PAT_Subtract(t_0, Parenthetical(t_1))
-    where <(?PAT_Subtract(_, _)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + ?PAT_Gte(_, _)
+            + ?PAT_Gt(_, _)
+            + ?PAT_Lte(_, _)
+            + ?PAT_Lt(_, _)
+            + ?PAT_Subtract(_, _)
             + ?PAT_Plus(_, _)
             + fail)> t_1
 
+  pat-cspParenthesize :
+    PAT_NotEquals(t_0, t_1) -> PAT_NotEquals(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_NotEquals(t_0, t_1) -> PAT_NotEquals(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + ?PAT_NotEquals(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_And(t_0, t_1) -> PAT_And(Parenthetical(t_0), t_1)
+    where <(?PAT_Or(_, _) + fail)> t_0
+
+  pat-cspParenthesize :
+    PAT_And(t_0, t_1) -> PAT_And(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _)
+            + ?PAT_And(_, _)
+            + fail)> t_1
+
+  pat-cspParenthesize :
+    PAT_Or(t_0, t_1) -> PAT_Or(t_0, Parenthetical(t_1))
+    where <(?PAT_Or(_, _) + fail)> t_1
 
 signature
   constructors

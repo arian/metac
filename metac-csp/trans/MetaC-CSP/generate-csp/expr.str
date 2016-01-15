@@ -6,17 +6,31 @@ imports
   signatures/BaseC/Constants-sig
   signatures/BaseC/Identifiers-sig
   signatures/pat-csp-sig
+  names/BaseC/names/variables
   MetaC-CSP/utils
 
 rules
 
   generate-csp-expr(|s-defs): Integer(a) -> PAT_Integer(a)
 
-  generate-csp-expr(|s-defs): Subtract(l, r) -> PAT_Subtract(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
-  generate-csp-expr(|s-defs): Add(l, r) -> PAT_Plus(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
-  generate-csp-expr(|s-defs): Mult(l, r) -> PAT_Multiply(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
   generate-csp-expr(|s-defs): Var(Identifier(name)) -> PAT_Identifier(name)
-    where <fetch-elem(!<generate-csp-resolve> name)> s-defs
+    where
+      <fetch-elem(!<generate-csp-resolve> name)> s-defs
+      <+ <get-define-value> name
+
+  generate-csp-expr(|s-defs): LogicalAnd(l, r) -> PAT_And(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): LogicalOr(l, r) -> PAT_Or(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): InEqual(l, r) -> PAT_NotEquals(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Equal(l, r) -> PAT_Equals(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Gte(l, r) -> PAT_Gte(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Gt(l, r) -> PAT_Gt(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Lte(l, r) -> PAT_Lte(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Lt(l, r) -> PAT_Lt(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Add(l, r) -> PAT_Plus(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Subtract(l, r) -> PAT_Subtract(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Mult(l, r) -> PAT_Multiply(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Mod(l, r) -> PAT_Modulo(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
+  generate-csp-expr(|s-defs): Div(l, r) -> PAT_Divide(<generate-csp-expr(|s-defs)> l, <generate-csp-expr(|s-defs)> r)
 
   // default to just "0" if the C expr can't be transformed
   generate-csp-expr(|s-defs): _ -> PAT_Integer("0")

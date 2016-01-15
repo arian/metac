@@ -25,7 +25,7 @@ rules
     ; !<concat ; uniq> [
         [
           NablNsVariable(), NablNsTypedef(), NablNsFunction(), NablNsEnum(),
-          NablNsEnumerator(), NablNsStruct(), NablNsUnion()
+          NablNsEnumerator(), NablNsStruct(), NablNsUnion(), NablNsDefine()
        ],
        <filter(get-program-scope-nabl-namespace)> decls
      ]
