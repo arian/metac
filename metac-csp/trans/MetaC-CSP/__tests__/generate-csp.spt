@@ -280,3 +280,37 @@ test nested par in if [[
     PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
     PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
   ])
+
+test passing states into a par [[
+  process b(@ int c) {
+  }
+  process a(@int x, int y) {
+    par {
+      b(@x);
+      b(@y + 2);
+    }
+  }
+  void main() {
+    par {
+      a(@2, 3);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Definition(_, [PAT_Parameter("c")], PAT_Skip()),
+    PAT_Definition(_, [PAT_Parameter("c")], PAT_Skip()),
+    PAT_Definition(_, [PAT_Parameter("x"), PAT_Parameter("y")],
+      PAT_InterleaveExpr([
+        PAT_Process(_, [PAT_Plus(PAT_Identifier("y"), PAT_Integer("2"))]),
+        PAT_Process(_, [PAT_Identifier("x")])
+      ])),
+    PAT_Definition(_, [PAT_Parameter("x"), PAT_Parameter("y")],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_Process(_, [PAT_Identifier("x"), PAT_Identifier("y")]),
+        PAT_Skip()
+      ]))),
+    PAT_Definition(_, [],
+      PAT_InterleaveExpr([
+        PAT_Process(_, [PAT_Integer("2"), PAT_Integer("3")])
+      ])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])

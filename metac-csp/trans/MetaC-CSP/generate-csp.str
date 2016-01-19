@@ -43,20 +43,28 @@ rules
   generate-csp-init-par(|orig-processes): par@CSPPar(_) ->
     <concat> [channels, ps, [assert]]
     where
-      (cs, ps, par-name) := <generate-csp-par(|orig-processes)> (par, (([], <map-new>), []))
+      (cs, ps, par-name, _) := <generate-csp-par(|orig-processes, [])> (par, (([], <map-new>), []))
       ; channels := <Fst ; map(\chan -> PAT_Channel(chan) \)> cs
       ; assert := PAT_Assert(PAT_DefinitionRef(par-name, []), PAT_AssertDeadlockFree())
 
-  generate-csp-par(|ops):
+  generate-csp-par(|ops, state):
     (CSPPar(invocations), (cs, ps))
-    -> (cs', ps', par-name)
+    -> (cs', ps', par-name, state-params)
     where
       par-name := <newname> "PAR_"
       ; all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> invocations
       ; chan-map* := <foldr(!<Snd> cs, generate-csp-chan-table-put)> all-arguments
       ; cs* := (<union ; uniq> (<Fst> cs, <map-values> chan-map*), chan-map*)
       ; (cs', ps*, par) := <foldr(!(cs*, ps, []), generate-csp-process(|ops))> invocations
-      ; ps' := <union> (ps*, [PAT_Definition(par-name, [], PAT_InterleaveExpr(par))])
+      ; state-params := <map(generate-csp-resolve-state-param(|ops))> state
+      ; state-vars := <map(generate-csp-process-parameter)> state-params
+      ; ps' := <union> (ps*, [PAT_Definition(par-name, state-vars, PAT_InterleaveExpr(par))])
+
+  generate-csp-resolve-state-param(|ops): definition
+    -> <oncetd(?FunDefinitionParameter(_, Decl(Identifier(_{definition}))) ; ?f) ; !f> ops
+
+  generate-csp-process-parameter:
+    FunDefinitionParameter(_, Decl(Identifier(name))) -> PAT_Parameter(<strip-annos> name)
 
   generate-csp-process(|ops):
     (CSPInvokeProcess(Identifier(name), arguments, init-state), (cs, ps, pars))
@@ -72,7 +80,7 @@ rules
       // get state definitions
       ; states := <(?CSPStateParameterList(<id>) <+ ![])> state
       ; state-defs := <map(?FunDefinitionParameter(_, Decl(Identifier(_{<id>}))))> states
-      ; state-vars := <map(\ FunDefinitionParameter(_, Decl(Identifier(name))) -> PAT_Parameter(<strip-annos> name) \)> states
+      ; state-vars := <map(generate-csp-process-parameter)> states
       // create process invocation
       ; init-state' := <(?Some(CSPInvokeState(<id>)) <+ ![]) ; map(generate-csp-expr(|state-defs))> init-state
       ; pars' := <union> (pars, [PAT_Process(p-name, init-state')])
@@ -124,19 +132,23 @@ rules
   // nested CSPPar(_)
   generate-csp-def-expr(|name, state, ops):
     (par@CSPPar(invocations), (cs, ps, p))
-    -> (cs', ps', PAT_Parens(PAT_SequentialExpr([PAT_Process(par-name, []), p])))
+    -> (cs', ps', PAT_Parens(PAT_SequentialExpr([PAT_Process(par-name, args), p])))
     where
-      (cs', ps', par-name) := <generate-csp-par(|ops)> (par, (cs, ps))
-
-  generate-csp-def-expr(|name, state, ops):
-    (CSPChanWrite(_, Var(Identifier(c)), _), (cs, ps, p))
-    -> (cs, ps, PAT_ChannelExprWrite(<generate-csp-comm-chan-name(|cs)> c, PAT_Integer("1"), p))
+      (cs', ps', par-name, state-params) := <generate-csp-par(|ops, state)> (par, (cs, ps))
+      ; args := <map(\
+          FunDefinitionParameter(_, Decl(Identifier(name)))
+          -> PAT_Identifier(<strip-annos> name)
+        \)> state-params
 
   // The recursive process call, need to refer to the process
   generate-csp-def-expr(|name, state, ops):
     (Call(v@Var(_), args), (cs, ps, p))
     -> (cs, ps, PAT_Process(name, <map(generate-csp-expr(|state))> args))
     where <get-process-state> v
+
+  generate-csp-def-expr(|name, state, ops):
+    (CSPChanWrite(_, Var(Identifier(c)), _), (cs, ps, p))
+    -> (cs, ps, PAT_ChannelExprWrite(<generate-csp-comm-chan-name(|cs)> c, PAT_Integer("1"), p))
 
   generate-csp-def-expr(|name, state, ops):
     (CSPChanRead(Var(Identifier(c)), _), (cs, ps, p))
