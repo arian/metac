@@ -2,6 +2,17 @@ module generate-csp
 
 language MetaC
 
+test one empty process [[
+  process p() {}
+  void f() {
+    par { p(); }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Definition(_, [], PAT_Skip()),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
 test one process [[
   process p(chan<int> a) {}
   void f() {
@@ -72,9 +83,10 @@ test recursive process with state [[
     PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
   ])
 
-test process an if [[
+test process if with defined variables in the predicate [[
+  #define num 2
   process p(chan<int> a @ int b) {
-    if (1) a ! 1;
+    if (b < num) a ! 1;
     p(1);
   }
   void f() {
@@ -82,17 +94,46 @@ test process an if [[
     par { p(a @0); }
   }
 ]] build generate-csp-test to PAT_SpecBody([
+    PAT_Define("num", "2"),
     PAT_Channel(_),
     PAT_Definition(_, [PAT_Parameter("b")],
-      PAT_Parens(PAT_InternalChoiceExpr([
-        PAT_ChannelExprWrite(_, _, PAT_Skip()),
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_IfExpr(PAT_Lt(PAT_Identifier("b"), PAT_Identifier("num")),
+          PAT_ChannelExprWrite(_, _, PAT_Skip())
+        ),
         PAT_Process(_, [PAT_Integer("1")])
       ]))),
     PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [PAT_Integer("0")])])),
     PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
   ])
 
-test process an if-else [[
+test process if with unknown expressions in the predicate [[
+  int f() {}
+  process p(chan<int> a @ int b) {
+    if (f()) a ! 1;
+    a ! 1;
+    p(1);
+  }
+  void g() {
+    chan<int> a;
+    par { p(a @0); }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Definition(_, [PAT_Parameter("b")],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_Parens(PAT_InternalChoiceExpr([
+          PAT_ChannelExprWrite(_, _, PAT_Skip()),
+          PAT_Skip()
+        ])),
+        PAT_ChannelExprWrite(_, _,
+          PAT_Process(_, [PAT_Integer("1")]))
+      ]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [PAT_Integer("0")])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
+test process if-else [[
   process p(chan<int> a @ int b) {
     if (1) a ! 1;
     else {
@@ -106,17 +147,47 @@ test process an if-else [[
 ]] build generate-csp-test to PAT_SpecBody([
     PAT_Channel(_),
     PAT_Definition(_, [PAT_Parameter("b")],
-      PAT_Parens(PAT_InternalChoiceExpr([
-        PAT_ChannelExprWrite(_, _, PAT_Skip()),
-        PAT_Process(_, [PAT_Integer("1")])
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_IfElseExpr(PAT_Integer("1"),
+          PAT_ChannelExprWrite(_, _, PAT_Skip()),
+          PAT_Process(_, [PAT_Integer("1")])
+        ),
+        PAT_Skip()
       ]))),
     PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [PAT_Integer("0")])])),
     PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
   ])
 
-test process an if-else [[
+test process non-deterministic if-else [[
+  int f() {}
+  process p(chan<int> a @ int b) {
+    if (f()) a ! 1;
+    else a ? b;
+    a ! 1;
+    p(1);
+  }
+  void g() {
+    chan<int> a;
+    par { p(a @0); }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Definition(_, [PAT_Parameter("b")],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_Parens(PAT_InternalChoiceExpr([
+          PAT_ChannelExprWrite(_, _, PAT_Skip()),
+          PAT_ChannelExprRead(_, _, PAT_Skip())
+        ])),
+        PAT_ChannelExprWrite(_, _,
+          PAT_Process(_, [PAT_Integer("1")]))
+      ]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [PAT_Integer("0")])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
+test process expressions [[
   process p(@ int b) {
-    p(b + (1 + 1) * b - (2 * 2));
+    p(b % (1 + 1) * b - (2 * 2));
   }
   void f() {
     par { p(@0); }
@@ -125,12 +196,12 @@ test process an if-else [[
     PAT_Definition(_, [PAT_Parameter("b")],
       PAT_Process(_, [
         PAT_Subtract(
-          PAT_Plus(
-            PAT_Var("b"),
-            PAT_Multiply(
-              PAT_Plus(PAT_Integer("1"), PAT_Integer("1")),
-              PAT_Var("b")
-            )
+          PAT_Multiply(
+            PAT_Modulo(
+              PAT_Identifier("b"),
+              PAT_Plus(PAT_Integer("1"), PAT_Integer("1"))
+            ),
+            PAT_Identifier("b")
           ),
           PAT_Multiply(
             PAT_Integer("2"),
@@ -141,4 +212,105 @@ test process an if-else [[
     ),
     _,
     _
+  ])
+
+test nested par in processes [[
+  process b(chan<int> c) {
+    c!1;
+  }
+  process a(chan<int> c1) {
+    chan<int> c2;
+    par {
+      b(c1);
+      b(c2);
+    }
+  }
+  void main() {
+    chan<int> c;
+    par {
+      a(c);
+      b(c);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Channel(_),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, []), PAT_Process(_, [])])),
+    PAT_Definition(_, [], PAT_Parens(PAT_SequentialExpr([PAT_Process(_, []), PAT_Skip()]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, []), PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
+test nested par in if [[
+  process b(chan<int> c, chan<int> d) {
+    c!1;
+    d!1;
+  }
+  process a(chan<int> c) {
+    chan<int> d;
+    if (1) {
+      par {
+        b(c, d);
+      }
+    }
+  }
+  void main() {
+    chan<int> c;
+    par {
+      a(c);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Channel(_),
+    PAT_Definition(_, [],
+      PAT_ChannelExprWrite(_, PAT_Integer("1"),
+        PAT_ChannelExprWrite(_, PAT_Integer("1"),
+          PAT_Skip()))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Definition(_, [],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_IfExpr(PAT_Integer("1"),
+          PAT_Parens(PAT_SequentialExpr([PAT_Process(_, []), PAT_Skip()]))),
+        PAT_Skip()
+      ]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
+test passing states into a par [[
+  process b(@ int c) {
+  }
+  process a(@int x, int y) {
+    par {
+      b(@x);
+      b(@y + 2);
+    }
+  }
+  void main() {
+    par {
+      a(@2, 3);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Definition(_, [PAT_Parameter("c")], PAT_Skip()),
+    PAT_Definition(_, [PAT_Parameter("c")], PAT_Skip()),
+    PAT_Definition(_, [PAT_Parameter("x"), PAT_Parameter("y")],
+      PAT_InterleaveExpr([
+        PAT_Process(_, [PAT_Plus(PAT_Identifier("y"), PAT_Integer("2"))]),
+        PAT_Process(_, [PAT_Identifier("x")])
+      ])),
+    PAT_Definition(_, [PAT_Parameter("x"), PAT_Parameter("y")],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_Process(_, [PAT_Identifier("x"), PAT_Identifier("y")]),
+        PAT_Skip()
+      ]))),
+    PAT_Definition(_, [],
+      PAT_InterleaveExpr([
+        PAT_Process(_, [PAT_Integer("2"), PAT_Integer("3")])
+      ])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
   ])

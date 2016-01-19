@@ -2,27 +2,28 @@
 #include <unistd.h>
 
 process fanin4(chan<int> out, chan<int> a, chan<int> b, chan<int> c, chan<int> d) {
-  while (1) {
-    int x;
-    alts {
-      case a ? x: out ! x;
-      case b ? x: out ! x;
-      case c ? x: out ! x;
-      case d ? x: out ! x;
-    }
+  int x;
+  alts {
+    case a ? x: out ! x;
+    case b ? x: out ! x;
+    case c ? x: out ! x;
+    case d ? x: out ! x;
   }
+  fanin4();
 }
 
 process print(chan<int> c) {
-  while (1) printf("%d\n", c?);
+  int x;
+  c?x;
+  printf("%d\n", x);
+  print();
 }
 
 process counter(chan<int> c, int delay) {
-  int i = 0;
-  while (1) {
-    c ! i++;
-    usleep(delay);
-  }
+  static int i = 0;
+  c ! i++;
+  usleep(delay);
+  counter();
 }
 
 int main() {

@@ -1,42 +1,70 @@
 #include <stdio.h>
 #include <unistd.h>
 
-process fanout(chan<int> c, chan<int> *outs) {
-  while (1) {
-    int x, i = 0;
-    c ? x;
-    while (1) {
-      chan<int> out = outs[i++];
-      if (out == NULL) {
-        break;
+process fanout_one(chan<int> o, int x) {
+  o ! x;
+}
+
+process fanout(
+    chan<int> c, chan<int> stop,
+    chan<int> o1, chan<int> s1,
+    chan<int> o2, chan<int> s2,
+    chan<int> o3, chan<int> s3) {
+  int x;
+  alts {
+    case stop ? x: {
+      par {
+        fanout_one(s1, x);
+        fanout_one(s2, x);
+        fanout_one(s3, x);
       }
-      out ! x;
+    }
+    case c ? x: {
+      par {
+        fanout_one(o1, x);
+        fanout_one(o2, x);
+        fanout_one(o3, x);
+      }
+      fanout();
     }
   }
 }
 
-process print(chan<int> c) {
-  while (1) printf("%d\n", c?);
+process print(char *label, chan<int> c, chan<int> stop) {
+  int x;
+  alts {
+    case stop: ;
+    case c ? x: {
+      printf("%s %d\n", label, x);
+      print();
+    }
+  }
 }
 
-process counter(chan<int> c) {
-  int i = 0;
-  while (1) {
-    c ! i++;
-    usleep(5e5);
+process counter(chan<int> stop, chan<int> c @ int i) {
+  c ! i;
+  usleep(5e5);
+  if (i < 2) {
+    counter(i + 1);
+  } else {
+    stop!1;
   }
 }
 
 int main() {
-  chan<int> x, a, b, c, d;
-  chan<int> xs[5] = {a, b, c, d, NULL};
+  chan<int> x, stop;
+  chan<int> a, b, c;
+  chan<int> a_s, b_s, c_s;
   par {
-    counter(x);
-    fanout(x, xs);
-    print(a);
-    print(b);
-    print(c);
-    print(d);
+    counter(stop, x @ 0);
+    fanout(x, stop,
+      a, a_s,
+      b, b_s,
+      c, c_s
+    );
+    print("a", a, a_s);
+    print("b", b, b_s);
+    print("c", c, c_s);
   }
   return 0;
 }
