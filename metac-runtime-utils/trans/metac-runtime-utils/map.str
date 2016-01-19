@@ -1,0 +1,15 @@
+module metac-runtime-utils/map
+
+rules
+
+  map-new = ![]
+
+  map-get(|k) = fetch-elem(?(k, <id>))
+
+  map-delete(|k) = filter(not(?(k, _)))
+
+  map-set(|k, v) = map-delete(|k) ; ![(k, v) | <id>]
+
+  map-values = map(Snd)
+
+  map-keys = map(Fst)

@@ -213,3 +213,70 @@ test process expressions [[
     _,
     _
   ])
+
+test nested par in processes [[
+  process b(chan<int> c) {
+    c!1;
+  }
+  process a(chan<int> c1) {
+    chan<int> c2;
+    par {
+      b(c1);
+      b(c2);
+    }
+  }
+  void main() {
+    chan<int> c;
+    par {
+      a(c);
+      b(c);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Channel(_),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_ChannelExprWrite(_, PAT_Integer("1"), PAT_Skip())),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, []), PAT_Process(_, [])])),
+    PAT_Definition(_, [], PAT_Parens(PAT_SequentialExpr([PAT_Process(_, []), PAT_Skip()]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, []), PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
+test nested par in if [[
+  process b(chan<int> c, chan<int> d) {
+    c!1;
+    d!1;
+  }
+  process a(chan<int> c) {
+    chan<int> d;
+    if (1) {
+      par {
+        b(c, d);
+      }
+    }
+  }
+  void main() {
+    chan<int> c;
+    par {
+      a(c);
+    }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Channel(_),
+    PAT_Channel(_),
+    PAT_Definition(_, [],
+      PAT_ChannelExprWrite(_, PAT_Integer("1"),
+        PAT_ChannelExprWrite(_, PAT_Integer("1"),
+          PAT_Skip()))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Definition(_, [],
+      PAT_Parens(PAT_SequentialExpr([
+        PAT_IfExpr(PAT_Integer("1"),
+          PAT_Parens(PAT_SequentialExpr([PAT_Process(_, []), PAT_Skip()]))),
+        PAT_Skip()
+      ]))),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])

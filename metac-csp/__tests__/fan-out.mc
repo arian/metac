@@ -5,42 +5,66 @@ process fanout_one(chan<int> o, int x) {
   o ! x;
 }
 
-process fanout(chan<int> c, chan<int> o1, chan<int> o2, chan<int> o3, chan<int> o4) {
+process fanout(
+    chan<int> c, chan<int> stop,
+    chan<int> o1, chan<int> s1,
+    chan<int> o2, chan<int> s2,
+    chan<int> o3, chan<int> s3) {
   int x;
-  c ? x;
-  par {
-    fanout_one(o1, x);
-    fanout_one(o2, x);
-    fanout_one(o3, x);
-    fanout_one(o4, x);
+  alts {
+    case stop ? x: {
+      par {
+        fanout_one(s1, x);
+        fanout_one(s2, x);
+        fanout_one(s3, x);
+      }
+    }
+    case c ? x: {
+      par {
+        fanout_one(o1, x);
+        fanout_one(o2, x);
+        fanout_one(o3, x);
+      }
+      fanout();
+    }
   }
-  fanout();
 }
 
-process print(chan<int> c) {
+process print(char *label, chan<int> c, chan<int> stop) {
   int x;
-  c ? x;
-  printf("%d\n", x);
-  print();
+  alts {
+    case stop: ;
+    case c ? x: {
+      printf("%s %d\n", label, x);
+      print();
+    }
+  }
 }
 
-process counter(chan<int> c @ int i) {
+process counter(chan<int> stop, chan<int> c @ int i) {
   c ! i;
   usleep(5e5);
-  if (i < 5) {
+  if (i < 2) {
     counter(i + 1);
+  } else {
+    stop!1;
   }
 }
 
 int main() {
-  chan<int> x, a, b, c, d;
+  chan<int> x, stop;
+  chan<int> a, b, c;
+  chan<int> a_s, b_s, c_s;
   par {
-    counter(x @ 0);
-    fanout(x, a, b, c, d);
-    print(a);
-    print(b);
-    print(c);
-    print(d);
+    counter(stop, x @ 0);
+    fanout(x, stop,
+      a, a_s,
+      b, b_s,
+      c, c_s
+    );
+    print("a", a, a_s);
+    print("b", b, b_s);
+    print("c", c, c_s);
   }
   return 0;
 }

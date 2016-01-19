@@ -11,21 +11,26 @@ imports
 
 rules
 
-  generate-csp-comm-chan-name(|p-defs) = fail
+  generate-csp-comm-chan-name(|channels) = fail
 
-  generate-csp-def-expr(|name, p-defs, s-defs, op):
-    (CSPAlts(cases), p)
-    -> PAT_SequentialExpr([
-        PAT_Parens(PAT_GeneralChoiceExpr(<map(generate-csp-alt(|name, p-defs, s-defs, op))> cases)),
+  generate-csp-def-expr(|name, state, ops):
+    (CSPAlts(cases), (cs, ps, p))
+    -> (cs', ps', PAT_SequentialExpr([
+        PAT_Parens(PAT_GeneralChoiceExpr(choices)),
         p
-      ])
-
-  generate-csp-alt(|name, p-defs, s-defs, op):
-    CSPAlt(guard, comm, body)
-    -> PAT_Parens(PAT_SequentialExpr([
-        <generate-csp-alt-guard(|s-defs)> (guard, <generate-cps-alt-comm(|p-defs)> comm),
-        <generate-csp-def-expr(|name, p-defs, s-defs, op)> (body, PAT_Skip())
       ]))
+      where
+        (cs', ps', choices) := <foldr(!(cs, ps, []), generate-csp-alt(|name, state, ops))> cases
+
+  generate-csp-alt(|name, state, ops):
+    (CSPAlt(guard, comm, body), (cs, ps, choices))
+    -> (cs', ps', choices')
+      where
+        (cs', ps', p) := <generate-csp-def-expr(|name, state, ops)> (body, (cs, ps, PAT_Skip()))
+        ; choices' := <conc> (choices, [PAT_Parens(PAT_SequentialExpr([
+            <generate-csp-alt-guard(|state)> (guard, <generate-cps-alt-comm(|cs)> comm),
+            p
+          ]))])
 
   generate-csp-alt-guard(|s-defs): (None(), p) -> p
   generate-csp-alt-guard(|s-defs): (CSPAltGuard(_, e), p)
