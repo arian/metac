@@ -12,82 +12,160 @@ imports
   MetaC-CSP/desugar
   MetaC-CSP/utils
   MetaC-CSP/generate-csp/expr
-  MetaC-CSP/generate-csp/alts
+  // MetaC-CSP/generate-csp/alts
   metac-runtime-utils/string
 
 rules
 
   generate-csp-register-type(|x) = fail
-  generate-csp-register = generate-csp-register-type(|"CSP")
+  generate-csp-register = generate-csp-register-type(|"PAT")
 
-  generate-csp: ("CSP", ast@Program(_, decls)) -> [
+  generate-csp: ("PAT", ast@Program(_, decls)) -> [
       defines,
-      processes
+      parallels
     ]
     where
       defines := <generate-csp-defines> ast
-      ; processes := <collect-all(can-generate-csp) ; map(generate-csp(|ast))> decls
-
-  can-generate-csp = ?CSPPar(_)
-  generate-csp(|ast): CSPPar(ps) -> <concat> [
-      channels,
-      processes,
-      [
-        PAT_Definition(par-name, [], PAT_InterleaveExpr(par)),
-        PAT_Assert(PAT_DefinitionRef(par-name, []), PAT_AssertDeadlockFree())
-      ]
-    ]
-    where
-      all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> ps
-      ; chan-table := <foldr(!<new-hashtable>, generate-csp-chan-table-put)> all-arguments
-      ; channels := <hashtable-values; map(\chan -> PAT_Channel(chan) \)> chan-table
-      ; invocations := <map(generate-csp-process(|ast, chan-table))> ps
-      ; par := <map(Fst)> invocations
-      ; par-name := <newname> "PAR_"
-      ; processes := <map(Snd)> invocations
+      ; processes := <filter(?CSPProcess(_, _, _, _))> decls
+      ; parallels := <generate-csp-get-init-pars ; mapconcat(generate-csp-init-par(|processes))> decls
 
   generate-csp-defines =
     ?Program(_, <id>)
     ; filter(?Define(_, Integer(_)))
     ; map(\ Define(Identifier(name), Integer(value)) -> <strip-annos> PAT_Define(name, value) \)
 
-  // creator of the chan-names table
+  // find CSPPar(_) nodes that are not inside a CSPProcess
+  generate-csp-get-init-pars =
+    filter(not(?CSPProcess(_, _, _, _)))
+    ; collect-all(?CSPPar(_))
+
+  generate-csp-init-par(|orig-processes): par@CSPPar(_) ->
+    <concat> [channels, ps, [assert]]
+    where
+      (cs, ps, par-name) := <generate-csp-par(|orig-processes)> (par, (<new-hashtable>, []))
+      ; channels := <hashtable-values ; uniq ; map(\chan -> PAT_Channel(chan) \)> cs
+      ; assert := PAT_Assert(PAT_DefinitionRef(par-name, []), PAT_AssertDeadlockFree())
+
+  generate-csp-par(|ops):
+    (CSPPar(invocations), (cs, ps))
+    -> (cs', ps', par-name)
+    where
+      par-name := <newname> "PAR_"
+      ; all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> invocations
+      ; cs* := <foldr(!cs, generate-csp-chan-table-put)> all-arguments
+      ; (cs', ps*, par-names) := <foldr(!(cs*, ps, []), generate-csp-process(|ops))> invocations
+      ; par := <map(\ name -> PAT_Process(name, []) \)> par-names
+      ; ps' := <union> (ps*, [PAT_Definition(par-name, [], PAT_InterleaveExpr(par))])
+
+  generate-csp-process(|ops):
+    (CSPInvokeProcess(Identifier(name), arguments, init-state), (cs, ps, names))
+    -> (cs', ps', names')
+    where
+      p-name := <newname> name
+      ; names' := <union> (names, [p-name])
+      // hack to get the original AST declaration of this process
+      ; definition := <generate-csp-resolve> name
+      ; process := <fetch-elem(?CSPProcess(Identifier(_{definition}), _, _, _))> ops
+      ; CSPProcess(Identifier(_{definition}), CSPProcessParameterList(params), _, body) := process
+      // associate parameters with the global channel names
+      ; cs* := <zip ; foldr(!cs, generate-csp-assoc-param-with-arg)> (params, arguments)
+      // process expression
+      ; (cs', ps*, pat-expr) := <generate-csp-def-expr(|p-name, ops)> (body, (cs*, ps, PAT_Skip()))
+      ; p := PAT_Definition(p-name, [], pat-expr)
+      ; ps' := <union> (ps*, [p])
+
+  // tracking channel names (defined globally), throughout the flow of the
+  // process invocation graph. When a channel is passed in an invocation, it
+  // is a Var that refers to the definition of a channel. That name is used.
   generate-csp-chan-table-put:
-    (arg@Var(Identifier(name)), table) -> <hashtable-put(|def', <newname> $[chan_[name]_])> table
+    (arg@Var(Identifier(name)), table)
+    -> <hashtable-put(|def', <newname> $[chan_[name]_])> table
     where
       <get-type ; ?CSPChan(_)> arg
       ; def' := <generate-csp-resolve> name
   generate-csp-chan-table-put: (arg, table) -> table
 
-  generate-csp-process(|ast, chan-table):
-    CSPInvokeProcess(Identifier(name), arguments, init-state)
-    -> (PAT_Process(csp-name, csp-init-state), csp-process)
+  // Of an invocation, the arguments and parameters are linked. If a process
+  // parameter is a channel, that Def(URI(_)) will be associated to the original
+  // global channel name. That name might be associated to multiple locations,
+  // at the different stages it is flowing through the program
+  generate-csp-assoc-param-with-arg:
+    ((FunDefinitionParameter(t, Decl(Identifier(p{defp'}))), arg@Var(Identifier(name))), cs)
+    -> cs'
+    where
+      <get-type ; ?CSPChan(_)> arg
+      ; chan-name := <generate-csp-comm-chan-name(|cs)> name
+      ; cs' := <hashtable-put(|defp', chan-name)> cs
+  generate-csp-assoc-param-with-arg:
+    ((p, a), cs) -> cs
+
+  // lookup a channel global name by a variable name
+  generate-csp-comm-chan-name(|cs):
+    c -> <hashtable-get(|<generate-csp-resolve> c)> cs
+
+  generate-csp-def-expr(|name, ops):
+    (CompoundStatement(stmt), (cs, ps, p))
+    -> <foldr(!(cs, ps, PAT_Skip()), generate-csp-def-expr(|name, ops))> stmt
+
+  generate-csp-def-expr(|name, ops):
+    (ExpressionStatement(Some(e)), (cs, ps, p))
+    -> <generate-csp-def-expr(|name, ops)> (e, (cs, ps, p))
+
+  // nested CSPPar(_)
+  generate-csp-def-expr(|name, ops):
+    (par@CSPPar(invocations), (cs, ps, p))
+    -> (cs', ps', PAT_Parens(PAT_SequentialExpr([PAT_Process(par-name, []), p])))
+    where
+      (cs', ps', par-name) := <generate-csp-par(|ops)> (par, (cs, ps))
+
+  generate-csp-def-expr(|name, ops):
+    (CSPChanWrite(_, Var(Identifier(c)), _), (cs, ps, p))
+    -> (cs, ps, PAT_ChannelExprWrite(<generate-csp-comm-chan-name(|cs)> c, PAT_Integer("1"), p))
+
+  // The recursive process call, need to refer to the process
+  generate-csp-def-expr(|name, ops):
+    (Call(v@Var(_), args), (cs, ps, p))
+    -> (cs, ps, PAT_Process(name, <map(generate-csp-expr(|[]))> args))
+    where <get-process-state> v
+
+  generate-csp-def-expr(|name, ops):
+    (CSPChanRead(Var(Identifier(c)), _), (cs, ps, p))
+    -> (cs, ps, PAT_ChannelExprRead(<generate-csp-comm-chan-name(|cs)> c, PAT_Integer("1"), p))
+
+  generate-csp-def-expr(|name, ops):
+    (CSPAnonChanRead(Var(Identifier(c)), _), (cs, ps, p))
+    -> (cs, ps, PAT_ChannelExprRead(<generate-csp-comm-chan-name(|cs)> c, PAT_Integer("1"), p))
+
+  generate-csp-def-expr(|name, ops): (stmt, (cs, ps, p)) -> (cs, ps, p)
+
+/*
+  generate-csp-process(|orig-processes):
+    ((chan-table, ps), CSPInvokeProcess(Identifier(name), arguments, init-state))
+    -> (<union> (chan-table, chan-table'), <unions> [ps, ps', (PAT_Process(csp-name, csp-init-state), csp-process)])
     where
       csp-name := <newname> name
       ; csp-init-state := <(?Some(CSPInvokeState(<id>)) <+ ![]) ; map(generate-csp-expr)> init-state
       // hack to get the original AST declaration of this process
       ; definition := <generate-csp-resolve> name
-      ; process := <collect-one(?CSPProcess(Identifier(_{definition}), _, _, _))> ast
+      ; process := <fetch-elem(?CSPProcess(Identifier(_{definition}), _, _, _))> orig-processes
       // create local instances of channels
       ; chan-args := <map-with-index(generate-csp-argument(|chan-table))> arguments
-      ; csp-process := <generate-csp-process-ast(|csp-name, chan-args)> process
-
+      ; (chan-table', ps', csp-process) := <generate-csp-process-body(|orig-processes, csp-name, chan-args)> process
+*/
   // lookup the names in the chan-table
-  generate-csp-argument(|chan-table):
-    (i, Var(Identifier(name))) -> (i, Some(chan-name))
-    where chan-name := <hashtable-get(|<generate-csp-resolve> name)> chan-table
-  generate-csp-argument(|chan-table): (i, _) -> (i, None())
 
+
+/*
   // generate the process CSP definition
-  generate-csp-process-ast(|name, chan-args):
+  generate-csp-process-body(|orig-processes, name, chan-args):
     CSPProcess(_, CSPProcessParameterList(params), state, body)
-    -> PAT_Definition(name, state-vars, process)
+    -> ([], [], PAT_Definition(name, state-vars, process))
     where
       states := <(?CSPStateParameterList(<id>) <+ ![])> state
       ; state-defs := <map(?FunDefinitionParameter(_, Decl(Identifier(_{<id>}))))> states
       ; state-vars := <map(\ FunDefinitionParameter(_, Decl(Identifier(name))) -> PAT_Parameter(<strip-annos> name) \)> states
       ; param-defs := <map-with-index(generate-csp-param-lookup(|chan-args))> params
-      ; process := <generate-csp-def-expr(|name, param-defs, state-defs)> (body, PAT_Skip())
+      ; process := <generate-csp-def-expr(|name, param-defs, state-defs, orig-processes)> (body, PAT_Skip())
 
   // associate the process param defs with the linked global channel names
   generate-csp-param-lookup(|chans):
@@ -95,44 +173,16 @@ rules
     -> Some((def', chan))
     where (_, chan) := <fetch-elem(?(i, _))> chans
   generate-csp-param-lookup(|chans): _ -> None()
+*/
 
-  generate-csp-comm-chan-name(|param-defs): c -> chan
-    where
-      def' := <generate-csp-resolve> c
-      ; Some((_, Some(chan))) := <fetch-elem(?Some((def', _)))> param-defs
-
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (CompoundStatement(stmt), p)
-    -> <foldr(!PAT_Skip(), generate-csp-def-expr(|name, p-defs, s-defs))> stmt
-
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (ExpressionStatement(Some(e)), p) -> <generate-csp-def-expr(|name, p-defs, s-defs)> (e, p)
-
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (CSPChanWrite(_, Var(Identifier(c)), _), p)
-    -> PAT_ChannelExprWrite(<generate-csp-comm-chan-name(|p-defs)> c, PAT_Integer("1"), p)
-
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (CSPChanRead(Var(Identifier(c)), _), p)
-    -> PAT_ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, PAT_Integer("1"), p)
-
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (CSPAnonChanRead(Var(Identifier(c)), _), p)
-    -> PAT_ChannelExprRead(<generate-csp-comm-chan-name(|p-defs)> c, PAT_Integer("1"), p)
-
-  // The recursive process call, need to refer to the process
-  generate-csp-def-expr(|name, p-defs, s-defs):
-    (Call(v@Var(_), args), p)
-    -> PAT_Process(name, <map(generate-csp-expr(|s-defs))> args)
-    where <get-process-state> v
-
+/*
   // If expr depending only on constants and state vars
-  generate-csp-def-expr(|name, p-defs, s-defs):
+  generate-csp-def-expr(|name, p-defs, s-defs, op):
     (If(predicate, stmt), p)
     -> PAT_Parens(PAT_SequentialExpr([
         PAT_IfExpr(
           <generate-csp-expr(|s-defs)> predicate,
-          <generate-csp-def-expr(|name, p-defs, s-defs)> (stmt, PAT_Skip())
+          <generate-csp-def-expr(|name, p-defs, s-defs, op)> (stmt, PAT_Skip())
         ),
         p
       ]))
@@ -140,34 +190,34 @@ rules
 
   // something we can't model, depends on other stuff, use
   // an InternalChoice only
-  generate-csp-def-expr(|name, p-defs, s-defs):
+  generate-csp-def-expr(|name, p-defs, s-defs, op):
     (If(predicate, stmt), p)
     -> PAT_Parens(PAT_SequentialExpr([
       PAT_Parens(PAT_InternalChoiceExpr([
-        <generate-csp-def-expr(|name, p-defs, s-defs)> (stmt, PAT_Skip()),
+        <generate-csp-def-expr(|name, p-defs, s-defs, op)> (stmt, PAT_Skip()),
         PAT_Skip()
       ])),
       p
     ]))
 
-  generate-csp-def-expr(|name, p-defs, s-defs):
+  generate-csp-def-expr(|name, p-defs, s-defs, op):
     (IfElse(predicate, t-branch, f-branch), p)
     -> PAT_Parens(PAT_SequentialExpr([
         PAT_IfElseExpr(
           <generate-csp-expr(|s-defs)> predicate,
-          <generate-csp-def-expr(|name, p-defs, s-defs)> (t-branch, PAT_Skip()),
-          <generate-csp-def-expr(|name, p-defs, s-defs)> (f-branch, PAT_Skip())
+          <generate-csp-def-expr(|name, p-defs, s-defs, op)> (t-branch, PAT_Skip()),
+          <generate-csp-def-expr(|name, p-defs, s-defs, op)> (f-branch, PAT_Skip())
         ),
         p
       ]))
       where <generate-csp-test-state-vars(|s-defs)> predicate
 
-  generate-csp-def-expr(|name, p-defs, s-defs):
+  generate-csp-def-expr(|name, p-defs, s-defs, op):
     (IfElse(_, t-branch, f-branch), p)
     -> PAT_Parens(PAT_SequentialExpr([
         PAT_Parens(PAT_InternalChoiceExpr([
-          <generate-csp-def-expr(|name, p-defs, s-defs)> (t-branch, PAT_Skip()),
-          <generate-csp-def-expr(|name, p-defs, s-defs)> (f-branch, PAT_Skip())
+          <generate-csp-def-expr(|name, p-defs, s-defs, op)> (t-branch, PAT_Skip()),
+          <generate-csp-def-expr(|name, p-defs, s-defs, op)> (f-branch, PAT_Skip())
         ])),
         p
       ]))
@@ -176,4 +226,5 @@ rules
     collect-all(?Var(Identifier(<id>)))
     ; all(generate-csp-resolve ; ?d ; <elem> (d, s-defs) <+ (get-define-value ; ?Integer(_)))
 
-  generate-csp-def-expr(|name, d, s-defs): (stmt, p) -> p
+  generate-csp-def-expr(|name, d, s-defs, op): (stmt, p) -> p
+*/

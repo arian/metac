@@ -13,18 +13,18 @@ rules
 
   generate-csp-comm-chan-name(|p-defs) = fail
 
-  generate-csp-def-expr(|name, p-defs, s-defs):
+  generate-csp-def-expr(|name, p-defs, s-defs, op):
     (CSPAlts(cases), p)
     -> PAT_SequentialExpr([
-        PAT_Parens(PAT_GeneralChoiceExpr(<map(generate-csp-alt(|name, p-defs, s-defs))> cases)),
+        PAT_Parens(PAT_GeneralChoiceExpr(<map(generate-csp-alt(|name, p-defs, s-defs, op))> cases)),
         p
       ])
 
-  generate-csp-alt(|name, p-defs, s-defs):
+  generate-csp-alt(|name, p-defs, s-defs, op):
     CSPAlt(guard, comm, body)
     -> PAT_Parens(PAT_SequentialExpr([
         <generate-csp-alt-guard(|s-defs)> (guard, <generate-cps-alt-comm(|p-defs)> comm),
-        <generate-csp-def-expr(|name, p-defs, s-defs)> (body, PAT_Skip())
+        <generate-csp-def-expr(|name, p-defs, s-defs, op)> (body, PAT_Skip())
       ]))
 
   generate-csp-alt-guard(|s-defs): (None(), p) -> p

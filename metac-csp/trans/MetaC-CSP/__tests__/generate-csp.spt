@@ -2,6 +2,17 @@ module generate-csp
 
 language MetaC
 
+test one empty process [[
+  process p() {}
+  void f() {
+    par { p(); }
+  }
+]] build generate-csp-test to PAT_SpecBody([
+    PAT_Definition(_, [], PAT_Skip()),
+    PAT_Definition(_, [], PAT_InterleaveExpr([PAT_Process(_, [])])),
+    PAT_Assert(PAT_DefinitionRef(_, []), PAT_AssertDeadlockFree())
+  ])
+
 test one process [[
   process p(chan<int> a) {}
   void f() {
