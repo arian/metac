@@ -21,10 +21,7 @@ rules
   generate-csp-register-type(|x) = fail
   generate-csp-register = generate-csp-register-type(|"PAT")
 
-  generate-csp: ("PAT", ast@Program(_, decls)) -> [
-      defines,
-      parallels
-    ]
+  generate-csp: ("PAT", ast@Program(_, decls)) -> [defines, parallels]
     where
       defines := <generate-csp-defines> ast
       ; processes := <filter(?CSPProcess(_, _, _, _))> decls
@@ -52,20 +49,30 @@ rules
     -> (cs', ps', par-name, state-params)
     where
       par-name := <newname> "PAR_"
-      ; all-arguments := <mapconcat(?CSPInvokeProcess(_, <id>, _))> invocations
-      ; chan-map* := <foldr(!<Snd> cs, generate-csp-chan-table-put)> all-arguments
+      // get all channel definitions and global channel names
+      ; chan-map* := <
+          mapconcat(?CSPInvokeProcess(_, <id>, _))
+          ; foldr(!<Snd> cs, generate-csp-chan-table-put)
+        > invocations
       ; cs* := (<union ; uniq> (<Fst> cs, <map-values> chan-map*), chan-map*)
+      // generate the sub-processes (will be added to ps) and their names (par)
       ; (cs', ps*, par) := <foldr(!(cs*, ps, []), generate-csp-process(|ops))> invocations
+      // find the original parameters Nodes of the state defs of the
+      // CSPProcess this CSPPar is in. Those need to be the parameters of the
+      // ps' process definition
       ; state-params := <map(generate-csp-resolve-state-param(|ops))> state
       ; state-vars := <map(generate-csp-process-parameter)> state-params
       ; ps' := <union> (ps*, [PAT_Definition(par-name, state-vars, PAT_InterleaveExpr(par))])
 
+  // find a process (state) parameter by a matching Def(_)
   generate-csp-resolve-state-param(|ops): definition
     -> <oncetd(?FunDefinitionParameter(_, Decl(Identifier(_{definition}))) ; ?f) ; !f> ops
 
   generate-csp-process-parameter:
     FunDefinitionParameter(_, Decl(Identifier(name))) -> PAT_Parameter(<strip-annos> name)
 
+  // for each par { ... } process invocation, a new PAT process need to be
+  // created.
   generate-csp-process(|ops):
     (CSPInvokeProcess(Identifier(name), arguments, init-state), (cs, ps, pars))
     -> (cs', ps', pars')
@@ -73,8 +80,12 @@ rules
       p-name := <newname> name
       // hack to get the original AST declaration of this process
       ; definition := <generate-csp-resolve> name
-      ; process := <fetch-elem(?CSPProcess(Identifier(_{definition}), _, _, _))> ops
-      ; CSPProcess(Identifier(_{definition}), CSPProcessParameterList(params), state, body) := process
+      ; CSPProcess(
+          Identifier(_{definition}),
+          CSPProcessParameterList(params),
+          state,
+          body
+        ) := <fetch-elem(?CSPProcess(Identifier(_{definition}), _, _, _))> ops
       // associate parameters with the global channel names
       ; cs* := <zip ; foldr(!cs, generate-csp-assoc-param-with-arg)> (params, arguments)
       // get state definitions
