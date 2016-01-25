@@ -3,9 +3,12 @@ LIBCSP_DIR = libcsp-master
 LIBCSP_SRCDIR = $(LIBCSP_DIR)/src
 LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
 
-CC = gcc -I$(LIBCSP_SRCDIR) -Wall -pthread
+CC ?= gcc
+CFLAGS = -I$(LIBCSP_SRCDIR) -Ilib -Wall -pthread
+
 LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
-LIBOPT = -L$(LIBCSP_SRCDIR) -lcsp
+
+LFLAGS = -L$(LIBCSP_SRCDIR) -lcsp
 
 SOURCES = $(wildcard *.c)
 TARGETS = $(SOURCES:.c=)
@@ -19,8 +22,15 @@ $(LIBFILES): libcsp.tar.gz
 	if [ ! -d "$(LIBCSP_DIR)" ]; then tar -xvf $<; fi
 	cd "$(LIBCSP_SRCDIR)" && touch depends.mk && $(MAKE)
 
+lib/libinterrupts.a:
+	$(CC) -c lib/interrupts.c -o lib/interrupts.o
+	ar cq $@ lib/interrupts.o
+
+inputs: inputs.c lib/libinterrupts.a $(LIBFILES)
+	$(CC) $(CFLAGS) -o $@ $< $(LFLAGS) -Llib -linterrupts
+
 %: %.c $(LIBFILES)
-	$(CC) -o $@ $< $(LIBOPT)
+	$(CC) $(CFLAGS) -o $@ $< $(LFLAGS)
 
 clean:
 	rm -rf libcsp.tar.gz $(LIBCSP_DIR) $(TARGETS)
