@@ -22,6 +22,7 @@
 		<module>metac-sm</module>
 		<module>metac-err</module>
 		<module>metac-csp</module>
+		<module>metac-csp-test</module>
 		<module>pat-csp</module>
 		<module>metac</module>
 	</modules>

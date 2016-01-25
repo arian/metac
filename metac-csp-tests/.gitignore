@@ -1,3 +1,13 @@
+/.cache
+/.classpath
+/.project
+/.settings
+/target/
+
+*.c
+*.csp
+*.aterm
+
 # library
 libcsp-master/
 libcsp.tar.gz
@@ -12,3 +22,7 @@ multi-writers
 random-counter
 sending-a-string
 simple
+
+inputs
+lib/*.a
+lib/*.o
