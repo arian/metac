@@ -1,15 +1,27 @@
 #include <stdio.h>
 
-process P(chan<int> c, chan<int> c2) {
+struct x { int a, b; };
+
+process P(chan<int> c, chan<struct x> c2) {
+  struct x a;
+  a.a = 1;
   c ! 1;
-  c2 ! 1;
+  c2 ! a;
 }
-process C(chan<int> c, chan<int> x) {
-  printf("%d\n", c?, x?);
+process C(chan<int> c, chan<struct x> c2) {
+  int a;
+  struct x b;
+  c ? a;
+  c2 ? b;
+  printf("%d %d\n", a, b.a);
 }
+
 int main() {
   chan<int> c;
-  chan<int> c_;
-  par { P(c, c_); C(c, c_); }
+  chan<struct x> c_;
+  par {
+    P(c, c_);
+    C(c, c_);
+  }
   return 0;
 }

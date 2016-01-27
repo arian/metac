@@ -1,0 +1,28 @@
+module chan-read
+
+language MetaC
+
+test reading an int from a channel [[
+  process f(chan<int32> a) {
+    [[{
+      int32 b;
+      a ? b;
+    }]]
+  }
+]] build generate-c to "{
+    signed int b;
+    (CSP_chanInCopy(a, &b, sizeof (signed int)), b);
+  }"
+
+test reading a struct from a channel [[
+  struct X {};
+  process f(chan<struct X> a) {
+    [[{
+      struct X b;
+      a ? b;
+    }]]
+  }
+]] build generate-c to "{
+    struct X b;
+    (CSP_chanInCopy(a, &b, sizeof (struct X)), b);
+  }"

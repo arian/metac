@@ -1,0 +1,135 @@
+module par
+
+language MetaC
+
+
+test par run processes [[
+  process P(int32 a) {}
+  process C(int32 c) {}
+  void main () {
+    [[par {
+      P(1);
+      C(4);
+    }]]
+  }
+]] build generate-c to "{
+    Process P_proc_1;
+    P_ProcessArgs P_proc_1_args;
+    P_proc_1_args.a = 1;
+    P_proc_1.args = &P_proc_1_args;
+    ProcInit(&P_proc_1, P, NULL, 0, 0);
+    Process C_proc_2;
+    C_ProcessArgs C_proc_2_args;
+    C_proc_2_args.c = 4;
+    C_proc_2.args = &C_proc_2_args;
+    ProcInit(&C_proc_2, C, NULL, 0, 0);
+    ProcPar(&P_proc_1, &C_proc_2, NULL);
+    ProcInitClean(&P_proc_1);
+    ProcInitClean(&C_proc_2);
+  }"
+
+test par run processes with state [[
+  process P(int32 a @ int32 b) {}
+  process C(int32 c) {}
+  void main () {
+    [[par {
+      P(1 @ 2);
+      C(4);
+    }]]
+  }
+]] build generate-c to "{
+    Process P_proc_1;
+    P_ProcessArgs P_proc_1_args;
+    P_proc_1_args.a = 1;
+    P_proc_1_args.b = 2;
+    P_proc_1.args = &P_proc_1_args;
+    ProcInit(&P_proc_1, P, NULL, 0, 0);
+    Process C_proc_2;
+    C_ProcessArgs C_proc_2_args;
+    C_proc_2_args.c = 4;
+    C_proc_2.args = &C_proc_2_args;
+    ProcInit(&C_proc_2, C, NULL, 0, 0);
+    ProcPar(&P_proc_1, &C_proc_2, NULL);
+    ProcInitClean(&P_proc_1);
+    ProcInitClean(&C_proc_2);
+  }"
+
+test pass channels to sub-processes [[
+  process a(chan<int> x) {}
+  process b(chan<int> y) {}
+  void main() {
+    [[{
+      chan<int> c, d;
+      par { a(c); b(d); }
+    }]]
+  }
+]] build generate-c to "{
+    Channel *c = NULL;
+    Channel *d = NULL;
+    {
+      Channel __c_csp_channel;
+      if (c == NULL) {
+        c = &__c_csp_channel;
+        CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
+      }
+      Channel __d_csp_channel;
+      if (d == NULL) {
+        d = &__d_csp_channel;
+        CSP_chanInit(d, CSP_ONE2ONE_CHANNEL, 0);
+      }
+      Process a_proc_1;
+      a_ProcessArgs a_proc_1_args;
+      a_proc_1_args.x = c;
+      a_proc_1.args = &a_proc_1_args;
+      ProcInit(&a_proc_1, a, NULL, 0, 0);
+      Process b_proc_2;
+      b_ProcessArgs b_proc_2_args;
+      b_proc_2_args.y = d;
+      b_proc_2.args = &b_proc_2_args;
+      ProcInit(&b_proc_2, b, NULL, 0, 0);
+      ProcPar(&a_proc_1, &b_proc_2, NULL);
+      ProcInitClean(&a_proc_1);
+      ProcInitClean(&b_proc_2);
+      if (c == &__c_csp_channel) {
+        CSP_chanClose(c);
+        c = NULL;
+      }
+      if (d == &__d_csp_channel) {
+        CSP_chanClose(d);
+        d = NULL;
+      }
+    }
+  }"
+
+test initialize a non-blocking channel [[
+  buffered chan<int> c;
+  process b(chan<int> y, int z) {}
+  void main() {
+    int x;
+    [[{
+      par { b(c, x); }
+    }]]
+  }
+]] build generate-c to "{
+    {
+      Channel __c_csp_channel;
+      signed int __c_csp_async_buffer;
+      if (c == NULL) {
+        c = &__c_csp_channel;
+        CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
+        CSP_chanSetAsync(c, &__c_csp_async_buffer);
+      }
+      Process b_proc_1;
+      b_ProcessArgs b_proc_1_args;
+      b_proc_1_args.y = c;
+      b_proc_1_args.z = x;
+      b_proc_1.args = &b_proc_1_args;
+      ProcInit(&b_proc_1, b, NULL, 0, 0);
+      ProcPar(&b_proc_1, NULL);
+      ProcInitClean(&b_proc_1);
+      if (c == &__c_csp_channel) {
+        CSP_chanClose(c);
+        c = NULL;
+      }
+    }
+  }"

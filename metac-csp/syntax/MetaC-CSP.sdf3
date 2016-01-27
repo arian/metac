@@ -33,7 +33,10 @@ context-free syntax
   CSPStateParameterList.CSPStateParameterList = [ @ [ParameterList]]
 
   StorageClassSpecifierKeyword.CSPBuffered =
-    <buffered[<Integer>]>
+    <buffered[<Expr>]> // Expr should be a constant expression
+
+  StorageClassSpecifierKeyword.CSPBuffered =
+    <buffered>
 
 
   TypeSpecifier.CSPChan =

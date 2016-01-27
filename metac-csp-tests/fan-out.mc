@@ -6,13 +6,14 @@ process fanout_one(chan<int> o, int x) {
 }
 
 process fanout(
-    chan<int> c, chan<int> stop,
+    chan<int> stop, chan<int> c,
     chan<int> o1, chan<int> s1,
     chan<int> o2, chan<int> s2,
     chan<int> o3, chan<int> s3) {
   int x;
   alts {
     case stop ? x: {
+      printf("received stop\n");
       par {
         fanout_one(s1, x);
         fanout_one(s2, x);
@@ -20,6 +21,7 @@ process fanout(
       }
     }
     case c ? x: {
+      printf("received c: %d\n", x);
       par {
         fanout_one(o1, x);
         fanout_one(o2, x);
@@ -42,6 +44,7 @@ process print(char *label, chan<int> c, chan<int> stop) {
 }
 
 process counter(chan<int> stop, chan<int> c @ int i) {
+  printf("counter %d\n", i);
   c ! i;
   usleep(5e5);
   if (i < 2) {
@@ -55,9 +58,10 @@ int main() {
   chan<int> x, stop;
   chan<int> a, b, c;
   chan<int> a_s, b_s, c_s;
+  printf("STARTING\n");
   par {
     counter(stop, x @ 0);
-    fanout(x, stop,
+    fanout(stop, x,
       a, a_s,
       b, b_s,
       c, c_s
@@ -66,5 +70,6 @@ int main() {
     print("b", b, b_s);
     print("c", c, c_s);
   }
+  printf("STOPPING\n");
   return 0;
 }
