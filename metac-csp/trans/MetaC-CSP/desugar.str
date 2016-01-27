@@ -25,6 +25,9 @@ signature constructors
 
 rules
 
+  is-storage-class-specifier = ?CSPBuffered()
+  is-storage-class-specifier = ?CSPBuffered(_)
+
   // un-anonymize the anonymous read
   desugar01:
     CSPAnonChanRead(chan) -> CSPAnonChanRead(chan, <newname> "__csp_chan_read_temp_")

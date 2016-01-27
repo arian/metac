@@ -6,12 +6,14 @@ imports
   signatures/MetaC-CSP-sig
   BaseC/desugar/constructors
   names/MetaC-CSP/names
+  names/BaseC/names/variables
 
 rules
 
   // run parallel processes
   generate02:
     CSPPar(processes) -> CompoundStatement(<flatten-list> [
+      chan-inits,
       proc-inits,
       ExpressionStatement(Some(
         Call(
@@ -25,12 +27,53 @@ rules
       destroys
     ])
     where
-      proc-inits := <map-with-index(generate-create-init-process)> processes
+      chan-inits := <generate-create-chan-inits> processes
+      ; proc-inits := <map-with-index(generate-create-init-process)> processes
       ; proc-adresses := <map-with-index(\
           (i, CSPInvokeProcess(Identifier(name), _, state))
           -> Address(Var(Identifier(<concat-strings> [name, "_proc_", <int-to-string> i])))
         \)> processes
       ; destroys := <map-with-index(generate-destroy-process)> processes
+
+  generate-create-chan-inits =
+    collect-all(?Var(_))
+    ; map(generate-create-chan-init <+ ![])
+    ; flatten-list
+
+  generate-create-chan-init:
+    v@Var(Identifier(name))
+    -> If(
+      Equal(v, Null()),
+      CompoundStatement([
+        VarDeclaration(
+          [],
+          Type([], TypedefName(Identifier("Channel"))),
+          Decl(Identifier(temp-var-name)),
+          None()
+        ),
+        ExpressionStatement(Some(
+          Assign(
+            Var(Identifier(name)),
+            Assign(),
+            Address(Var(Identifier(temp-var-name)))
+          )
+        )),
+        ExpressionStatement(Some(
+          Call(
+            Var(Identifier("CSP_chanInit")),
+            [
+              Var(Identifier(name)),
+              Var(Identifier("CSP_ONE2ONE_CHANNEL")),
+              Integer("0")
+            ]
+          )
+        ))
+      ])
+    )
+    where
+      <get-type ; ?CSPChan(_)> v
+      ; <get-storage ; debug> v
+      ; temp-var-name := $[__[name]_csp_channel]
 
   generate-create-init-process:
     (i, CSPInvokeProcess(proc-id@Identifier(name), args, states'))
