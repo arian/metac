@@ -1,3 +1,4 @@
+*~
 /.cache
 /.classpath
 /.project
@@ -9,20 +10,21 @@
 *.aterm
 
 # library
-libcsp-master/
-libcsp.tar.gz
+libcsp/
+
+lib/*.a
+lib/*.o
 
 # executables
 fan-in
 fan-out
 fib
 fifo-buffer
+inputs
 multi-readers
 multi-writers
 random-counter
 sending-a-string
 simple
+state
 
-inputs
-lib/*.a
-lib/*.o

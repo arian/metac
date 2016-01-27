@@ -1,0 +1,4 @@
+-Ilibcsp/src
+-Ilib
+-Wall
+-pedantic

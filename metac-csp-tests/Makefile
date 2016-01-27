@@ -1,28 +1,23 @@
 
-LIBCSP_DIR = libcsp-master
-LIBCSP_SRCDIR = $(LIBCSP_DIR)/src
-LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
-
 CC ?= gcc
 CFLAGS = -I$(LIBCSP_SRCDIR) -Ilib -Wall -pthread
-
-LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
-
 LFLAGS = -L$(LIBCSP_SRCDIR) -lcsp
+
+LIBCSP_DIR = libcsp
+LIBCSP_SRCDIR = $(LIBCSP_DIR)/src
+LIBFILES = $(LIBCSP_SRCDIR)/libcsp.a
+LIBINT = lib/libinterrupts.a
 
 SOURCES = $(wildcard *.c)
 TARGETS = $(SOURCES:.c=)
 
 all: $(TARGETS)
 
-libcsp.tar.gz:
-	wget https://github.com/arian/libcsp/archive/master.tar.gz -O libcsp.tar.gz
-
-$(LIBFILES): libcsp.tar.gz
-	if [ ! -d "$(LIBCSP_DIR)" ]; then tar -xvf $<; fi
+$(LIBFILES):
+	if [ ! -d "$(LIBCSP_DIR)" ]; then git clone https://github.com/arian/libcsp.git; fi
 	cd "$(LIBCSP_SRCDIR)" && touch depends.mk && $(MAKE)
 
-lib/libinterrupts.a:
+$(LIBINT):
 	$(CC) -c lib/interrupts.c -o lib/interrupts.o
 	ar cq $@ lib/interrupts.o
 
@@ -33,6 +28,6 @@ inputs: inputs.c lib/libinterrupts.a $(LIBFILES)
 	$(CC) $(CFLAGS) -o $@ $< $(LFLAGS)
 
 clean:
-	rm -rf libcsp.tar.gz $(LIBCSP_DIR) $(TARGETS)
+	rm -rf $(LIBCSP_DIR) $(LIBINT) $(TARGETS)
 
 .PHONY: clean all
