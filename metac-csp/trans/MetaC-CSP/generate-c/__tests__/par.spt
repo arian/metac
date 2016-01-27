@@ -66,8 +66,8 @@ test pass channels to sub-processes [[
 ]] build generate-c to "{
     Channel *c = NULL;
     {
+      Channel __c_csp_channel;
       if (c == NULL) {
-        Channel __c_csp_channel;
         c = &__c_csp_channel;
         CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
       }
@@ -84,5 +84,34 @@ test pass channels to sub-processes [[
       ProcPar(&a_proc_1, &b_proc_2, NULL);
       ProcInitClean(&a_proc_1);
       ProcInitClean(&b_proc_2);
+      c = NULL;
+    }
+  }"
+
+test initialize a non-blocking channel [[
+  buffered chan<int> c;
+  process b(chan<int> y) {}
+  void main() {
+    [[{
+      par { b(c); }
+    }]]
+  }
+]] build generate-c to "{
+    {
+      Channel __c_csp_channel;
+      signed int __c_csp_async_buffer;
+      if (c == NULL) {
+        c = &__c_csp_channel;
+        CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
+        CSP_chanSetAsync(c, &__c_csp_async_buffer);
+      }
+      Process b_proc_1;
+      b_ProcessArgs b_proc_1_args;
+      b_proc_1_args.y = c;
+      b_proc_1.args = &b_proc_1_args;
+      ProcInit(&b_proc_1, b, NULL, 0, 0);
+      ProcPar(&b_proc_1, NULL);
+      ProcInitClean(&b_proc_1);
+      c = NULL;
     }
   }"

@@ -24,56 +24,91 @@ rules
           )
         )
       )),
-      destroys
+      destroys,
+      nullify-chans
     ])
     where
-      chan-inits := <generate-create-chan-inits> processes
+      chan-inits := <generate-chans(generate-create-chan-init)> processes
       ; proc-inits := <map-with-index(generate-create-init-process)> processes
       ; proc-adresses := <map-with-index(\
           (i, CSPInvokeProcess(Identifier(name), _, state))
           -> Address(Var(Identifier(<concat-strings> [name, "_proc_", <int-to-string> i])))
         \)> processes
       ; destroys := <map-with-index(generate-destroy-process)> processes
+      ; nullify-chans := <generate-chans(generate-nullify-chan)> processes
 
-  generate-create-chan-inits =
+  generate-chans(s) =
     collect-all(?Var(_))
-    ; map(generate-create-chan-init <+ ![])
+    ; map(s <+ ![])
     ; flatten-list
 
   generate-create-chan-init:
     v@Var(Identifier(name))
-    -> If(
-      Equal(v, Null()),
-      CompoundStatement([
-        VarDeclaration(
-          [],
-          Type([], TypedefName(Identifier("Channel"))),
-          Decl(Identifier(temp-var-name)),
-          None()
-        ),
-        ExpressionStatement(Some(
-          Assign(
-            Var(Identifier(name)),
-            Assign(),
-            Address(Var(Identifier(temp-var-name)))
-          )
-        )),
-        ExpressionStatement(Some(
-          Call(
-            Var(Identifier("CSP_chanInit")),
-            [
+    -> [
+      VarDeclaration([],
+        Type([], TypedefName(Identifier("Channel"))),
+        Decl(Identifier(temp-var-name)),
+        None()
+      ),
+      async-buffer,
+      If(
+        Equal(v, Null()),
+        CompoundStatement(<flatten-list> [
+          ExpressionStatement(Some(
+            Assign(
               Var(Identifier(name)),
-              Var(Identifier("CSP_ONE2ONE_CHANNEL")),
-              Integer("0")
-            ]
-          )
-        ))
-      ])
-    )
+              Assign(),
+              Address(Var(Identifier(temp-var-name)))
+            )
+          )),
+          ExpressionStatement(Some(
+            Call(
+              Var(Identifier("CSP_chanInit")),
+              [
+                Var(Identifier(name)),
+                Var(Identifier("CSP_ONE2ONE_CHANNEL")),
+                Integer("0")
+              ]
+            )
+          )),
+          init-chan-buffer
+        ])
+      )
+    ]
     where
       <get-type ; ?CSPChan(_)> v
-      ; <get-storage ; debug> v
       ; temp-var-name := $[__[name]_csp_channel]
+      ; async-buffer := <generate-chan-async-buffer <+ ![]> v
+      ; init-chan-buffer := <generate-create-chan-init-buffer <+ ![]> v
+
+  generate-chan-async-buffer: v@Var(Identifier(name)) ->
+    VarDeclaration([], type, Decl(Identifier($[__[name]_csp_async_buffer])), None())
+    where
+      <generate-buffer-size> v
+      ; type := <get-type ; ?CSPChan(<id>)> v
+
+  generate-create-chan-init-buffer:
+    v@Var(Identifier(name))
+      -> ExpressionStatement(Some(Call(
+      Var(Identifier("CSP_chanSetAsync")),
+      [v, Address(Var(Identifier($[__[name]_csp_async_buffer])))]
+    )))
+    where
+      <generate-buffer-size> v
+      // TODO add support in libcsp for a buffer size != 1
+      ; type := <get-type ; ?CSPChan(<id>)> v
+
+  generate-buffer-size: v@Var(_)
+    -> <get-storage ; ?Storage(<id>) ; fetch-elem(generate-buffer-size)> v
+  generate-buffer-size: CSPBuffered() -> Integer("1")
+  generate-buffer-size: CSPBuffered(size) -> size
+
+  generate-nullify-chan: v@Var(_)
+   -> ExpressionStatement(Some(Assign(
+      v,
+      Assign(),
+      Null()
+   )))
 
   generate-create-init-process:
     (i, CSPInvokeProcess(proc-id@Identifier(name), args, states'))
