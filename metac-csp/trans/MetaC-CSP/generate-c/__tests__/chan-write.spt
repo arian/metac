@@ -1,0 +1,62 @@
+module chan-write
+
+language MetaC
+
+test write char to a channel [[
+  process f(chan<uint8> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt8(a, 1)"
+
+test write short to a channel [[
+  process f(chan<uint16> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt16(a, 1)"
+
+test write int to a channel [[
+  process f(chan<uint32> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt32(a, 1)"
+
+test write long to a channel [[
+  process f(chan<uint64> a) {
+    [[a ! 1]];
+  }
+]] build generate-c to "
+  CSP_chanOutInt64(a, 1)"
+
+test write some struct variable to a channel [[
+  struct X {};
+  process f(chan<struct X> a) {
+    struct X b;
+    [[a ! b]];
+  }
+]] build generate-c to "
+  CSP_chanOutCopy(a, &b, sizeof (struct X))"
+
+test write some struct pointer variable to a channel [[
+  struct X {};
+  process f(chan<struct X*> a) {
+    struct X *b;
+    [[a ! b]];
+  }
+]] build generate-c to "
+  CSP_chanOutCopy(a, &b, sizeof (struct X *))"
+
+test write some struct expression to a channel [[
+  struct X {struct X *x; };
+  process f(chan<struct X *> a) {
+    struct X *b;
+    [[{
+      a ! b->x;
+    }]]
+  }
+]] build generate-c-csp-test to "{
+    struct X *temp_var;
+    (temp_var = b->x, CSP_chanOutCopy(a, &temp_var, sizeof (struct X *)));
+  }"

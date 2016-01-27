@@ -1,0 +1,95 @@
+module alts
+
+language MetaC
+
+test alts without cases [[
+  process f() {
+    [[alts { }]]
+  }
+]] build generate-c to "{}"
+
+test alts single channel [[
+  process f(chan<int> c) {
+    int v;
+    [[alts {
+      case c: ;
+      case c ? v: v;
+    }]]
+  }
+]] build generate-c to "{
+    CSP_Alt_t alt;
+    Channel * clist[2];
+    clist[0] = c;
+    clist[1] = c;
+    CSP_altInit(&alt);
+    unsigned char selected = CSP_priAltSelect(&alt, clist, 2);
+    CSP_altClose(&alt);
+    switch (selected) {
+      case 0: {
+        {
+          signed int tmp;
+          (CSP_chanInCopy(c, &tmp, sizeof (signed int)), tmp);
+        }
+        ;
+        break;
+      }
+      case 1: {
+        (CSP_chanInCopy(c, &v, sizeof (signed int)), v);
+        v;
+        break;
+      }
+    }
+  }"
+
+test alt with a guard [[
+  process P(chan<int> c, chan<int> d, chan<int> e) {
+    int a = 1, b = 2, x;
+    alts {
+      case [a < b] c ? x: ;
+      case d: ;
+      case [1] e: ;
+    }
+  }
+]] build generate-c-csp-test to "
+  #include <csp.h>
+  typedef struct { Channel *c; Channel *d; Channel *e; } P_ProcessArgs;
+  typedef struct { signed int *a; signed int *b; } guard_env;
+  int guard_callback (void *__env__) {
+    guard_env *__env2__ = (guard_env*) __env__;
+    return *__env2__->a < *__env2__->b;
+  }
+  int guard_callback(void *__env__) {
+    return 1;
+  }
+  void P (Process *__csp_process__) {
+    P_ProcessArgs *args = __csp_process__->args;
+    Channel *c = args->c;
+    Channel *d = args->d;
+    Channel *e = args->e;
+    __csp_process_recurse: {
+      signed int a = 1;
+      signed int b = 2;
+      signed int x;
+      {
+        CSP_Alt_t alt;
+        Channel *clist[3];
+        guard_env guard_env_var = {&a, &b};
+        struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
+        c->altGuard = &guard;
+        clist[0] = c;
+        clist[1] = d;
+        void * guard_env_var = 0;
+        struct CSP_Alt_Guard guard = {&guard_callback, &guard_env_var};
+        e->altGuard = &guard;
+        clist[2] = e;
+        CSP_altInit(&alt);
+        unsigned char selected = CSP_priAltSelect(&alt, clist, 3);
+        CSP_altClose(&alt);
+        switch (selected) {
+          case 0: { (CSP_chanInCopy(c, &x, sizeof (signed int)), x); ; break ; }
+          case 1: { { signed int tmp; (CSP_chanInCopy(d, &tmp, sizeof (signed int)), tmp); } ; break ; }
+          case 2: { { signed int tmp; (CSP_chanInCopy(e, &tmp, sizeof (signed int)), tmp); } ; break ; }
+        }
+      }
+    }
+  }"
