@@ -39,7 +39,8 @@ rules
 
   generate-chans(s) =
     collect-all(?Var(_))
-    ; map(s <+ ![])
+    ; filter(\ var -> var where <get-type ; ?CSPChan(_)> var\)
+    ; map(s)
     ; flatten-list
 
   generate-create-chan-init:
@@ -76,8 +77,7 @@ rules
       )
     ]
     where
-      <get-type ; ?CSPChan(_)> v
-      ; temp-var-name := $[__[name]_csp_channel]
+      temp-var-name := $[__[name]_csp_channel]
       ; async-buffer := <generate-chan-async-buffer <+ ![]> v
       ; init-chan-buffer := <generate-create-chan-init-buffer <+ ![]> v
 
@@ -103,12 +103,19 @@ rules
   generate-buffer-size: CSPBuffered() -> Integer("1")
   generate-buffer-size: CSPBuffered(size) -> size
 
-  generate-nullify-chan: v@Var(_)
-   -> ExpressionStatement(Some(Assign(
-      v,
-      Assign(),
-      Null()
-   )))
+  generate-nullify-chan: v@Var(Identifier(name))
+    -> If(Equal(v, Address(Var(Identifier($[__[name]_csp_channel])))),
+      CompoundStatement([
+        ExpressionStatement(Some(Call(
+          Var(Identifier("CSP_chanClose")), [v]
+        ))),
+        ExpressionStatement(Some(Assign(
+          v,
+          Assign(),
+          Null()
+        )))
+      ])
+    )
 
   generate-create-init-process:
     (i, CSPInvokeProcess(proc-id@Identifier(name), args, states'))

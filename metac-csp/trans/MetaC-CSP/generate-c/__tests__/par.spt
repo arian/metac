@@ -59,17 +59,23 @@ test pass channels to sub-processes [[
   process b(chan<int> y) {}
   void main() {
     [[{
-      chan<int> c;
-      par { a(c); b(c); }
+      chan<int> c, d;
+      par { a(c); b(d); }
     }]]
   }
 ]] build generate-c to "{
     Channel *c = NULL;
+    Channel *d = NULL;
     {
       Channel __c_csp_channel;
       if (c == NULL) {
         c = &__c_csp_channel;
         CSP_chanInit(c, CSP_ONE2ONE_CHANNEL, 0);
+      }
+      Channel __d_csp_channel;
+      if (d == NULL) {
+        d = &__d_csp_channel;
+        CSP_chanInit(d, CSP_ONE2ONE_CHANNEL, 0);
       }
       Process a_proc_1;
       a_ProcessArgs a_proc_1_args;
@@ -78,22 +84,30 @@ test pass channels to sub-processes [[
       ProcInit(&a_proc_1, a, NULL, 0, 0);
       Process b_proc_2;
       b_ProcessArgs b_proc_2_args;
-      b_proc_2_args.y = c;
+      b_proc_2_args.y = d;
       b_proc_2.args = &b_proc_2_args;
       ProcInit(&b_proc_2, b, NULL, 0, 0);
       ProcPar(&a_proc_1, &b_proc_2, NULL);
       ProcInitClean(&a_proc_1);
       ProcInitClean(&b_proc_2);
-      c = NULL;
+      if (c == &__c_csp_channel) {
+        CSP_chanClose(c);
+        c = NULL;
+      }
+      if (d == &__d_csp_channel) {
+        CSP_chanClose(d);
+        d = NULL;
+      }
     }
   }"
 
 test initialize a non-blocking channel [[
   buffered chan<int> c;
-  process b(chan<int> y) {}
+  process b(chan<int> y, int z) {}
   void main() {
+    int x;
     [[{
-      par { b(c); }
+      par { b(c, x); }
     }]]
   }
 ]] build generate-c to "{
@@ -108,10 +122,14 @@ test initialize a non-blocking channel [[
       Process b_proc_1;
       b_ProcessArgs b_proc_1_args;
       b_proc_1_args.y = c;
+      b_proc_1_args.z = x;
       b_proc_1.args = &b_proc_1_args;
       ProcInit(&b_proc_1, b, NULL, 0, 0);
       ProcPar(&b_proc_1, NULL);
       ProcInitClean(&b_proc_1);
-      c = NULL;
+      if (c == &__c_csp_channel) {
+        CSP_chanClose(c);
+        c = NULL;
+      }
     }
   }"
