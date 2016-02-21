@@ -34,8 +34,8 @@ void test_local_bitfields_variable() {
 void test_pointer_bitfields() {
   uint32 a_;
   A *a = &a_;
-  (*a).a = 1;
-  assert((*a).a == 1);
+  a->a = 1;
+  assert(a->a == 1);
   puts("pointer bitfields variable successful\n");
 }
 

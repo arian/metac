@@ -52,8 +52,14 @@ rules
   gen-get-bitfields-type-internal: b@Bitfields(_, _) -> b
   gen-get-bitfields-type = oncetd(gen-get-bitfields-type-internal ; ?x) ; !x
 
-  // assignments using bitfields
+  // desugar pointer fields for generation
   generate01:
+    PointerField(lvalue, field) -> Field(Paren(Deref(lvalue)){(Type(), bitfield-type)}, field)
+    where
+      type := <get-type ; ?Pointer(bitfield-type@Bitfields(_, _))> lvalue
+
+  // assignments using bitfields
+  generate02:
     Assign(
       Field(lvalue, Identifier(field)),
       Assign(),
