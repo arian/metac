@@ -26,22 +26,28 @@ rules
       init
     ) -> VarDeclaration(
       storage,
-      Type(mods, type),
+      Type(mods, init-type),
       declarator,
       Some(initializer)
     )
     where
-      bitfields-type := <gen-get-bitfields-type> t
-      ; (initializer, type) := <gen-bitfields> (init, bitfields-type)
+      type' := <gen-get-bitfields-type> t
+      ; (initializer, init-type) := <gen-bitfields> (init, type')
 
   gen-bitfields: (None(), t) -> (
       Integer("0"),
-      <?Bitfields(_, <id>)
+      <topdown(try(
+        ?Bitfields(_, <id>)
         ; bitfields-int-size
-        ; gen-smallest-int-type> t
+        ; gen-smallest-int-type
+      ))> t
     )
 
-  gen-bitfields: (Some(i), _) -> (i, <get-type> i)
+  gen-bitfields: (Some(i), t) -> (i, <get-type> i)
+    where <not(oncetd(?x@Bitfields(_, _)))> t
+
+  gen-bitfields: (Some(i), t) -> (i, type)
+    where (_, type) := <gen-bitfields> (None(), t)
 
   gen-smallest-int-type: 8  -> UInt8()
   gen-smallest-int-type: 16 -> UInt16()
@@ -50,7 +56,7 @@ rules
 
   gen-get-bitfields-type-internal: t@TypedefName(_) -> <get-type ; gen-get-bitfields-type> t
   gen-get-bitfields-type-internal: b@Bitfields(_, _) -> b
-  gen-get-bitfields-type = oncetd(gen-get-bitfields-type-internal ; ?x) ; !x
+  gen-get-bitfields-type = topdown(try(gen-get-bitfields-type-internal))
 
   // desugar pointer fields for generation
   generate01:
