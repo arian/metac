@@ -80,7 +80,7 @@ rules
       [Goto(Identifier("__csp_process_recurse"))]
     )
     where
-      states := <get-process-state ; ?CSPStateParameterList(<id>) <+ ![]> var
+      states := <get-process-state ; (?CSPStateParameterList(<id>) <+ ![])> var
       ; new-states := <zip(generate-assign-state)> (states, args)
 
   // assign new state variables from the recursive process call

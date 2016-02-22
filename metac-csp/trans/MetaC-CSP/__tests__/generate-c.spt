@@ -2,6 +2,19 @@ module generate-c
 
 language MetaC
 
+test main function is untouched from goto recurse [[
+  void f() {}
+  int main() {
+    f();
+    return 0;
+  }
+]] build generate-c to "
+  void f() {}
+  signed int main() {
+    f();
+    return 0;
+  }"
+
 test declare channel variable and include csp.h header [[
   void f() {
     chan<int> c;
