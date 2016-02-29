@@ -7,46 +7,62 @@ test the bitfields declarations should be removed [[
     a: 2;
     b: 6;
   };
-]] build generate-c to ""
+]] build generate-c to "typedef unsigned char X;"
 
 test bitfield variable declaration [[
   bitfields X { a : 1; };
   void main() {
     X a;
   }
-]] build generate-c to "void main() {
-  unsigned char a = 0;
-}"
+]] build generate-c to "
+  typedef unsigned char X;
+  void main() { X a = 0; }"
 
-test bitfield variable declaration [[
+test bitfield variable declaration, init value is 0 [[
   bitfields X { a : 1; };
   void main() { X a; }
-]] build generate-c to "void main() { unsigned char a = 0; }"
+]] build generate-c to "
+  typedef unsigned char X;
+  void main() { X a = 0; }"
 
 test bitfield variable declaration, with more bits, so bigger int type [[
   bitfields X { a : 12; };
   void main() { X a; }
-]] build generate-c to "void main() { unsigned short a = 0; }"
+]] build generate-c to "typedef unsigned short X; void main() { X a = 0; }"
 
 test bitfield variable declaration, with 32, so int type [[
   bitfields X { a : 16; b : 16; };
   void main() { X a; }
 ]] build generate-c to "
-  void main() { unsigned int a = 0; }"
+  typedef unsigned int X;
+  void main() { X a = 0; }"
 
 test bitfield variable with initializer [[
   bitfields X { a : 16; b : 16; };
   void main() { X a = 15U; }
 ]] build generate-c to "
-  void main() { unsigned char a = 15U; }"
+  typedef unsigned int X;
+  void main() { X a = (X) 15U; }"
 
 test bitfield variable with initializer, pointer to another variable [[
   bitfields X { a : 16; b : 16; };
   void main() { uint32 a = 31; X *b = &a; }
 ]] build generate-c to "
+  typedef unsigned int X;
   void main() {
     unsigned int a = 31;
-    unsigned int *b = &a;
+    X *b = (X*) &a;
+  }"
+
+test bitfield variable with initializer, pointer to another bitfield [[
+  bitfields X { a : 16; b : 16; };
+  void main() { uint32 a = 31; X *b = &a; X *c = b; }
+]] build generate-c to "
+  typedef unsigned int X;
+  void main() {
+    unsigned int a = 31;
+    X *b = (X*) &a;
+    X *c = (X*) b;
   }"
 
 test set most right bit [[
@@ -56,8 +72,9 @@ test set most right bit [[
     a.b = 1;
   }
 ]] build generate-c to "
+  typedef unsigned char X;
   void main () {
-    unsigned char a = 0;
+    X a = 0;
     a = (a & ~(0x1 << 0) & 0xFF) | ((1 & 0x1) << 0);
   }"
 
@@ -68,8 +85,9 @@ test setting some bits [[
     a.a = 4;
   }
 ]] build generate-c to "
+  typedef unsigned char X;
   void main () {
-    unsigned char a = 0;
+    X a = 0;
     a = (a & ~(0x7 << 5) & 0xFF) | ((4 & 0x7) << 5);
   }"
 
@@ -80,8 +98,9 @@ test getting some bit [[
     a.a + a.c;
   }
 ]] build generate-c to "
+  typedef unsigned char X;
   void main () {
-    unsigned char a = 0;
+    X a = 0;
     (a >> 7 & 0x1) + (a >> 0 & 0x1F);
   }"
 
@@ -93,8 +112,9 @@ test using some bit in another expression [[
     int32 b = !a.a;
   }
 ]] build generate-c to "
+  typedef unsigned char X;
   void main () {
-    unsigned char a = 0;
+    X a = 0;
     a = (a & ~(0x1 << 0) & 0xFF) | ((1 & 0x1) << 0);
     signed int b = !(a >> 0 & 0x1);
   }"

@@ -15,48 +15,34 @@ rules
 
   // the bitfields declaration is only compiler information, won't be in the
   // C output
-  generate: Bitfields(_, _, _) -> []
-
-
-  // translate instantiations of the bitfields variables
-  generate01: VarDeclaration(
-      storage,
-      Type(mods, t),
-      declarator,
-      init
-    ) -> VarDeclaration(
-      storage,
-      Type(mods, init-type),
-      declarator,
-      Some(initializer)
-    )
+  generate01: Bitfields(name, _, size)
+    -> TypedefDeclaration(
+        Type([], type),
+        Decl(name)
+      )
     where
-      type' := <gen-get-bitfields-type> t
-      ; (initializer, init-type) := <gen-bitfields> (init, type')
-
-  gen-bitfields: (None(), t) -> (
-      Integer("0"),
-      <topdown(try(
-        ?Bitfields(_, <id>)
-        ; bitfields-int-size
-        ; gen-smallest-int-type
-      ))> t
-    )
-
-  gen-bitfields: (Some(i), t) -> (i, <get-type> i)
-    where <not(oncetd(?x@Bitfields(_, _)))> t
-
-  gen-bitfields: (Some(i), t) -> (i, type)
-    where (_, type) := <gen-bitfields> (None(), t)
+      type := <bitfields-int-size ; gen-smallest-int-type> size
 
   gen-smallest-int-type: 8  -> UInt8()
   gen-smallest-int-type: 16 -> UInt16()
   gen-smallest-int-type: 32 -> UInt32()
   gen-smallest-int-type: 64 -> UInt64()
 
+  // translate instantiations of the bitfields variables
+  generate01:
+    VarDeclaration(storage, t'@Type(mods, t), declarator, Some(init))
+    -> VarDeclaration(storage, t', declarator, Some(Cast(Type([], t), init)))
+    where <gen-has-bitfields-type> t
+
+  generate01:
+    VarDeclaration(storage, t'@Type(mods, t), declarator, None())
+    -> VarDeclaration(storage, t', declarator, Some(Integer("0")))
+    where <gen-has-bitfields-type> t
+
   gen-get-bitfields-type-internal: t@TypedefName(_) -> <get-type ; gen-get-bitfields-type> t
   gen-get-bitfields-type-internal: b@Bitfields(_, _) -> b
   gen-get-bitfields-type = topdown(try(gen-get-bitfields-type-internal))
+  gen-has-bitfields-type = gen-get-bitfields-type ; oncetd(?Bitfields(_, _))
 
   // desugar pointer fields for generation
   generate01:

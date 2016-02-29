@@ -9,3 +9,4 @@
 **/__tests__/*.gv.dot
 **/__tests__/*.pdf
 a.out
+*~
