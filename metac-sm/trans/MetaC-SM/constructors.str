@@ -14,3 +14,5 @@ signature constructors
   StateMachine: Identifier -> StateMachine
 
   Event: Index * Identifier * List(Parameter) -> Event
+
+  EventParams: List -> EventParams

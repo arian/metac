@@ -15,12 +15,29 @@ rules
       events := <filter(desugar-is-event)> eventsOrDecls
       ; decls := <filter(not(desugar-is-event))> eventsOrDecls
 
-  desugar: list@[l | _] -> <add-indices
-    ; map(add-index-to-event-def)
-    > list
+  desugar: list@[l | _]
+    -> events
     where
       <desugar-is-event> l
+      //; max := <map( \ Event(_, params) -> <length> params \ ) ; sum> list
+      ; events := <
+          add-indices
+          ; !(<id>, ([], 0))
+          ; foldl(desugar-fold-event-index-and-params-range)
+          ; Fst
+        > list
 
-  add-index-to-event-def:
-    (index, Event(name, params))
-    -> Event(<dec> index, name, params)
+  desugar-fold-event-index-and-params-range:
+    ((i, e@Event(name, params)), (l, num-ps))
+    -> (<conc> (l, [
+          Event(
+            <dec> i,
+            //EventRange(num-ps, end, max),
+            name,
+            EventParams(params)
+          )
+       ]),
+       end
+     )
+    where
+      end := <add> (num-ps, <length> params)

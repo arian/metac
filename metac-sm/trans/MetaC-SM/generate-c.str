@@ -11,7 +11,7 @@ imports
   BaseC/desugar/-
   BaseC/generate/functions
   signatures/MetaC-SM-sig
-  signatures/BaseC/-
+  signatures/BaseC-sig
 
 rules
 
@@ -20,6 +20,7 @@ rules
   generate-sm:
     sm@StateMachine(Identifier(name), InitState(Identifier(init)), decls, events, states) ->
     [
+      <gen-sm-event-params-struct> (name, events),
       <gen-sm-struct> (name, decls),
       <gen-sm-transition-func> (name, states'),
       <gen-sm-init> (name, init, states', decls),
@@ -29,6 +30,22 @@ rules
       states' := <gen-sm-local-vars> (states, sm)
 
   // struct
+
+  gen-sm-event-params-struct: (name, events)
+    -> Declaration(
+      [Typedef(), Struct(None(), struct-declarations)],
+      [Declarator(None(), Decl(Identifier(params-struct-name)))]
+    )
+    where
+      params-struct-name := $[[name]_EventParams]
+      ; all-params := <map(?Event(_, _, EventParams(<id>))) ; concat> events
+      ; struct-declarations := <map(gen-sm-struct-decl-from-parameter)> all-params
+
+  gen-sm-struct-decl-from-parameter:
+    FunDefinitionParameter(type, name)
+    -> StructDeclaration(<gen-Type> type, [<generate-Declarator> (name, type)])
+
+  // main state machine struct
 
   gen-sm-struct: (name, decls) ->
     Declaration(
@@ -42,6 +59,8 @@ rules
       )
 
   gen-sm-state-property = !"__sm_state__"
+  gen-sm-event = !"__sm_event__"
+  gen-sm-cont = !"__sm_cont__"
 
   gen-sm-variable:
     Declaration(type, [InitDeclarator(declarator, _)]) -> StructDeclaration(type, [declarator])
@@ -110,45 +129,66 @@ rules
       FunDeclarator(
         None(),
         Identifier(<conc-strings> (sa-name, "_exec")),
-        ParameterList(
-          <conc> (
-            [
-              // state machine instance
-              Parameter(
-                [TypedefName(Identifier(name))],
-                Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
-              ),
-              // which event fired
-              Parameter(
-                [Int()],
-                Declarator(None(), Decl(Identifier("event")))
-              )
-            ],
-            // additional event arguments
-            event-params
+        ParameterList([
+          // state machine instance
+          Parameter(
+            [TypedefName(Identifier(name))],
+            Declarator(Some(Pointer([], None())), Decl(Identifier("sm")))
+          ),
+          // which event fired
+          Parameter(
+            [Int()],
+            Declarator(None(), Decl(Identifier(<gen-sm-event>)))
+          ),
+          Parameter(
+            [TypedefName(Identifier($[[name]_EventParams]))],
+            Declarator(Some(Pointer([], None())), Decl(Identifier("event_args")))
           )
-        )
+        ])
       ),
       [],
-      CompoundStatement([
-        Declaration(
+      CompoundStatement(<concat> [
+        local-event-params-vars,
+        [Declaration(
           [Int()],
-          [InitDeclarator(Declarator(None(), Decl(Identifier("cont"))), Integer("1"))]
-        ), // int cont = 1;
-        While(Var(Identifier("cont")), CompoundStatement([ // while (cont) {}
+          [InitDeclarator(Declarator(None(), Decl(Identifier(<gen-sm-cont>))), Integer("1"))]
+        )], // int cont = 1;
+        local-event-params-assigns,
+        [While(Var(Identifier(<gen-sm-cont>)), CompoundStatement([ // while (cont) {}
           // cont = 0;
-          <gen-sm-assign-var> ("cont", Integer("0")),
+          <gen-sm-assign-var> (<gen-sm-cont>, Integer("0")),
           Switch(
             // switch (sm->state) {}
             PointerField(Var(Identifier("sm")), Identifier(<gen-sm-state-property>)),
             CompoundStatement(cases)
           )
-        ]))
+        ]))]
       ])
     )
     where
       sa-name := <strip-annos> name
-      ; event-params := <map(?Event(_, _, <id>)) ; concat ; map(generate-fn-param)> events
+      ; all-params := <map(?Event(_, _, EventParams(<id>))) ; concat> events
+      ; local-event-params-vars := <
+        map( \
+          FunDefinitionParameter(type, name)
+          -> Declaration(<gen-Type> type, [<generate-Declarator> (name, type)])
+        \ )> all-params
+      ; local-event-params-assigns := <
+        map-with-index( \
+          (i, Event(_, _, EventParams(params)))
+          -> <?[] ; !None() <+ !Some(If(
+            Equal(Var(Identifier(<gen-sm-event>)), Integer(<dec ; int-to-string> i)),
+            CompoundStatement(<map( \
+              FunDefinitionParameter(type, Decl(name))
+              -> ExpressionStatement(Some(Assign(
+                  Var(name),
+                  Assign(),
+                  PointerField(Var(Identifier("event_args")), name)
+                )))
+              \ )> params)
+          ))> params
+        \ )
+        ; filter(?Some(<id>))> events
       ; let apply(|i) = <gen-sm-state(|name, states, events)> (i, <id>)
           in cases := <nmap(apply | 0)> states
         end
@@ -180,7 +220,7 @@ rules
     where
       event-index := <get-event-index> event-name
       ; predicate := LogicalAnd(
-          Equal(Var(Identifier("event")), Integer(<int-to-string> event-index)),
+          Equal(Var(Identifier(<gen-sm-event>)), Integer(<int-to-string> event-index)),
           <gen-sm-guard> guard
         )
       ; new-state-index := <find-state-index> (new-state, states)
@@ -193,8 +233,8 @@ rules
           <conc> (
             <gen-sm-effect> effect,
             [
-              <gen-sm-assign-var> ("cont", Integer("1")),
-              <gen-sm-assign-var> ("event", Integer("-1")),
+              <gen-sm-assign-var> (<gen-sm-cont>, Integer("1")),
+              <gen-sm-assign-var> (<gen-sm-event>, Integer("-1")),
               ExpressionStatement(Some(Call(
                 Var(Identifier(<conc-strings> (sa-name, "_transition_to_state"))),
                 [Var(Identifier("sm")), Integer(new-state-index)]
@@ -264,15 +304,19 @@ rules
 
   // call site
 
-  generate: StateMachineVariable(name, var)
+  generate: StateMachineVariable(name, var@Identifier(var-name))
     -> [
       Declaration(
         [TypedefName(name)],
         [Declarator(None(), Decl(var))]
       ),
+      Declaration(
+        [TypedefName(Identifier($[[sa-name]_EventParams]))],
+        [Declarator(None(), Decl(Identifier($[[var-name]_event_args])))]
+      ),
       ExpressionStatement(Some(
         Call(
-          Var(Identifier(<conc-strings> (sa-name, "_init"))),
+          Var(Identifier($[[sa-name]_init])),
           [Address(Var(var))]
         )
       ))
@@ -280,14 +324,27 @@ rules
     where
       sa-name := <strip-annos ; ?Identifier(<id>)> name
 
-  generate: StateMachineTriggerEvent(e, event@Identifier(name), params)
-    -> Call(
-      Var(Identifier(<conc-strings> (sa-name, "_exec"))),
-      [Address(e), Integer(<int-to-string> index)]
-    )
+  generate: StateMachineTriggerEvent(e@Var(Identifier(var-name)), event@Identifier(name), args)
+    -> <?[] ; !expr <+ !Paren(Comma(expr, expressions))> expressions
     where
-      index := <get-event-index> name
-      ; sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
-
+      sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
+      ; params-var := Var(Identifier($[[var-name]_event_args]))
+      ; index := <get-event-index> name
+      ; params := <get-event-params ; ?EventParams(<id>)> name
+      ; assignments := <map-with-index( \
+          (i, FunDefinitionParameter(_, Decl(name)))
+          -> Assign(Field(params-var,name), Assign(), <index> (i, args)
+        ) \ )> params
+      ; [expr | expressions] := <conc> (
+          assignments,
+          [Call(
+            Var(Identifier(<conc-strings> (sa-name, "_exec"))),
+            [
+              Address(e),
+              Integer(<int-to-string> index),
+              Address(params-var)
+            ]
+          )]
+        )
 
   generate: StateMachineField(e, name) -> Field(e, name)

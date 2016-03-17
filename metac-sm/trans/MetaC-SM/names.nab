@@ -12,6 +12,7 @@ namespaces
 properties
 
   event-index of Event: EventIndex
+  event-params of Event: EventParamsStart
 
 binding rules
 
@@ -22,9 +23,10 @@ binding rules
   InitState(Identifier(init)):
     refers to State init
 
-  Event(index, Identifier(name), _):
+  Event(index, Identifier(name), params):
     defines Event name
     of event-index index
+    of event-params params
 
   State(Identifier(state), _, _):
     defines State state

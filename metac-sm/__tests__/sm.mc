@@ -7,17 +7,18 @@ statemachine X {
 
   enum state state;
   uint8 calibrated;
+  uint8 speed;
 
   event onoff();
   event calibrate();
-  event fly();
+  event fly(uint8 input_speed);
   event land();
 
   state on {
     entry { state = on; }
     on onoff -> off;
     on calibrate -> calibrate;
-    on fly [calibrated == 1] -> flying;
+    on fly [calibrated == 1] / speed = input_speed; -> flying;
   }
 
   state calibrate {
@@ -49,7 +50,7 @@ int32 main() {
   assert(x|>state == on);
 
   // can't go to flying if it's not calibrated
-  x<|fly();
+  x<|fly(10);
   assert(x|>state == on);
 
   // calibrate, directly go to the on state again
@@ -58,8 +59,9 @@ int32 main() {
   assert(x|>calibrated == 1);
 
   // now we can go to flying
-  x<|fly();
+  x<|fly(20);
   assert(x|>state == flying);
+  assert(x|>speed == 20);
 
   x<|land();
   assert(x|>state == on);
