@@ -18,6 +18,11 @@ int main() {
   // zet veld naar waarde 1
   a.z = 1;
 
+  uint8 x = 1;
+  A b = a;
+
+  b.x = 3;
+
   // test dat de bit inderdaad is aangepast
   assert(a == 1);
   // veld x met 3 bits krijgt waarde 6
