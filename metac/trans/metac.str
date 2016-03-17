@@ -52,7 +52,7 @@ rules // Analysis
     )
 
   has-test-file =
-    fetch(?File(<id>, _, _) ; is-source-ast-test ; debug)
+    fetch(?File(<id>, _, _) ; is-source-ast-test)
 
   metac-test-collect(s|lang, source, h, l) = id
 
