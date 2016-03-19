@@ -8,6 +8,7 @@ imports
   runtime/nabl/-
   MetaC-SM/constructors
   names/MetaC-SM/names
+  names/BaseC/names/variables
   BaseC/desugar/-
   BaseC/generate/functions
   signatures/MetaC-SM-sig
@@ -18,8 +19,8 @@ rules
   generate = generate-sm
 
   generate-sm:
-    sm@StateMachine(Identifier(name), InitState(Identifier(init)), decls, events, states) ->
-    [
+    sm@StateMachine(Identifier(name), InitState(Identifier(init)), decls, EventsList(events), states)
+    -> <flatten-list> [
       <gen-sm-event-params-struct> (name, events),
       <gen-sm-struct> (name, decls),
       <gen-sm-transition-func> (name, states'),
@@ -31,15 +32,23 @@ rules
 
   // struct
 
+  gen-sm-events-have-params =
+    map(?Event(_, _, EventParams(<id>)))
+    ; concat
+    ; ?[_ | _]
+
   gen-sm-event-params-struct: (name, events)
     -> Declaration(
       [Typedef(), Struct(None(), struct-declarations)],
       [Declarator(None(), Decl(Identifier(params-struct-name)))]
     )
     where
-      params-struct-name := $[[name]_EventParams]
+      <gen-sm-events-have-params> events
+      ; params-struct-name := $[[name]_EventParams]
       ; all-params := <map(?Event(_, _, EventParams(<id>))) ; concat> events
       ; struct-declarations := <map(gen-sm-struct-decl-from-parameter)> all-params
+
+  gen-sm-event-params-struct: (name, _) -> []
 
   gen-sm-struct-decl-from-parameter:
     FunDefinitionParameter(type, name)
@@ -129,7 +138,7 @@ rules
       FunDeclarator(
         None(),
         Identifier(<conc-strings> (sa-name, "_exec")),
-        ParameterList([
+        ParameterList(<flatten-list> [
           // state machine instance
           Parameter(
             [TypedefName(Identifier(name))],
@@ -140,10 +149,10 @@ rules
             [Int()],
             Declarator(None(), Decl(Identifier(<gen-sm-event>)))
           ),
-          Parameter(
+          <(gen-sm-events-have-params ; !Parameter(
             [TypedefName(Identifier($[[name]_EventParams]))],
             Declarator(Some(Pointer([], None())), Decl(Identifier("event_args")))
-          )
+          )) <+ ![]> events
         ])
       ),
       [],
@@ -294,7 +303,9 @@ rules
 
   gen-sm-local-var(|sm): var@Var(Identifier(name)) -> res
     where
-      parent-uri := <nabl-uri ; nabl-uri-parent> name
+      uri := <nabl-uri> name
+      ; <nabl-uri-namespace-eq(|NablNsVariable())> uri
+      ; parent-uri := <nabl-uri-parent> uri
       ; sm-uri := <nabl-get-name ; nabl-uri> sm
       ; if <nabl-uri-eq> (parent-uri, sm-uri) then
           res := <gen-sm-pointer-field> ("sm", name)
@@ -304,16 +315,16 @@ rules
 
   // call site
 
-  generate: StateMachineVariable(name, var@Identifier(var-name))
-    -> [
+  generate: StateMachineVariable(name@Identifier(sm-name), var@Identifier(var-name))
+    -> <flatten-list> [
       Declaration(
         [TypedefName(name)],
         [Declarator(None(), Decl(var))]
       ),
-      Declaration(
+      <(gen-sm-events-have-params ; !Declaration(
         [TypedefName(Identifier($[[sa-name]_EventParams]))],
         [Declarator(None(), Decl(Identifier($[[var-name]_event_args])))]
-      ),
+      )) <+ ![]> events,
       ExpressionStatement(Some(
         Call(
           Var(Identifier($[[sa-name]_init])),
@@ -322,12 +333,14 @@ rules
       ))
     ]
     where
-      sa-name := <strip-annos ; ?Identifier(<id>)> name
+      sa-name := <strip-annos> sm-name
+      ; events := <get-sm-events ; ?EventsList(<id>)> sm-name
 
   generate: StateMachineTriggerEvent(e@Var(Identifier(var-name)), event@Identifier(name), args)
     -> <?[] ; !expr <+ !Paren(Comma(expr, expressions))> expressions
     where
-      sa-name := <get-type ; ?StateMachine(<id>) ; strip-annos> e
+      sa-name := <get-type ; ?StateMachine(<id>)> e
+      ; events := <get-sm-events ; ?EventsList(<id>)> sa-name
       ; params-var := Var(Identifier($[[var-name]_event_args]))
       ; index := <get-event-index> name
       ; params := <get-event-params ; ?EventParams(<id>)> name
@@ -339,11 +352,13 @@ rules
           assignments,
           [Call(
             Var(Identifier(<conc-strings> (sa-name, "_exec"))),
-            [
-              Address(e),
-              Integer(<int-to-string> index),
-              Address(params-var)
-            ]
+            <conc> (
+              [
+                Address(e),
+                Integer(<int-to-string> index)
+              ],
+              <(gen-sm-events-have-params ; ![Address(params-var)]) <+ ![]> events
+            )
           )]
         )
 

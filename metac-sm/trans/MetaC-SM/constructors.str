@@ -15,4 +15,6 @@ signature constructors
 
   Event: Index * Identifier * List(Parameter) -> Event
 
+  EventsList: List(Event) -> EventsList
+
   EventParams: List -> EventParams

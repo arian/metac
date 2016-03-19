@@ -3,6 +3,7 @@ module MetaC-SM/names
 imports
 
   BaseC/names/variables
+  BaseC/names/functions
   MetaC-SM/-
 
 namespaces
@@ -13,12 +14,14 @@ properties
 
   event-index of Event: EventIndex
   event-params of Event: EventParamsStart
+  sm-events of StateMachine: StateMachineEvents
 
 binding rules
 
-  StateMachine(Identifier(name), _, _, _, _):
+  StateMachine(Identifier(name), _, _, events, _):
     defines StateMachine name
-    scopes Variable, Event, State
+    of sm-events events
+    scopes Variable, Parameter, Event, State
 
   InitState(Identifier(init)):
     refers to State init

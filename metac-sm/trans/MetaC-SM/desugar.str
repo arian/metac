@@ -10,7 +10,7 @@ rules
   desugar-is-event: e@Event(_, _) -> e
 
   desugar01: StateMachine(name, init, eventsOrDecls, states)
-    -> StateMachine(name, init, decls, events, states)
+    -> StateMachine(name, init, decls, EventsList(events), states)
     where
       events := <filter(desugar-is-event)> eventsOrDecls
       ; decls := <filter(not(desugar-is-event))> eventsOrDecls

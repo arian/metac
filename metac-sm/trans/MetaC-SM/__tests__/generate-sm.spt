@@ -17,10 +17,10 @@ test generate minimal state machine C code [[
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           {
@@ -48,10 +48,10 @@ test generate minimal two states [[
   void X_init(X *sm) {
     X_transition_to_state(sm, 1);
   }
-  void X_exec(X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec(X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           { break ; }
@@ -83,10 +83,10 @@ test sm with epsilon transition [[
   void X_init(X *sm) {
     X_transition_to_state(sm, 1);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           { break ;
@@ -94,14 +94,14 @@ test sm with epsilon transition [[
         case 1:
           {
             if (1 < 2) {
-              cont = 1;
-              event = -1;
+              __sm_cont__ = 1;
+              __sm_event__ = -1;
               X_transition_to_state(sm, 0);
               break ;
             }
             if (1) {
-              cont = 1;
-              event = -1;
+              __sm_cont__ = 1;
+              __sm_event__ = -1;
               X_transition_to_state(sm, 2);
               break ;
             }
@@ -122,7 +122,15 @@ test sm with transition with params [[
     }
     state end {}
   }
+  void f() {
+    statemachine X x;
+    x<|foo(1, 2);
+  }
 ]] build generate-c to "
+  typedef struct {
+    signed int a;
+    signed int b;
+  } X_EventParams;
   typedef struct {
     int __sm_state__;
   } X;
@@ -132,17 +140,23 @@ test sm with transition with params [[
   void X_init(X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event, signed int a, signed int b) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__, X_EventParams * event_args) {
+    signed int a;
+    signed int b;
+    int __sm_cont__ = 1;
+    if (__sm_event__ == 0) {
+      a = event_args->a;
+      b = event_args->b;
+    }
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           {
-            if (event == 0 && 1 > 2) {
+            if (__sm_event__ == 0 && 1 > 2) {
               1;
-              cont = 1;
-              event = -1;
+              __sm_cont__ = 1;
+              __sm_event__ = -1;
               X_transition_to_state(sm, 1);
               break ;
             }
@@ -152,6 +166,12 @@ test sm with transition with params [[
           { break ; }
       }
     }
+  }
+  void f() {
+    X x;
+    X_EventParams x_event_args;
+    X_init(&x);
+    (x_event_args.a = 1, x_event_args.b = 2, X_exec(&x, 0, &x_event_args));
   }"
 
 test sm with local variables [[
@@ -171,10 +191,10 @@ test sm with local variables [[
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           { break ; }
@@ -207,10 +227,10 @@ test sm state with an entry [[
   void X_init(X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           { break ; }
@@ -236,10 +256,10 @@ test init statemachine code [[
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           {
@@ -276,16 +296,16 @@ test statemachine trigger event without params [[
   void X_init (X *sm) {
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           {
-            if (event == 0 && 1) {
-              cont = 1;
-              event = -1;
+            if (__sm_event__ == 0 && 1) {
+              __sm_cont__ = 1;
+              __sm_event__ = -1;
               X_transition_to_state(sm, 0);
               break ;
             }
@@ -334,16 +354,16 @@ test statemachine with local vars [[
     sm->b = 0;
     X_transition_to_state(sm, 0);
   }
-  void X_exec (X *sm, int event) {
-    int cont = 1;
-    while (cont) {
-      cont = 0;
+  void X_exec (X *sm, int __sm_event__) {
+    int __sm_cont__ = 1;
+    while (__sm_cont__) {
+      __sm_cont__ = 0;
       switch (sm->__sm_state__) {
         case 0:
           {
-            if (event == 0 && sm->b > a) {
-              cont = 1;
-              event = -1;
+            if (__sm_event__ == 0 && sm->b > a) {
+              __sm_cont__ = 1;
+              __sm_event__ = -1;
               X_transition_to_state(sm, 0);
               break ;
             }
